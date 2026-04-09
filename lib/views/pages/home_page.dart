@@ -1,6 +1,7 @@
 import 'package:beepbeep_prototype/controller/google_auth.dart';
 import 'package:beepbeep_prototype/views/pages/sign_in_page.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -10,6 +11,14 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  late GoogleMapController mapController;
+
+  final LatLng _center = const LatLng(45.521563, -122.677433);
+
+  void _onMapCreated(GoogleMapController controller) {
+    mapController = controller;
+  }
+
   Future<void> _handleSignOut() async {
     try {
       await signOut();
@@ -27,8 +36,9 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.greenAccent,
       appBar: AppBar(
-        title: const Text('Home Page'),
+        title: const Text('Google Maps Integration'),
         actions: [
           IconButton(
             onPressed: _handleSignOut,
@@ -36,7 +46,12 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      body: const Center(child: Text('Welcome to the Home Page!')),
+      body: SafeArea(
+        child: GoogleMap(
+          onMapCreated: _onMapCreated,
+          initialCameraPosition: CameraPosition(target: _center, zoom: 11.0),
+        ),
+      ),
     );
   }
 }
