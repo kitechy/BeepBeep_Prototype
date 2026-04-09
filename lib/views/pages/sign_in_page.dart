@@ -1,3 +1,5 @@
+import 'package:beepbeep_prototype/controller/google_auth.dart';
+import 'package:beepbeep_prototype/views/pages/home_page.dart';
 import 'package:beepbeep_prototype/views/widgets/elevatedbtn_widget.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -37,6 +39,22 @@ class _SigninScreenState extends State<SigninPage>
   void dispose() {
     _buttonController.dispose();
     super.dispose();
+  }
+
+  Future<void> _handleGoogleSignIn() async {
+    try {
+      // Call the signInWithGoogle function from your controller
+      await signInWithGoogle();
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomePage()),
+      );
+    } catch (e) {
+      // Handle errors (e.g., show a snackbar with the error message)
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Google Sign-In failed: $e')));
+    }
   }
 
   @override
@@ -86,7 +104,7 @@ class _SigninScreenState extends State<SigninPage>
                       text: 'Continue with Google',
                       bgColor: const Color(0xffFFFFFF),
                       textColor: const Color(0xff000000),
-                      onPressed: () {},
+                      onPressed: _handleGoogleSignIn,
                       fontSize: screenWidth * 0.03,
                       fontWeight: FontWeight.bold,
                       width: screenWidth * 0.8,
