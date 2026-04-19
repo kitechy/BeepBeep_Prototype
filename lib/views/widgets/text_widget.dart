@@ -9,6 +9,7 @@ class TextWidget extends StatelessWidget {
     this.color = Colors.black,
     this.fontWeight,
     this.decoration,
+    this.textStyle,
   });
 
   final String text;
@@ -17,19 +18,22 @@ class TextWidget extends StatelessWidget {
   final Color color;
   final FontWeight? fontWeight;
   final TextDecoration? decoration;
+  final TextStyle? textStyle;
 
   @override
   Widget build(BuildContext context) {
     return Text(
       text,
       textAlign: TextAlign.center,
-      style: TextStyle(
-        fontSize: fontSize,
-        height: lineHeight,
-        color: color,
-        fontWeight: fontWeight,
-        decoration: decoration,
-      ),
+      style:
+          textStyle ??
+          TextStyle(
+            fontSize: fontSize,
+            height: lineHeight,
+            color: color,
+            fontWeight: fontWeight,
+            decoration: decoration,
+          ),
     );
   }
 }

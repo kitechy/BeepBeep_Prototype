@@ -1,19 +1,19 @@
 import 'package:beepbeep_prototype/controller/google_auth.dart';
-import 'package:beepbeep_prototype/views/pages/home_page.dart';
+import 'package:beepbeep_prototype/views/pages/role_selection_page.dart';
 import 'package:beepbeep_prototype/views/widgets/elevatedbtn_widget.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class SigninPage extends StatefulWidget {
-  const SigninPage({super.key});
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
 
   @override
-  State<SigninPage> createState() => _SigninScreenState();
+  State<LoginPage> createState() => _SigninScreenState();
 }
 
-class _SigninScreenState extends State<SigninPage>
+class _SigninScreenState extends State<LoginPage>
     with TickerProviderStateMixin {
   late final AnimationController _buttonController;
   late final Animation<double> _buttonFade;
@@ -47,7 +47,7 @@ class _SigninScreenState extends State<SigninPage>
       await signInWithGoogle();
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const HomePage()),
+        MaterialPageRoute(builder: (context) => const RoleSelectionPage()),
       );
     } catch (e) {
       // Handle errors (e.g., show a snackbar with the error message)

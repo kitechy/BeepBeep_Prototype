@@ -1,5 +1,7 @@
 import 'package:beepbeep_prototype/firebase_options.dart';
-import 'package:beepbeep_prototype/views/pages/sign_in_page.dart';
+import 'package:beepbeep_prototype/views/pages/commuter_home_page.dart';
+import 'package:beepbeep_prototype/views/pages/login_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -23,7 +25,27 @@ class MyApp extends StatelessWidget {
         textTheme: GoogleFonts.openSansTextTheme(),
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xffFFFFFF)),
       ),
-      home: const SigninPage(),
+      home: AuthWrapper(),
+    );
+  }
+}
+
+class AuthWrapper extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Scaffold(body: Center(child: CircularProgressIndicator()));
+        }
+
+        if (snapshot.hasData) {
+          return CommuterHomePage();
+        }
+
+        return LoginPage();
+      },
     );
   }
 }
