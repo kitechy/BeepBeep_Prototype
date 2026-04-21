@@ -1,6 +1,5 @@
 import 'package:beepbeep_prototype/controller/google_auth.dart';
 import 'package:beepbeep_prototype/views/pages/login_page.dart';
-import 'package:beepbeep_prototype/views/widgets/elevatedbtn_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -40,10 +39,12 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
     final screenWidth = size.width;
     final screenHeight = size.height;
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        backgroundColor: Color(0xff0000FF),
+        backgroundColor: Colors.transparent,
         iconTheme: IconThemeData(color: Color(0xffFFFFFF)),
       ),
+      drawer: Drawer(),
       body: GoogleMap(
         onMapCreated: _onMapCreated,
         initialCameraPosition: CameraPosition(target: legazpiCity, zoom: 12.0),

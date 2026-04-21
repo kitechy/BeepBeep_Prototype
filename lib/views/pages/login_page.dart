@@ -43,14 +43,12 @@ class _SigninScreenState extends State<LoginPage>
 
   Future<void> _handleGoogleSignIn() async {
     try {
-      // Call the signInWithGoogle function from your controller
       await signInWithGoogle();
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const RoleSelectionPage()),
       );
     } catch (e) {
-      // Handle errors (e.g., show a snackbar with the error message)
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Google Sign-In failed: $e')));
