@@ -33,7 +33,7 @@ class RoleContainerWidget extends StatelessWidget {
       width: screenWidth * 0.8,
       height: screenHeight * 0.15,
       decoration: BoxDecoration(
-        border: Border.all(color: borderColor, width: 3),
+        border: Border.all(color: borderColor, width: 2),
         color: bgColor,
         borderRadius: BorderRadius.circular(10),
       ),

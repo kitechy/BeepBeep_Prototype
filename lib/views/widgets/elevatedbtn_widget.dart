@@ -12,8 +12,8 @@ class ElevatedButtonWidget extends StatelessWidget {
     required this.fontWeight,
     required this.width,
     required this.height,
-    required this.iconWidth,
-    required this.iconHeight,
+    this.iconWidth,
+    this.iconHeight,
     this.svgPath,
     this.icon,
   });
@@ -23,8 +23,8 @@ class ElevatedButtonWidget extends StatelessWidget {
   final VoidCallback onPressed;
   final double width;
   final double height;
-  final double iconWidth;
-  final double iconHeight;
+  final double? iconWidth;
+  final double? iconHeight;
   final double fontSize;
   final FontWeight fontWeight;
   final String? svgPath;

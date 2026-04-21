@@ -1,4 +1,5 @@
 import 'package:beepbeep_prototype/views/pages/commuter_home_page.dart';
+import 'package:beepbeep_prototype/views/widgets/elevatedbtn_widget.dart';
 import 'package:beepbeep_prototype/views/widgets/role_container_widget.dart';
 import 'package:beepbeep_prototype/views/widgets/text_widget.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +13,8 @@ class RoleSelectionPage extends StatefulWidget {
 }
 
 class _RoleSelectionPageState extends State<RoleSelectionPage> {
+  String selectedRole = "";
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -35,36 +38,44 @@ class _RoleSelectionPageState extends State<RoleSelectionPage> {
               SizedBox(height: screenHeight * 0.08),
               GestureDetector(
                 onTap: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const CommuterHomePage(),
-                    ),
-                  );
+                  setState(() {
+                    selectedRole = "Commuter";
+                  });
                 },
                 child: RoleContainerWidget(
-                  borderColor: Color(0xff000000),
+                  borderColor: selectedRole == "Commuter"
+                      ? Color(0xff0000FF)
+                      : Colors.grey,
                   bgColor: Color(0xffFFFFFF),
                   text: 'Commuter',
                   roleTextColor: Color(0xff000000),
-                  description: 'I want to look for rides.',
+                  description: "I'm looking for a ride.",
                   roleDescriptionColor: Color(0xff000000),
                   svgPath: 'assets/images/Commuter.svg',
                 ),
               ),
               SizedBox(height: screenHeight * 0.03),
-              RoleContainerWidget(
-                borderColor: Color(0xff000000),
-                bgColor: Color(0xffFFFFFF),
-                text: 'Driver',
-                roleTextColor: Color(0xff000000),
-                description: 'I offer a ride.',
-                roleDescriptionColor: Color(0xff000000),
-                svgPath: 'assets/images/Driver.svg',
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    selectedRole = "Driver";
+                  });
+                },
+                child: RoleContainerWidget(
+                  borderColor: selectedRole == "Driver"
+                      ? Color(0xff0000FF)
+                      : Colors.grey,
+                  bgColor: Color(0xffFFFFFF),
+                  text: 'Driver',
+                  roleTextColor: Color(0xff000000),
+                  description: 'I offer a ride.',
+                  roleDescriptionColor: Color(0xff000000),
+                  svgPath: 'assets/images/Driver.svg',
+                ),
               ),
               SizedBox(height: screenHeight * 0.03),
               TextWidget(
-                text: 'Or are you an',
+                text: 'Or',
                 textStyle: GoogleFonts.montaguSlab(
                   fontSize: 18 * screenWidth / 375,
                   fontWeight: FontWeight.w500,
@@ -72,14 +83,45 @@ class _RoleSelectionPageState extends State<RoleSelectionPage> {
                 fontSize: 24 * screenWidth / 375,
               ),
               SizedBox(height: screenHeight * 0.03),
-              RoleContainerWidget(
-                borderColor: Color(0xff000000),
-                bgColor: Color(0xffFFFFFF),
-                text: 'Operator',
-                roleTextColor: Color(0xff000000),
-                description: 'I monitor rides.',
-                roleDescriptionColor: Color(0xff000000),
-                svgPath: 'assets/images/Operator.svg',
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    selectedRole = "Operator";
+                  });
+                },
+                child: RoleContainerWidget(
+                  borderColor: selectedRole == "Operator"
+                      ? Color(0xff0000FF)
+                      : Colors.grey,
+                  bgColor: Color(0xffFFFFFF),
+                  text: 'Operator',
+                  roleTextColor: Color(0xff000000),
+                  description: 'I monitor rides.',
+                  roleDescriptionColor: Color(0xff000000),
+                  svgPath: 'assets/images/Operator.svg',
+                ),
+              ),
+              SizedBox(height: screenHeight * 0.05),
+              ElevatedButtonWidget(
+                text: 'Continue',
+                bgColor: Color(0xff0000FF),
+                textColor: Color(0xffFFFFFF),
+                onPressed: () {
+                  if (selectedRole == "Commuter") {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const CommuterHomePage(),
+                      ),
+                    );
+                  }
+                },
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                width: screenWidth * 0.8,
+                height: screenHeight * 0.06,
+                iconWidth: null,
+                iconHeight: null,
               ),
             ],
           ),
