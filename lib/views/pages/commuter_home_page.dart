@@ -1,5 +1,6 @@
 import 'package:beepbeep_prototype/controller/google_auth.dart';
 import 'package:beepbeep_prototype/views/pages/login_page.dart';
+import 'package:beepbeep_prototype/views/routes/routes.dart';
 import 'package:beepbeep_prototype/views/widgets/elevatedbtn_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -36,9 +37,9 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // final size = MediaQuery.of(context).size;
-    // final screenWidth = size.width;
-    // final screenHeight = size.height;
+    final size = MediaQuery.of(context).size;
+    final screenWidth = size.width;
+    final screenHeight = size.height;
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -95,10 +96,34 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
           ],
         ),
       ),
-      body: GoogleMap(
-        onMapCreated: _onMapCreated,
-        initialCameraPosition: CameraPosition(target: _center, zoom: 13.0),
-        zoomControlsEnabled: false,
+      body: Stack(
+        children: [
+          GoogleMap(
+            onMapCreated: _onMapCreated,
+            initialCameraPosition: CameraPosition(target: _center, zoom: 13.0),
+            zoomControlsEnabled: false,
+          ),
+          Positioned(
+            bottom: 50,
+            left: 20,
+            right: 20,
+            child: ElevatedButtonWidget(
+              text: 'Change route',
+              bgColor: Color(0xffFFFFFF),
+              textColor: Color(0xff0000FF),
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  builder: (context) => const Routes(),
+                );
+              },
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              width: screenWidth,
+              height: screenHeight * 0.08,
+            ),
+          ),
+        ],
       ),
     );
   }
