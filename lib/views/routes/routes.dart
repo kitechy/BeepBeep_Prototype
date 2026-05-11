@@ -26,8 +26,7 @@ class Routes extends StatelessWidget {
               onPressed: () {},
               fontSize: 24.sp,
               fontWeight: FontWeight.normal,
-              width: 1.sw,
-              height: 0.08.sh,
+
               borderColor: Color(0xffffffff),
             ),
             SizedBox(height: 18.h),
@@ -38,8 +37,7 @@ class Routes extends StatelessWidget {
               onPressed: () {},
               fontSize: 24.sp,
               fontWeight: FontWeight.normal,
-              width: 1.sw,
-              height: 0.08.sh,
+
               borderColor: Color(0xfffffffff),
             ),
             SizedBox(height: 18.h),
@@ -50,8 +48,7 @@ class Routes extends StatelessWidget {
               onPressed: () {},
               fontSize: 24.sp,
               fontWeight: FontWeight.normal,
-              width: 1.sw,
-              height: 0.08.sh,
+
               borderColor: Color(0xff0000FF),
             ),
           ],

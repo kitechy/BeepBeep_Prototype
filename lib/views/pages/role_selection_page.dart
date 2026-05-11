@@ -116,8 +116,7 @@ class _RoleSelectionPageState extends State<RoleSelectionPage> {
               },
               fontSize: 16.sp,
               fontWeight: FontWeight.bold,
-              width: 0.8.sw,
-              height: 0.15.sh,
+
               iconWidth: null,
               iconHeight: null,
               borderColor: Color(0xff0000FF),

@@ -11,8 +11,6 @@ class ElevatedButtonWidget extends StatelessWidget {
     required this.onPressed,
     required this.fontSize,
     required this.fontWeight,
-    required this.width,
-    required this.height,
     this.iconWidth,
     this.iconHeight,
     this.svgPath,
@@ -25,8 +23,7 @@ class ElevatedButtonWidget extends StatelessWidget {
   final Color textColor;
   final Color borderColor;
   final VoidCallback onPressed;
-  final double width;
-  final double height;
+
   final double? iconWidth;
   final double? iconHeight;
   final double fontSize;

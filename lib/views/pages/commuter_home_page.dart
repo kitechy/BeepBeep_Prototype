@@ -68,8 +68,7 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
               },
               fontSize: 18.sp,
               fontWeight: FontWeight.bold,
-              width: 0.8.sw,
-              height: 0.05.sh,
+
               borderColor: Color(0xff0000ff),
             ),
           ),
