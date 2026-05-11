@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 
 class ElevatedButtonWidget extends StatelessWidget {
@@ -16,10 +17,13 @@ class ElevatedButtonWidget extends StatelessWidget {
     this.iconHeight,
     this.svgPath,
     this.icon,
+    required this.borderColor,
+    this.iconColor,
   });
   final String text;
   final Color bgColor;
   final Color textColor;
+  final Color borderColor;
   final VoidCallback onPressed;
   final double width;
   final double height;
@@ -29,31 +33,30 @@ class ElevatedButtonWidget extends StatelessWidget {
   final FontWeight fontWeight;
   final String? svgPath;
   final Icon? icon;
+  final Color? iconColor;
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: width,
-      height: height,
-      child: ElevatedButton(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: bgColor,
-          foregroundColor: textColor,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (svgPath != null && icon == null) ...[
-              SvgPicture.asset(svgPath!, width: iconWidth, height: iconHeight),
-              const SizedBox(width: 20),
-            ],
-            if (icon != null) ...[icon!, const SizedBox(width: 20)],
-            Text(
-              text,
-              style: TextStyle(fontSize: fontSize, fontWeight: fontWeight),
-            ),
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        minimumSize: Size(double.infinity, 75.h),
+        backgroundColor: bgColor,
+        foregroundColor: textColor,
+        side: BorderSide(color: borderColor, width: 1.w),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (svgPath != null && icon == null) ...[
+            SvgPicture.asset(svgPath!, width: iconWidth, height: iconHeight),
+            SizedBox(width: 20.w),
           ],
-        ),
+          if (icon != null) ...[icon!, SizedBox(width: 20.w)],
+          Text(
+            text,
+            style: TextStyle(fontSize: fontSize, fontWeight: fontWeight),
+          ),
+        ],
       ),
     );
   }

@@ -1,22 +1,20 @@
 import 'package:beepbeep_prototype/views/widgets/elevatedbtn_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class Routes extends StatelessWidget {
   const Routes({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final screenWidth = size.width;
-    final screenHeight = size.height;
     return Container(
-      height: 500,
+      height: 0.6.sh,
       decoration: BoxDecoration(
         color: Color(0xff0000FF),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
       ),
       child: Padding(
-        padding: const EdgeInsets.only(top: 50, left: 24, right: 24),
+        padding: EdgeInsets.only(top: 50.h, left: 24.w, right: 24.w),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
@@ -26,37 +24,39 @@ class Routes extends StatelessWidget {
               bgColor: Color(0xffFFFFFF),
               textColor: Color(0xff000000),
               onPressed: () {},
-              fontSize: 24,
+              fontSize: 24.sp,
               fontWeight: FontWeight.normal,
-              width: screenWidth * 1,
-              height: screenHeight * 0.08,
+              width: 1.sw,
+              height: 0.08.sh,
+              borderColor: Color(0xffffffff),
             ),
-            const SizedBox(height: 18),
+            SizedBox(height: 18.h),
             ElevatedButtonWidget(
               text: 'Banquerohan',
               bgColor: Color(0xffFFFFFF),
               textColor: Color(0xff000000),
               onPressed: () {},
-              fontSize: 24,
+              fontSize: 24.sp,
               fontWeight: FontWeight.normal,
-              width: screenWidth * 1,
-              height: screenHeight * 0.08,
+              width: 1.sw,
+              height: 0.08.sh,
+              borderColor: Color(0xfffffffff),
             ),
-            const SizedBox(height: 18),
+            SizedBox(height: 18.h),
             ElevatedButtonWidget(
               text: 'Buenavista',
               bgColor: Color(0xffFFFFFF),
               textColor: Color(0xff000000),
               onPressed: () {},
-              fontSize: 24,
+              fontSize: 24.sp,
               fontWeight: FontWeight.normal,
-              width: screenWidth * 1,
-              height: screenHeight * 0.08,
+              width: 1.sw,
+              height: 0.08.sh,
+              borderColor: Color(0xff0000FF),
             ),
           ],
         ),
       ),
     );
-    ;
   }
 }

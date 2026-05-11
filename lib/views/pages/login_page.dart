@@ -3,6 +3,7 @@ import 'package:beepbeep_prototype/views/pages/role_selection_page.dart';
 import 'package:beepbeep_prototype/views/widgets/elevatedbtn_widget.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -44,11 +45,13 @@ class _SigninScreenState extends State<LoginPage>
   Future<void> _handleGoogleSignIn() async {
     try {
       await signInWithGoogle();
+      if (!mounted) return;
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const RoleSelectionPage()),
       );
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Google Sign-In failed: $e')));
@@ -57,25 +60,23 @@ class _SigninScreenState extends State<LoginPage>
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final screenWidth = size.width;
-    final screenHeight = size.height;
-
     return Scaffold(
-      body: SafeArea(
+      body: Padding(
+        padding: EdgeInsets.all(30.0.w),
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              SizedBox(height: 0.1.sh),
               Hero(
                 tag: 'beepbeep-logo',
                 child: SvgPicture.asset(
                   'assets/logo/BeepBeep_Logo.svg',
-                  width: screenWidth * 0.5,
-                  height: screenWidth * 0.5,
+                  width: 0.5.sw,
+                  height: 0.5.sw,
                 ),
               ),
-              SizedBox(height: screenHeight * 0.04),
+              SizedBox(height: 0.04.sh),
               Hero(
                 tag: 'beepbeep-text',
                 child: Material(
@@ -83,57 +84,59 @@ class _SigninScreenState extends State<LoginPage>
                   child: Text(
                     "BeepBeep",
                     style: GoogleFonts.montaguSlab(
-                      fontSize: screenWidth * 0.1,
+                      fontSize: 30.sp,
                       fontWeight: FontWeight.bold,
                       color: const Color(0xff0000FF),
                     ),
                   ),
                 ),
               ),
-              SizedBox(height: screenHeight * 0.12),
+              SizedBox(height: 0.15.sh),
               FadeTransition(
                 opacity: _buttonFade,
                 child: Column(
                   children: [
                     ElevatedButtonWidget(
                       svgPath: 'assets/icons/google_logo.svg',
-                      iconHeight: screenWidth * 0.06,
-                      iconWidth: screenWidth * 0.06,
+                      iconHeight: 0.06.sw,
+                      iconWidth: 0.06.sw,
                       text: 'Continue with Google',
                       bgColor: const Color(0xffFFFFFF),
                       textColor: const Color(0xff000000),
                       onPressed: _handleGoogleSignIn,
-                      fontSize: screenWidth * 0.03,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.bold,
-                      width: screenWidth * 0.8,
-                      height: screenHeight * 0.1,
+                      width: 0.8.sw,
+                      height: 0.15.sh,
+                      borderColor: Color(0xff0000FF),
                     ),
-                    SizedBox(height: screenHeight * 0.02),
+                    SizedBox(height: 0.02.sh),
                     ElevatedButtonWidget(
                       icon: Icon(
                         Icons.person_rounded,
-                        size: screenWidth * 0.06,
-                        color: Colors.black,
+                        size: 0.06.sw,
+                        color: Color(0xffFFFFFF),
                       ),
-                      iconHeight: screenWidth * 0.06,
-                      iconWidth: screenWidth * 0.06,
+                      iconHeight: 0.06.sw,
+                      iconWidth: 0.06.sw,
                       text: 'Continue as Guest',
-                      bgColor: const Color(0xffFFFFFF),
-                      textColor: const Color(0xff000000),
+                      bgColor: const Color(0xff0000FF),
+                      textColor: const Color(0xffFFFFFF),
                       onPressed: () {},
-                      fontSize: screenWidth * 0.03,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.bold,
-                      width: screenWidth * 0.8,
-                      height: screenHeight * 0.1,
+                      width: 0.8.sw,
+                      height: 0.15.sh,
+                      borderColor: Color(0xff0000FF),
                     ),
-                    SizedBox(height: screenHeight * 0.04),
+                    SizedBox(height: 0.04.sh),
                     SizedBox(
-                      width: screenWidth * 0.8,
+                      width: 0.8.sw,
                       child: RichText(
                         textAlign: TextAlign.center,
                         text: TextSpan(
                           style: TextStyle(
-                            fontSize: screenWidth * 0.03,
+                            fontSize: 12.sp,
                             height: 1.6,
                             color: Colors.black,
                           ),

@@ -1,5 +1,6 @@
 import 'package:beepbeep_prototype/views/widgets/text_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 
 class RoleContainerWidget extends StatelessWidget {
@@ -24,42 +25,34 @@ class RoleContainerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final screenWidth = size.width;
-    final screenHeight = size.height;
-
     return Container(
       alignment: Alignment.center,
-      width: screenWidth * 0.8,
-      height: screenHeight * 0.15,
+      width: 0.8.sw,
+      height: 0.15.sh,
       decoration: BoxDecoration(
-        border: Border.all(color: borderColor, width: 2),
+        border: Border.all(color: borderColor, width: 2.w),
         color: bgColor,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(10.r),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SvgPicture.asset(
-            svgPath,
-            width: screenWidth * 0.2,
-            height: screenHeight * 0.08,
-          ),
-          SizedBox(width: screenWidth * 0.1),
+          SvgPicture.asset(svgPath, width: 0.2.sw, height: 0.08.sh),
+          SizedBox(width: 0.1.sw),
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               TextWidget(
                 text: text,
                 color: roleTextColor,
-                fontSize: 18 * screenWidth / 375,
+                fontSize: 18.sp,
                 fontWeight: FontWeight.w600,
               ),
-              SizedBox(height: screenHeight * 0.001),
+              SizedBox(height: 0.01.sh),
               TextWidget(
                 text: description,
                 color: roleDescriptionColor,
-                fontSize: 10 * screenWidth / 375,
+                fontSize: 10.sp,
                 fontWeight: FontWeight.w400,
               ),
             ],

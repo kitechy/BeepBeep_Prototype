@@ -1,8 +1,8 @@
-import 'package:beepbeep_prototype/controller/google_auth.dart';
-import 'package:beepbeep_prototype/views/pages/login_page.dart';
+import 'package:beepbeep_prototype/views/pages/drawer.dart';
 import 'package:beepbeep_prototype/views/routes/routes.dart';
 import 'package:beepbeep_prototype/views/widgets/elevatedbtn_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class CommuterHomePage extends StatefulWidget {
@@ -21,81 +21,30 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
     mapController = controller;
   }
 
-  Future<void> _handleSignOut() async {
-    try {
-      await signOut();
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginPage()),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Sign-Out failed: $e')));
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final screenWidth = size.width;
-    final screenHeight = size.height;
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         leading: Builder(
           builder: (context) => Padding(
-            padding: const EdgeInsets.all(8),
+            padding: EdgeInsets.all(8.w),
             child: InkWell(
-              borderRadius: BorderRadius.circular(50),
+              borderRadius: BorderRadius.circular(50.r),
               onTap: () => Scaffold.of(context).openDrawer(),
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
                   shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.menu, color: Color(0xff0000FF)),
+                child: Icon(Icons.menu, color: Color(0xff0000FF), size: 24.r),
               ),
             ),
           ),
         ),
       ),
-      drawer: Drawer(
-        child: Column(
-          children: [
-            Container(
-              width: double.infinity,
-              height: 250,
-              decoration: BoxDecoration(color: Color(0xff0000FF)),
-              child: Center(
-                child: Stack(
-                  children: [
-                    Text(
-                      'Kevin Perez',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(height: 25),
-            ElevatedButtonWidget(
-              text: 'Log out',
-              bgColor: Colors.red,
-              textColor: Color(0xffFFFFFF),
-              onPressed: _handleSignOut,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              width: 250,
-              height: 50,
-            ),
-          ],
-        ),
-      ),
+      drawer: DrawerWidget(),
       body: Stack(
         children: [
           GoogleMap(
@@ -104,23 +53,24 @@ class _CommuterHomePageState extends State<CommuterHomePage> {
             zoomControlsEnabled: false,
           ),
           Positioned(
-            bottom: 50,
-            left: 20,
-            right: 20,
+            bottom: 50.h,
+            left: 20.w,
+            right: 20.w,
             child: ElevatedButtonWidget(
               text: 'Change route',
-              bgColor: Color(0xffFFFFFF),
-              textColor: Color(0xff0000FF),
+              bgColor: Color(0xff0000FF),
+              textColor: Color(0xffFFFFFF),
               onPressed: () {
                 showModalBottomSheet(
                   context: context,
                   builder: (context) => const Routes(),
                 );
               },
-              fontSize: 18,
+              fontSize: 18.sp,
               fontWeight: FontWeight.bold,
-              width: screenWidth,
-              height: screenHeight * 0.08,
+              width: 0.8.sw,
+              height: 0.05.sh,
+              borderColor: Color(0xff0000ff),
             ),
           ),
         ],

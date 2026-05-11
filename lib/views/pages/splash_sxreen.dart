@@ -1,5 +1,6 @@
 import 'package:beepbeep_prototype/views/pages/login_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -31,10 +32,6 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final screenWidth = size.width;
-    final screenHeight = size.height;
-
     return Scaffold(
       body: SafeArea(
         child: Center(
@@ -43,15 +40,15 @@ class _SplashScreenState extends State<SplashScreen> {
             children: [
               SvgPicture.asset(
                 'assets/logo/BeepBeep_Logo.svg',
-                width: screenWidth * 0.35,
-                height: screenWidth * 0.35,
+                width: 0.35.sw,
+                height: 0.35.sw,
                 fit: BoxFit.contain,
               ),
-              SizedBox(height: screenHeight * 0.04),
+              SizedBox(height: 0.04.sh),
               Text(
                 'BeepBeep',
                 style: GoogleFonts.montaguSlab(
-                  fontSize: screenWidth * 0.1,
+                  fontSize: 40.sp,
                   fontWeight: FontWeight.bold,
                   color: const Color(0xff0000FF),
                 ),
