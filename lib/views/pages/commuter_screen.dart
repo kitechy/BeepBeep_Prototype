@@ -1,4 +1,4 @@
-import 'package:beepbeep_prototype/views/pages/drawer.dart';
+import 'package:beepbeep_prototype/views/pages/drawer_screen.dart';
 import 'package:beepbeep_prototype/views/routes/routes.dart';
 import 'package:beepbeep_prototype/views/widgets/elevatedbtn_widget.dart';
 import 'package:flutter/material.dart';

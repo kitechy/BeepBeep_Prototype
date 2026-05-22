@@ -1,6 +1,6 @@
 import 'package:beepbeep_prototype/firebase_options.dart';
-import 'package:beepbeep_prototype/views/pages/commuter_home_page.dart';
-import 'package:beepbeep_prototype/views/pages/login_page.dart';
+import 'package:beepbeep_prototype/views/pages/commuter_screen.dart';
+import 'package:beepbeep_prototype/views/pages/login_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';

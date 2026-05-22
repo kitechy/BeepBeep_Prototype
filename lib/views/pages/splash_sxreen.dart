@@ -1,4 +1,4 @@
-import 'package:beepbeep_prototype/views/pages/login_page.dart';
+import 'package:beepbeep_prototype/views/pages/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';

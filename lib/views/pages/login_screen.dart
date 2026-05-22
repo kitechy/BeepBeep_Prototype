@@ -1,5 +1,5 @@
-import 'package:beepbeep_prototype/controller/google_auth.dart';
-import 'package:beepbeep_prototype/views/pages/role_selection_page.dart';
+import 'package:beepbeep_prototype/model/google_auth.dart';
+import 'package:beepbeep_prototype/controller/role_selection_screen.dart';
 import 'package:beepbeep_prototype/views/widgets/elevatedbtn_widget.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';

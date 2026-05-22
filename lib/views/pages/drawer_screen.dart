@@ -1,6 +1,7 @@
-import 'package:beepbeep_prototype/controller/google_auth.dart';
-import 'package:beepbeep_prototype/views/pages/login_page.dart';
+import 'package:beepbeep_prototype/model/google_auth.dart';
+import 'package:beepbeep_prototype/views/pages/login_screen.dart';
 import 'package:beepbeep_prototype/views/widgets/elevatedbtn_widget.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -30,6 +31,10 @@ class _DrawerWidgetState extends State<DrawerWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+
+    final userName = user?.displayName ?? "User";
+
     return Drawer(
       child: Column(
         children: [
@@ -41,7 +46,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
               child: Stack(
                 children: [
                   Text(
-                    'Kevin Perez',
+                    userName,
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,

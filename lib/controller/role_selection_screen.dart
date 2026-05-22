@@ -1,4 +1,4 @@
-import 'package:beepbeep_prototype/views/pages/commuter_home_page.dart';
+import 'package:beepbeep_prototype/views/pages/commuter_screen.dart';
 import 'package:beepbeep_prototype/views/widgets/elevatedbtn_widget.dart';
 import 'package:beepbeep_prototype/views/widgets/role_container_widget.dart';
 import 'package:beepbeep_prototype/views/widgets/text_widget.dart';
