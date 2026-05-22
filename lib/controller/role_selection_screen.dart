@@ -1,4 +1,4 @@
-import 'package:beepbeep_prototype/views/pages/commuter_screen.dart';
+import 'package:beepbeep_prototype/views/pages/home_page.dart';
 import 'package:beepbeep_prototype/views/widgets/elevatedbtn_widget.dart';
 import 'package:beepbeep_prototype/views/widgets/role_container_widget.dart';
 import 'package:beepbeep_prototype/views/widgets/text_widget.dart';
@@ -108,9 +108,7 @@ class _RoleSelectionPageState extends State<RoleSelectionPage> {
                 if (selectedRole == "Commuter") {
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => const CommuterHomePage(),
-                    ),
+                    MaterialPageRoute(builder: (context) => const HomePage()),
                   );
                 }
               },

@@ -1,5 +1,5 @@
 import 'package:beepbeep_prototype/firebase_options.dart';
-import 'package:beepbeep_prototype/views/pages/commuter_screen.dart';
+import 'package:beepbeep_prototype/views/pages/home_page.dart';
 import 'package:beepbeep_prototype/views/pages/login_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -48,7 +48,7 @@ class AuthWrapper extends StatelessWidget {
         }
 
         if (snapshot.hasData) {
-          return CommuterHomePage();
+          return HomePage();
         }
 
         return LoginPage();

@@ -1,6 +1,5 @@
 import 'package:beepbeep_prototype/model/google_auth.dart';
 import 'package:beepbeep_prototype/views/pages/login_screen.dart';
-import 'package:beepbeep_prototype/views/widgets/elevatedbtn_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -36,41 +35,55 @@ class _DrawerWidgetState extends State<DrawerWidget> {
     final userName = user?.displayName ?? "User";
 
     return Drawer(
-      child: Column(
-        children: [
-          Container(
-            width: double.infinity,
-            height: 0.3.sh,
-            decoration: BoxDecoration(color: Color(0xff0000FF)),
-            child: Center(
-              child: Stack(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: ListView(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    userName,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20.sp,
+                  CircleAvatar(
+                    radius: 50.r,
+                    backgroundImage: user?.photoURL != null
+                        ? NetworkImage(user!.photoURL!)
+                        : null,
+                    child: user?.photoURL == null
+                        ? Icon(Icons.person, size: 50.r, color: Colors.white)
+                        : null,
+                  ),
+                  SizedBox(width: 20.w),
+                  Expanded(
+                    child: Text(
+                      userName,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Color(0xff000000),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18.sp,
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
-          ),
-          SizedBox(height: 25.h),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20.w),
-            child: ElevatedButtonWidget(
-              text: 'Log out',
-              bgColor: Colors.red,
-              textColor: Color(0xffFFFFFF),
+            SizedBox(height: 25.h),
+            Divider(color: Colors.grey),
+            SizedBox(height: 25.h),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
+              ),
               onPressed: _handleSignOut,
-              fontSize: 16.sp,
-              fontWeight: FontWeight.bold,
-              borderColor: Colors.red,
+              child: Text(
+                'Log Out',
+                style: TextStyle(color: Color(0xffFFFFFF)),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
