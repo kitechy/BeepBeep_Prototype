@@ -1,5 +1,4 @@
-import 'package:beepbeep_prototype/model/google_auth.dart';
-import 'package:beepbeep_prototype/controller/role_selection_screen.dart';
+import 'package:beepbeep_prototype/controller/login_controller.dart';
 import 'package:beepbeep_prototype/views/widgets/elevatedbtn_widget.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -18,10 +17,12 @@ class _SigninScreenState extends State<LoginPage>
     with TickerProviderStateMixin {
   late final AnimationController _buttonController;
   late final Animation<double> _buttonFade;
+  late LoginController _loginController;
 
   @override
   void initState() {
     super.initState();
+    _loginController = LoginController();
 
     _buttonController = AnimationController(
       vsync: this,
@@ -42,20 +43,12 @@ class _SigninScreenState extends State<LoginPage>
     super.dispose();
   }
 
-  Future<void> _handleGoogleSignIn() async {
-    try {
-      await signInWithGoogle();
-      if (!mounted) return;
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const RoleSelectionPage()),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Google Sign-In failed: $e')));
-    }
+  void _handleGoogleSignIn() {
+    _loginController.handleGoogleSignIn(context);
+  }
+
+  void _handleGuestLogin() {
+    _loginController.handleGuestLogin(context);
   }
 
   @override
@@ -120,7 +113,7 @@ class _SigninScreenState extends State<LoginPage>
                       text: 'Continue as Guest',
                       bgColor: const Color(0xff0000FF),
                       textColor: const Color(0xffFFFFFF),
-                      onPressed: () {},
+                      onPressed: _handleGuestLogin,
                       fontSize: 14.sp,
                       fontWeight: FontWeight.bold,
                       borderColor: Color(0xff0000FF),

@@ -1,4 +1,4 @@
-import 'package:beepbeep_prototype/views/pages/login_screen.dart';
+import 'package:beepbeep_prototype/controller/splash_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -12,22 +12,13 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  late SplashController _splashController;
+
   @override
   void initState() {
     super.initState();
-
-    Future.delayed(const Duration(milliseconds: 2000), () {
-      if (!mounted) return;
-
-      Navigator.of(context).pushReplacement(
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) =>
-              const LoginPage(),
-          transitionDuration: Duration.zero,
-          reverseTransitionDuration: Duration.zero,
-        ),
-      );
-    });
+    _splashController = SplashController();
+    _splashController.navigateToLogin(context);
   }
 
   @override

@@ -1,23 +1,66 @@
+import 'package:beepbeep_prototype/controller/commuter_controller.dart';
 import 'package:beepbeep_prototype/views/pages/routes_page.dart';
-import 'package:beepbeep_prototype/views/pages/settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-class TrackingPage extends StatefulWidget {
-  const TrackingPage({super.key});
+class CommuterScreen extends StatefulWidget {
+  const CommuterScreen({super.key});
 
   @override
-  State<TrackingPage> createState() => _TrackingPageState();
+  State<CommuterScreen> createState() => _CommuterScreenState();
 }
 
-class _TrackingPageState extends State<TrackingPage> {
-  late GoogleMapController mapController;
+class _CommuterScreenState extends State<CommuterScreen> {
+  late CommuterController _commuterController;
+  final Set<Marker> _markers = {};
 
-  final LatLng _center = const LatLng(13.1391, 123.7438);
+  @override
+  void initState() {
+    super.initState();
+    _commuterController = CommuterController();
+  }
 
-  void _onMapCreated(GoogleMapController controller) {
-    mapController = controller;
+  @override
+  void dispose() {
+    _commuterController.dispose();
+    super.dispose();
+  }
+
+  void _updateUserLocationMarker(Position position) {
+    if (!mounted) return;
+
+    setState(() {
+      _markers.removeWhere(
+        (marker) => marker.markerId.value == 'user_location',
+      );
+
+      _markers.add(
+        Marker(
+          markerId: const MarkerId('user_location'),
+          position: LatLng(position.latitude, position.longitude),
+          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+          infoWindow: const InfoWindow(title: 'You are here'),
+        ),
+      );
+    });
+  }
+
+  Future<void> _centerOnUserLocation() async {
+    try {
+      Position position = await _commuterController.getCurrentLocation();
+
+      if (!mounted) return;
+
+      _updateUserLocationMarker(position);
+    } catch (error) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(error.toString())));
+    }
   }
 
   @override
@@ -29,9 +72,7 @@ class _TrackingPageState extends State<TrackingPage> {
         actions: [
           GestureDetector(
             onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => const SettingsPage()),
-              );
+              _commuterController.navigateToSettings(context);
             },
             child: Container(
               width: 35.w,
@@ -49,20 +90,47 @@ class _TrackingPageState extends State<TrackingPage> {
       body: Stack(
         children: [
           GoogleMap(
-            onMapCreated: _onMapCreated,
-            initialCameraPosition: CameraPosition(target: _center, zoom: 13.0),
+            onMapCreated: (controller) {
+              _commuterController.onMapCreated(controller);
+              _centerOnUserLocation();
+            },
+            markers: _markers,
+            initialCameraPosition: const CameraPosition(
+              target: LatLng(13.1391, 123.7438),
+              zoom: 13.0,
+            ),
             zoomControlsEnabled: false,
           ),
           Align(alignment: AlignmentGeometry.bottomCenter, child: RoutesPage()),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(50.r),
-        ),
-        backgroundColor: Color(0xffFFFFFF),
-        onPressed: () {},
-        child: Icon(Icons.my_location, color: Color(0xff0000FF), size: 24.r),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          FloatingActionButton(
+            onPressed: () {},
+            heroTag: "map_tpe_fab",
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(50.r),
+            ),
+            backgroundColor: Color(0xffFFFFFF),
+            child: Icon(Icons.map, color: Color(0xff0000FF), size: 24.r),
+          ),
+          SizedBox(height: 16.r),
+          FloatingActionButton(
+            onPressed: _centerOnUserLocation,
+            heroTag: "location_fab",
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(50.r),
+            ),
+            backgroundColor: Color(0xffFFFFFF),
+            child: Icon(
+              Icons.my_location,
+              color: Color(0xff0000FF),
+              size: 24.r,
+            ),
+          ),
+        ],
       ),
     );
   }

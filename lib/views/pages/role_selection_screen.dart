@@ -1,4 +1,4 @@
-import 'package:beepbeep_prototype/views/pages/home_page.dart';
+import 'package:beepbeep_prototype/controller/role_selection_controller.dart';
 import 'package:beepbeep_prototype/views/widgets/elevatedbtn_widget.dart';
 import 'package:beepbeep_prototype/views/widgets/role_container_widget.dart';
 import 'package:beepbeep_prototype/views/widgets/text_widget.dart';
@@ -14,7 +14,13 @@ class RoleSelectionPage extends StatefulWidget {
 }
 
 class _RoleSelectionPageState extends State<RoleSelectionPage> {
-  String selectedRole = "";
+  late RoleSelectionController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = RoleSelectionController();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,11 +43,11 @@ class _RoleSelectionPageState extends State<RoleSelectionPage> {
             GestureDetector(
               onTap: () {
                 setState(() {
-                  selectedRole = "Commuter";
+                  _controller.selectRole("Commuter");
                 });
               },
               child: RoleContainerWidget(
-                borderColor: selectedRole == "Commuter"
+                borderColor: _controller.getSelectedRole() == "Commuter"
                     ? Color(0xff0000FF)
                     : Colors.grey,
                 bgColor: Color(0xffFFFFFF),
@@ -56,11 +62,11 @@ class _RoleSelectionPageState extends State<RoleSelectionPage> {
             GestureDetector(
               onTap: () {
                 setState(() {
-                  selectedRole = "Driver";
+                  _controller.selectRole("Driver");
                 });
               },
               child: RoleContainerWidget(
-                borderColor: selectedRole == "Driver"
+                borderColor: _controller.getSelectedRole() == "Driver"
                     ? Color(0xff0000FF)
                     : Colors.grey,
                 bgColor: Color(0xffFFFFFF),
@@ -84,11 +90,11 @@ class _RoleSelectionPageState extends State<RoleSelectionPage> {
             GestureDetector(
               onTap: () {
                 setState(() {
-                  selectedRole = "Operator";
+                  _controller.selectRole("Operator");
                 });
               },
               child: RoleContainerWidget(
-                borderColor: selectedRole == "Operator"
+                borderColor: _controller.getSelectedRole() == "Operator"
                     ? Color(0xff0000FF)
                     : Colors.grey,
                 bgColor: Color(0xffFFFFFF),
@@ -105,16 +111,10 @@ class _RoleSelectionPageState extends State<RoleSelectionPage> {
               bgColor: Color(0xff0000FF),
               textColor: Color(0xffFFFFFF),
               onPressed: () {
-                if (selectedRole == "Commuter") {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => const HomePage()),
-                  );
-                }
+                _controller.handleContinue(context);
               },
               fontSize: 16.sp,
               fontWeight: FontWeight.bold,
-
               iconWidth: null,
               iconHeight: null,
               borderColor: Color(0xff0000FF),

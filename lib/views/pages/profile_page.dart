@@ -1,5 +1,4 @@
-import 'package:beepbeep_prototype/model/google_auth.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:beepbeep_prototype/controller/profile_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -11,26 +10,16 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageScreenState extends State<ProfilePage> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  User? _currentUser;
+  late ProfileController _profileController;
 
   @override
   void initState() {
     super.initState();
-    _currentUser = _auth.currentUser;
+    _profileController = ProfileController();
   }
 
   Future<void> _handleSignOut() async {
-    try {
-      await signOut();
-      if (mounted) {
-        Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error signing out: $e')));
-    }
+    _profileController.handleSignOut(context);
   }
 
   @override
@@ -41,7 +30,7 @@ class _ProfilePageScreenState extends State<ProfilePage> {
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      body: _currentUser == null
+      body: _profileController.getCurrentUser() == null
           ? Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
               child: Column(
@@ -55,10 +44,10 @@ class _ProfilePageScreenState extends State<ProfilePage> {
                       shape: BoxShape.circle,
                       border: Border.all(color: Color(0xff0000FF), width: 2.r),
                     ),
-                    child: _currentUser!.photoURL != null
+                    child: _profileController.getCurrentUser()!.photoURL != null
                         ? ClipOval(
                             child: Image.network(
-                              _currentUser!.photoURL!,
+                              _profileController.getCurrentUser()!.photoURL!,
                               fit: BoxFit.cover,
                             ),
                           )
@@ -76,7 +65,7 @@ class _ProfilePageScreenState extends State<ProfilePage> {
                   SizedBox(height: 20.h),
                   // User Name
                   Text(
-                    _currentUser!.displayName ?? 'User',
+                    _profileController.getCurrentUser()!.displayName ?? 'User',
                     style: TextStyle(
                       fontSize: 24.sp,
                       fontWeight: FontWeight.bold,
@@ -86,7 +75,7 @@ class _ProfilePageScreenState extends State<ProfilePage> {
                   SizedBox(height: 8.h),
                   // User Email
                   Text(
-                    _currentUser!.email ?? '',
+                    _profileController.getCurrentUser()!.email ?? '',
                     style: TextStyle(fontSize: 14.sp, color: Colors.grey[600]),
                   ),
                   SizedBox(height: 40.h),

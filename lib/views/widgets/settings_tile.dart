@@ -7,7 +7,7 @@ class SettingsTile extends StatelessWidget {
   final String subtitle;
   final VoidCallback onTap;
 
-  const SettingsTile({
+  const SettingsTile({super.key, 
     required this.icon,
     required this.title,
     required this.subtitle,
