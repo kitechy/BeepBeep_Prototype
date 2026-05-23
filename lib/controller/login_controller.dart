@@ -16,7 +16,7 @@ class LoginController {
       if (!context.mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Google Sign-In failed: $e')));
+      ).showSnackBar(SnackBar(content: Text('Authorization failed.')));
     }
   }
 

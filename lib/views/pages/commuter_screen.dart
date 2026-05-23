@@ -1,7 +1,6 @@
-import 'dart:async';
-
 import 'package:beepbeep_prototype/controller/commuter_controller.dart';
 import 'package:beepbeep_prototype/views/pages/routes_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geolocator/geolocator.dart';
@@ -16,8 +15,9 @@ class CommuterScreen extends StatefulWidget {
 
 class _CommuterScreenState extends State<CommuterScreen> {
   late CommuterController _commuterController;
+  final user = FirebaseAuth.instance.currentUser;
+  String? photoUrl = FirebaseAuth.instance.currentUser?.photoURL;
   final Set<Marker> _markers = {};
-  StreamSubscription<Position>? _positionStream;
 
   @override
   void initState() {
@@ -28,54 +28,49 @@ class _CommuterScreenState extends State<CommuterScreen> {
 
   @override
   void dispose() {
-    _positionStream?.cancel();
     _commuterController.dispose();
     super.dispose();
   }
 
   void _startListeningLocation() {
-    const LocationSettings locationSettings = LocationSettings(
-      accuracy: LocationAccuracy.high,
-      distanceFilter: 10,
-    );
+    _commuterController.startListeningLocation(
+      onPosition: (Position position) async {
+        if (!mounted) return;
 
-    _positionStream =
-        Geolocator.getPositionStream(locationSettings: locationSettings).listen(
-          (Position position) {
-            _updateUserLocationMarker(position);
-            _commuterController.mapController?.animateCamera(
-              .newLatLng(LatLng(position.latitude, position.longitude)),
-            );
-          },
+        final marker = await _commuterController.buildUserLocationMarker(
+          position,
+          photoUrl,
         );
-  }
 
-  void _updateUserLocationMarker(Position position) {
-    if (!mounted) return;
+        setState(() {
+          _markers.removeWhere(
+            (marker) => marker.markerId.value == 'user_location',
+          );
 
-    setState(() {
-      _markers.removeWhere(
-        (marker) => marker.markerId.value == 'user_location',
-      );
-
-      _markers.add(
-        Marker(
-          markerId: const MarkerId('user_location'),
-          position: LatLng(position.latitude, position.longitude),
-          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-          infoWindow: const InfoWindow(title: 'You are here'),
-        ),
-      );
-    });
+          _markers.add(marker);
+        });
+      },
+    );
   }
 
   Future<void> _centerOnUserLocation() async {
     try {
-      Position position = await _commuterController.getCurrentLocation();
+      final position = await _commuterController.getCurrentLocation();
 
       if (!mounted) return;
 
-      _updateUserLocationMarker(position);
+      final marker = await _commuterController.buildUserLocationMarker(
+        position,
+        photoUrl,
+      );
+
+      setState(() {
+        _markers.removeWhere(
+          (marker) => marker.markerId.value == 'user_location',
+        );
+
+        _markers.add(marker);
+      });
     } catch (error) {
       if (!mounted) return;
 
