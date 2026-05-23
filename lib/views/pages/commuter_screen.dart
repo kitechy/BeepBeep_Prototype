@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:beepbeep_prototype/controller/commuter_controller.dart';
 import 'package:beepbeep_prototype/views/pages/routes_page.dart';
 import 'package:flutter/material.dart';
@@ -15,17 +17,37 @@ class CommuterScreen extends StatefulWidget {
 class _CommuterScreenState extends State<CommuterScreen> {
   late CommuterController _commuterController;
   final Set<Marker> _markers = {};
+  StreamSubscription<Position>? _positionStream;
 
   @override
   void initState() {
     super.initState();
     _commuterController = CommuterController();
+    _startListeningLocation();
   }
 
   @override
   void dispose() {
+    _positionStream?.cancel();
     _commuterController.dispose();
     super.dispose();
+  }
+
+  void _startListeningLocation() {
+    const LocationSettings locationSettings = LocationSettings(
+      accuracy: LocationAccuracy.high,
+      distanceFilter: 10,
+    );
+
+    _positionStream =
+        Geolocator.getPositionStream(locationSettings: locationSettings).listen(
+          (Position position) {
+            _updateUserLocationMarker(position);
+            _commuterController.mapController?.animateCamera(
+              .newLatLng(LatLng(position.latitude, position.longitude)),
+            );
+          },
+        );
   }
 
   void _updateUserLocationMarker(Position position) {
