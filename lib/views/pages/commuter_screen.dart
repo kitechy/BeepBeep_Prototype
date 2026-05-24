@@ -1,5 +1,6 @@
 import 'package:beepbeep_prototype/controller/commuter_controller.dart';
-import 'package:beepbeep_prototype/views/pages/routes_page.dart';
+import 'package:beepbeep_prototype/views/widgets/draggable_sheet.dart';
+import 'package:beepbeep_prototype/views/widgets/fab_buttons.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -15,9 +16,10 @@ class CommuterScreen extends StatefulWidget {
 
 class _CommuterScreenState extends State<CommuterScreen> {
   late CommuterController _commuterController;
-  final user = FirebaseAuth.instance.currentUser;
   String? photoUrl = FirebaseAuth.instance.currentUser?.photoURL;
   final Set<Marker> _markers = {};
+  final DraggableScrollableController _sheetController =
+      DraggableScrollableController();
 
   @override
   void initState() {
@@ -28,6 +30,7 @@ class _CommuterScreenState extends State<CommuterScreen> {
 
   @override
   void dispose() {
+    _sheetController.dispose();
     _commuterController.dispose();
     super.dispose();
   }
@@ -118,34 +121,34 @@ class _CommuterScreenState extends State<CommuterScreen> {
             ),
             zoomControlsEnabled: false,
           ),
-          Align(alignment: AlignmentGeometry.bottomCenter, child: RoutesPage()),
-        ],
-      ),
-      floatingActionButton: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          FloatingActionButton(
-            onPressed: () {},
-            heroTag: "map_tpe_fab",
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(50.r),
-            ),
-            backgroundColor: Color(0xffFFFFFF),
-            child: Icon(Icons.map, color: Color(0xff0000FF), size: 24.r),
-          ),
-          SizedBox(height: 16.r),
-          FloatingActionButton(
-            onPressed: _centerOnUserLocation,
-            heroTag: "location_fab",
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(50.r),
-            ),
-            backgroundColor: Color(0xffFFFFFF),
-            child: Icon(
-              Icons.my_location,
-              color: Color(0xff0000FF),
-              size: 24.r,
-            ),
+          DraggableSheet(controller: _sheetController),
+          AnimatedBuilder(
+            animation: _sheetController,
+            builder: (context, child) {
+              double sheetSize = _sheetController.isAttached
+                  ? _sheetController.size
+                  : 0.4;
+              return Positioned(
+                right: 20.w,
+                bottom: sheetSize * MediaQuery.of(context).size.height + 10.h,
+                child: Column(
+                  spacing: 16.0,
+                  children: [
+                    FabButtonWidget(
+                      onPressed: () {},
+                      heroTag: "map_type_fab",
+                      icon: Icons.map,
+                    ),
+
+                    FabButtonWidget(
+                      onPressed: _centerOnUserLocation,
+                      heroTag: "location_fab",
+                      icon: Icons.my_location,
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
         ],
       ),
