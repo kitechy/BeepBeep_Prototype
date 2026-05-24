@@ -12,29 +12,37 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late HomePageController _controller;
+  late HomePageController _homePageController;
 
   final List<Widget> _pages = [const CommuterScreen(), const ProfilePage()];
 
   @override
   void initState() {
     super.initState();
-    _controller = HomePageController();
+    _homePageController = HomePageController();
   }
 
   void _onIndexChanged(int index) {
-    setState(() {
-      _controller.updateSelectedIndex(index);
-    });
+    _homePageController.selectedIndex.value = index;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_controller.getSelectedIndex()],
-      bottomNavigationBar: BottomNavigationBarWidget(
-        selectedIndex: _controller.getSelectedIndex(),
-        onIndexChanged: _onIndexChanged,
+      body: ValueListenableBuilder<int>(
+        valueListenable: _homePageController.selectedIndex,
+        builder: (context, selectedIndex, child) {
+          return _pages[selectedIndex];
+        },
+      ),
+      bottomNavigationBar: ValueListenableBuilder(
+        valueListenable: _homePageController.selectedIndex,
+        builder: (context, selectedIndex, child) {
+          return BottomNavigationBarWidget(
+            selectedIndex: selectedIndex,
+            onIndexChanged: _onIndexChanged,
+          );
+        },
       ),
     );
   }

@@ -1,6 +1,8 @@
 import 'package:beepbeep_prototype/controller/commuter_controller.dart';
+import 'package:beepbeep_prototype/controller/map_type_controller.dart';
 import 'package:beepbeep_prototype/views/widgets/draggable_sheet.dart';
 import 'package:beepbeep_prototype/views/widgets/fab_buttons.dart';
+import 'package:beepbeep_prototype/views/widgets/map_type_sheet.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -16,15 +18,18 @@ class CommuterScreen extends StatefulWidget {
 
 class _CommuterScreenState extends State<CommuterScreen> {
   late CommuterController _commuterController;
+  late MapTypeController _mapTypeController;
+  late DraggableScrollableController _sheetController;
   String? photoUrl = FirebaseAuth.instance.currentUser?.photoURL;
   final Set<Marker> _markers = {};
-  final DraggableScrollableController _sheetController =
-      DraggableScrollableController();
 
   @override
   void initState() {
     super.initState();
+    _sheetController = DraggableScrollableController();
+    _mapTypeController = MapTypeController();
     _commuterController = CommuterController();
+    _mapTypeController.loadMapType();
     _startListeningLocation();
   }
 
@@ -32,6 +37,7 @@ class _CommuterScreenState extends State<CommuterScreen> {
   void dispose() {
     _sheetController.dispose();
     _commuterController.dispose();
+    _mapTypeController.dispose();
     super.dispose();
   }
 
@@ -77,9 +83,14 @@ class _CommuterScreenState extends State<CommuterScreen> {
     } catch (error) {
       if (!mounted) return;
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(error.toString())));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            error.toString(),
+          ),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
     }
   }
 
@@ -109,17 +120,23 @@ class _CommuterScreenState extends State<CommuterScreen> {
       ),
       body: Stack(
         children: [
-          GoogleMap(
-            onMapCreated: (controller) {
-              _commuterController.onMapCreated(controller);
-              _centerOnUserLocation();
+          ValueListenableBuilder(
+            valueListenable: _mapTypeController.mapTypeNotifier,
+            builder: (context, MapType mapType, child) {
+              return GoogleMap(
+                onMapCreated: (controller) {
+                  _commuterController.onMapCreated(controller);
+                  _centerOnUserLocation();
+                },
+                markers: _markers,
+                initialCameraPosition: const CameraPosition(
+                  target: LatLng(13.1391, 123.7438),
+                  zoom: 13.0,
+                ),
+                zoomControlsEnabled: false,
+                mapType: mapType,
+              );
             },
-            markers: _markers,
-            initialCameraPosition: const CameraPosition(
-              target: LatLng(13.1391, 123.7438),
-              zoom: 13.0,
-            ),
-            zoomControlsEnabled: false,
           ),
           DraggableSheet(controller: _sheetController),
           AnimatedBuilder(
@@ -135,11 +152,14 @@ class _CommuterScreenState extends State<CommuterScreen> {
                   spacing: 16.0,
                   children: [
                     FabButtonWidget(
-                      onPressed: () {},
+                      onPressed: () => showBottomSheet(
+                        context: context,
+                        builder: (context) =>
+                            MapTypeSheet(mapTypeController: _mapTypeController),
+                      ),
                       heroTag: "map_type_fab",
                       icon: Icons.map,
                     ),
-
                     FabButtonWidget(
                       onPressed: _centerOnUserLocation,
                       heroTag: "location_fab",

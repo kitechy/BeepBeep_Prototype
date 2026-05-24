@@ -30,7 +30,7 @@ class CommuterController {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
 
     if (!serviceEnabled) {
-      throw Exception('Location services are disabled.');
+      throw "Location services are disabled";
     }
 
     LocationPermission permission = await Geolocator.checkPermission();
@@ -38,13 +38,14 @@ class CommuterController {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
 
+      // TODO: Need Fix Request Permission
       if (permission == LocationPermission.denied) {
-        throw Exception('Location permissions are denied.');
+        throw ('Location permissions are denied.');
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
-      throw Exception('Location permissions are permanently denied.');
+      throw ('Location permissions are permanently denied.');
     }
 
     Position position = await Geolocator.getCurrentPosition(
@@ -153,7 +154,6 @@ class CommuterController {
       Path()..addOval(Rect.fromCircle(center: center, radius: imageRadius)),
     );
 
-    // CENTER CROP (important fix)
     final double srcSize = image.width < image.height
         ? image.width.toDouble()
         : image.height.toDouble();
