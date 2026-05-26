@@ -1,4 +1,4 @@
-import 'package:beepbeep_prototype/model/auth_service.dart';
+import 'package:beepbeep_prototype/model/google_auth_service.dart';
 import 'package:beepbeep_prototype/views/pages/role_selection_screen.dart';
 import 'package:flutter/material.dart';
 

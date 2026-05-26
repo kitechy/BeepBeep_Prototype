@@ -63,8 +63,7 @@ class _CommuterScreenState extends State<CommuterScreen> {
   }
 
   Future<void> _centerOnUserLocation() async {
-    try {
-      final position = await _commuterController.getCurrentLocation();
+      final position = await _commuterController.handleLocationPermission(context);
 
       if (!mounted) return;
 
@@ -80,18 +79,7 @@ class _CommuterScreenState extends State<CommuterScreen> {
 
         _markers.add(marker);
       });
-    } catch (error) {
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            error.toString(),
-          ),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    }
+   
   }
 
   @override

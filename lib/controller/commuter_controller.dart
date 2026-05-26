@@ -12,12 +12,10 @@ class CommuterController {
   Map<MarkerId, Marker> markers = {};
   StreamSubscription<Position>? positionStream;
 
-  /// Map created callback
   void onMapCreated(GoogleMapController controller) {
     mapController = controller;
   }
 
-  /// Navigate to settings
   void navigateToSettings(BuildContext context) {
     Navigator.push(
       context,
@@ -25,12 +23,113 @@ class CommuterController {
     );
   }
 
-  /// Get current location
-  Future<Position> getCurrentLocation() async {
+  Future<void> showLocationDialog(
+    BuildContext context, {
+    bool openSettings = false,
+  }) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 10),
+
+          title: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: const [
+              Icon(Icons.location_off, size: 50, color: Colors.red),
+              SizedBox(height: 10),
+              Text(
+                "Location Permission Required",
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: const [
+              Align(
+                alignment: Alignment.topCenter,
+                child: Text(
+                  'BeepBeep works best when location access is allowed "all the time".',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    height: 1.4,
+                  ),
+                ),
+              ),
+
+              SizedBox(height: 14),
+
+              Text(
+                "Follow these steps:",
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+              ),
+
+              SizedBox(height: 10),
+
+              Text(
+                "1. Open BeepBeep App Info",
+                style: TextStyle(fontSize: 15, height: 1.4),
+              ),
+              SizedBox(height: 6),
+
+              Text(
+                "2. Tap Permissions",
+                style: TextStyle(fontSize: 15, height: 1.4),
+              ),
+              SizedBox(height: 6),
+
+              Text(
+                "3. Open Location Permission",
+                style: TextStyle(fontSize: 15, height: 1.4),
+              ),
+              SizedBox(height: 6),
+
+              Text(
+                '4. Select "Allow all the time"',
+                style: TextStyle(fontSize: 15, height: 1.4),
+              ),
+              SizedBox(height: 14),
+            ],
+          ),
+
+          actionsAlignment: MainAxisAlignment.center,
+          actions: [
+            if (openSettings)
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xff0000FF),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
+                ),
+                onPressed: () async {
+                  Navigator.pop(context);
+                  await Geolocator.openAppSettings();
+                },
+                child: const Text(
+                  "Go to Settings",
+                  style: TextStyle(color: Colors.white, fontSize: 16),
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+
+  // TODO: Request Access to location service
+  Future<Position> handleLocationPermission(BuildContext context) async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
 
     if (!serviceEnabled) {
-      throw "Location services are disabled";
+      await showLocationDialog(context, openSettings: true);
     }
 
     LocationPermission permission = await Geolocator.checkPermission();
@@ -38,14 +137,13 @@ class CommuterController {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
 
-      // TODO: Need Fix Request Permission
       if (permission == LocationPermission.denied) {
-        throw ('Location permissions are denied.');
+        await showLocationDialog(context, openSettings: true);
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
-      throw ('Location permissions are permanently denied.');
+      await showLocationDialog(context, openSettings: true);
     }
 
     Position position = await Geolocator.getCurrentPosition(
@@ -61,28 +159,7 @@ class CommuterController {
         ),
       );
     }
-
     return position;
-  }
-
-  /// Builds the user location marker using the authenticated photo URL if available.
-  Future<Marker> buildUserLocationMarker(
-    Position position,
-    String? photoUrl,
-  ) async {
-    BitmapDescriptor markerIcon = BitmapDescriptor.defaultMarker;
-
-    if (photoUrl != null) {
-      markerIcon = await getMarkerFromUrl(photoUrl);
-    }
-
-    return Marker(
-      markerId: const MarkerId('user_location'),
-      position: LatLng(position.latitude, position.longitude),
-      icon: markerIcon,
-      anchor: const Offset(0.5, 1.0),
-      infoWindow: const InfoWindow(title: 'You are here'),
-    );
   }
 
   /// Starts listening to location updates and animates the map camera.
@@ -199,6 +276,27 @@ class CommuterController {
     return BitmapDescriptor.bytes(data!.buffer.asUint8List());
   }
 
+  /// Builds the user location marker using the authenticated photo URL if available.
+  Future<Marker> buildUserLocationMarker(
+    Position position,
+    String? photoUrl,
+  ) async {
+    BitmapDescriptor markerIcon = BitmapDescriptor.defaultMarker;
+
+    if (photoUrl != null) {
+      markerIcon = await getMarkerFromUrl(photoUrl);
+    }
+
+    return Marker(
+      markerId: const MarkerId('user_location'),
+      position: LatLng(position.latitude, position.longitude),
+      icon: markerIcon,
+      anchor: const Offset(0.5, 1.0),
+      infoWindow: const InfoWindow(title: 'You are here'),
+    );
+  }
+
+  // Adds the user location marker
   Future<void> addCurrentUserMarker(LatLng position) async {
     final user = FirebaseAuth.instance.currentUser;
 
