@@ -124,7 +124,6 @@ class CommuterController {
     );
   }
 
-  // TODO: Request Access to location service
   Future<Position> handleLocationPermission(BuildContext context) async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
 
