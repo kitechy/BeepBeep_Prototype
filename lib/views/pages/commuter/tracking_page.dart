@@ -1,5 +1,5 @@
-import 'package:beepbeep_prototype/controller/commuter_controller.dart';
-import 'package:beepbeep_prototype/controller/map_type_controller.dart';
+import 'package:beepbeep_prototype/controller/commuter/commuter_controller.dart';
+import 'package:beepbeep_prototype/controller/commuter/map_type_controller.dart';
 import 'package:beepbeep_prototype/views/widgets/draggable_sheet.dart';
 import 'package:beepbeep_prototype/views/widgets/fab_buttons.dart';
 import 'package:beepbeep_prototype/views/widgets/map_type_sheet.dart';
@@ -9,14 +9,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-class CommuterScreen extends StatefulWidget {
-  const CommuterScreen({super.key});
+class TrackingPage extends StatefulWidget {
+  const TrackingPage({super.key});
 
   @override
-  State<CommuterScreen> createState() => _CommuterScreenState();
+  State<TrackingPage> createState() => _CommuterScreenState();
 }
 
-class _CommuterScreenState extends State<CommuterScreen> {
+class _CommuterScreenState extends State<TrackingPage> {
   late CommuterController _commuterController;
   late MapTypeController _mapTypeController;
   late DraggableScrollableController _sheetController;

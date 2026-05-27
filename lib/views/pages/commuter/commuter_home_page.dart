@@ -1,25 +1,25 @@
-import 'package:beepbeep_prototype/controller/home_page_controller.dart';
-import 'package:beepbeep_prototype/views/pages/bottom_navigation_bar.dart';
-import 'package:beepbeep_prototype/views/pages/commuter_screen.dart';
-import 'package:beepbeep_prototype/views/pages/profile_page.dart';
+import 'package:beepbeep_prototype/controller/commuter/home_page_controller.dart';
+import 'package:beepbeep_prototype/views/pages/commuter/bottom_navigation_bar.dart';
+import 'package:beepbeep_prototype/views/pages/commuter/tracking_page.dart';
+import 'package:beepbeep_prototype/views/pages/commuter/profile_page.dart';
 import 'package:flutter/material.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class CommuterHomePage extends StatefulWidget {
+  const CommuterHomePage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<CommuterHomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
-  late HomePageController _homePageController;
+class _HomePageState extends State<CommuterHomePage> {
+  late CommuterHomePageController _homePageController;
 
-  final List<Widget> _pages = [const CommuterScreen(), const ProfilePage()];
+  final List<Widget> _pages = [const TrackingPage(), const ProfilePage()];
 
   @override
   void initState() {
     super.initState();
-    _homePageController = HomePageController();
+    _homePageController = CommuterHomePageController();
   }
 
   void _onIndexChanged(int index) {

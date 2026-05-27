@@ -1,4 +1,4 @@
-import 'package:beepbeep_prototype/controller/map_type_controller.dart';
+import 'package:beepbeep_prototype/controller/commuter/map_type_controller.dart';
 import 'package:beepbeep_prototype/views/widgets/map_type_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';

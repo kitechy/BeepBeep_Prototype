@@ -1,5 +1,5 @@
+import 'package:beepbeep_prototype/views/pages/commuter/tracking_page.dart';
 import 'package:flutter/material.dart';
-import 'package:beepbeep_prototype/views/pages/home_page.dart';
 
 class RoleSelectionController {
   String selectedRole = "";
@@ -33,7 +33,7 @@ class RoleSelectionController {
       case "Commuter":
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const HomePage()),
+          MaterialPageRoute(builder: (context) => const TrackingPage()),
         );
         break;
       case "Driver":

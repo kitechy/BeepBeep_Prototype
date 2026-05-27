@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
 
-class HomePageController {
+class CommuterHomePageController {
   ValueNotifier<int> selectedIndex = ValueNotifier(0);
 }
