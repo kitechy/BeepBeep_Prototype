@@ -1,6 +1,6 @@
 import 'package:beepbeep_prototype/features/auth/repository/auth_repository.dart';
-import 'package:beepbeep_prototype/features/auth/service/google_auth_service.dart';
-import 'package:beepbeep_prototype/features/auth/view/role_selection_page.dart';
+import 'package:beepbeep_prototype/features/auth/repository/auth_wrapper.dart';
+import 'package:beepbeep_prototype/features/auth/service/auth_service.dart';
 import 'package:beepbeep_prototype/features/auth/view/widgets/google_signin_button.dart';
 import 'package:beepbeep_prototype/features/auth/view/widgets/guest_button.dart';
 import 'package:beepbeep_prototype/features/auth/viewmodel/login_viewmodel.dart';
@@ -18,7 +18,7 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => LoginViewModel(AuthRepository(GoogleAuthService())),
+      create: (_) => LoginViewModel(AuthRepository(AuthService())),
       child: const _LoginView(),
     );
   }
@@ -68,7 +68,7 @@ class _LoginViewState extends State<_LoginView> with TickerProviderStateMixin {
     if (success) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const RoleSelectionPage()),
+        MaterialPageRoute(builder: (_) => const AuthWrapper()),
       );
     } else {
       showDialog(

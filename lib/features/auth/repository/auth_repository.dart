@@ -1,9 +1,8 @@
-import 'package:beepbeep_prototype/features/auth/service/google_auth_service.dart';
+import 'package:beepbeep_prototype/features/auth/service/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-
 class AuthRepository {
-  final GoogleAuthService _authService;
+  final AuthService _authService;
 
   AuthRepository(this._authService);
 
@@ -13,6 +12,10 @@ class AuthRepository {
 
   Future<void> signOut() async {
     await _authService.signOut();
+  }
+
+  Future<void> saveRole(String role) async {
+    await _authService.saveRole(role);
   }
 
   User? get currentUser {

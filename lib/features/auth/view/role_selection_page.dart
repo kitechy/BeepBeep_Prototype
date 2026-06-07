@@ -1,36 +1,42 @@
+import 'package:beepbeep_prototype/features/auth/repository/auth_repository.dart';
 import 'package:beepbeep_prototype/features/auth/viewmodel/role_selection_viewmodel.dart';
+import 'package:beepbeep_prototype/features/commuter/view/commuter_home_page.dart';
+import 'package:beepbeep_prototype/features/driver/view/driver_form.dart';
 import 'package:beepbeep_prototype/shared/widgets/elevatedbtn_widget.dart';
 import 'package:beepbeep_prototype/features/auth/view/widgets/role_container_widget.dart';
 import 'package:beepbeep_prototype/shared/widgets/text_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
-class RoleSelectionPage extends StatefulWidget {
+class RoleSelectionPage extends StatelessWidget {
   const RoleSelectionPage({super.key});
 
   @override
-  State<RoleSelectionPage> createState() => _RoleSelectionPageState();
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (_) => RoleSelectionViewModel(context.read<AuthRepository>()),
+      child: const _RoleSelectionView(),
+    );
+  }
 }
 
-class _RoleSelectionPageState extends State<RoleSelectionPage> {
-  late RoleSelectionController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = RoleSelectionController();
-  }
+class _RoleSelectionView extends StatelessWidget {
+  const _RoleSelectionView();
 
   @override
   Widget build(BuildContext context) {
+    final roleVM = context.watch<RoleSelectionViewModel>();
+
     return Scaffold(
       body: Padding(
-        padding: EdgeInsets.all(30.0.w),
+        padding: EdgeInsets.all(30.w),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SizedBox(height: 0.01.sh),
+
             TextWidget(
               text: 'Select Your Role',
               textStyle: GoogleFonts.montaguSlab(
@@ -39,45 +45,45 @@ class _RoleSelectionPageState extends State<RoleSelectionPage> {
               ),
               fontSize: 24.sp,
             ),
+
             SizedBox(height: 0.08.sh),
-            GestureDetector(
+
+            RoleContainerWidget(
+              text: 'Commuter',
+              description: "I'm looking for a ride.",
+              svgPath: 'assets/images/Commuter.svg',
+              bgColor: Colors.white,
+              borderColor: roleVM.isSelected("commuter")
+                  ? const Color(0xff0000FF)
+                  : Colors.grey,
+              roleTextColor: Colors.black,
+              roleDescriptionColor: Colors.black,
+              isSelected: roleVM.isSelected("commuter"),
               onTap: () {
-                setState(() {
-                  _controller.selectRole("Commuter");
-                });
+                roleVM.selectRole("commuter");
               },
-              child: RoleContainerWidget(
-                borderColor: _controller.getSelectedRole() == "Commuter"
-                    ? Color(0xff0000FF)
-                    : Colors.grey,
-                bgColor: Color(0xffFFFFFF),
-                text: 'Commuter',
-                roleTextColor: Color(0xff000000),
-                description: "I'm looking for a ride.",
-                roleDescriptionColor: Color(0xff000000),
-                svgPath: 'assets/images/Commuter.svg',
-              ),
             ),
+
             SizedBox(height: 0.03.sh),
-            GestureDetector(
+
+            RoleContainerWidget(
+              text: 'Driver',
+              description: 'I offer a ride.',
+              svgPath: 'assets/images/Driver.svg',
+              bgColor: Colors.white,
+              borderColor: roleVM.isSelected("driver")
+                  ? const Color(0xff0000FF)
+                  : Colors.grey,
+              roleTextColor: Colors.black,
+              roleDescriptionColor: Colors.black,
+              isSelected: roleVM.isSelected("driver"),
               onTap: () {
-                setState(() {
-                  _controller.selectRole("Driver");
-                });
+                roleVM.selectRole("driver");
               },
-              child: RoleContainerWidget(
-                borderColor: _controller.getSelectedRole() == "Driver"
-                    ? Color(0xff0000FF)
-                    : Colors.grey,
-                bgColor: Color(0xffFFFFFF),
-                text: 'Driver',
-                roleTextColor: Color(0xff000000),
-                description: 'I offer a ride.',
-                roleDescriptionColor: Color(0xff000000),
-                svgPath: 'assets/images/Driver.svg',
-              ),
             ),
+
             SizedBox(height: 0.03.sh),
+
             TextWidget(
               text: 'Or',
               textStyle: GoogleFonts.montaguSlab(
@@ -86,38 +92,77 @@ class _RoleSelectionPageState extends State<RoleSelectionPage> {
               ),
               fontSize: 24.sp,
             ),
+
             SizedBox(height: 0.03.sh),
-            GestureDetector(
+
+            RoleContainerWidget(
+              text: 'Operator',
+              description: 'I monitor rides.',
+              svgPath: 'assets/images/Operator.svg',
+              bgColor: Colors.white,
+              borderColor: roleVM.isSelected("operator")
+                  ? const Color(0xff0000FF)
+                  : Colors.grey,
+              roleTextColor: Colors.black,
+              roleDescriptionColor: Colors.black,
+              isSelected: roleVM.isSelected("operator"),
               onTap: () {
-                setState(() {
-                  _controller.selectRole("Operator");
-                });
+                roleVM.selectRole("operator");
               },
-              child: RoleContainerWidget(
-                borderColor: _controller.getSelectedRole() == "Operator"
-                    ? Color(0xff0000FF)
-                    : Colors.grey,
-                bgColor: Color(0xffFFFFFF),
-                text: 'Operator',
-                roleTextColor: Color(0xff000000),
-                description: 'I monitor rides.',
-                roleDescriptionColor: Color(0xff000000),
-                svgPath: 'assets/images/Operator.svg',
-              ),
             ),
+
             SizedBox(height: 0.05.sh),
+
             ElevatedButtonWidget(
               text: 'Continue',
-              bgColor: Color(0xff0000FF),
-              textColor: Color(0xffFFFFFF),
-              onPressed: () {
-                _controller.handleContinue(context);
-              },
+              bgColor: const Color(0xff0000FF),
+              textColor: Colors.white,
+              borderColor: const Color(0xff0000FF),
               fontSize: 16.sp,
               fontWeight: FontWeight.bold,
               iconWidth: null,
               iconHeight: null,
-              borderColor: Color(0xff0000FF),
+              onPressed: () async {
+                if (roleVM.selectedRole == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Please select a role to continue."),
+                    ),
+                  );
+                  return;
+                }
+                try {
+                  await roleVM.saveRole(roleVM.selectedRole!);
+                  if (!context.mounted) return;
+
+                  if (roleVM.selectedRole == "commuter") {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CommuterHomePage(),
+                      ),
+                    );
+                  }
+
+                  if (roleVM.selectedRole == "driver") {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => DriverForm()),
+                    );
+                  }
+                } catch (e) {
+                  
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(e.toString()),
+                    ),
+                  );
+                }
+
+                // TODO:
+                // navigate
+                // save role
+              },
             ),
           ],
         ),

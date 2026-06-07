@@ -45,12 +45,12 @@ class _CommuterScreenState extends State<TrackingPage> {
   void _startListeningLocation() {
     _commuterController.startListeningLocation(
       onPosition: (Position position) async {
-        if (!mounted) return;
-
         final marker = await _commuterController.buildUserLocationMarker(
           position,
           photoUrl,
         );
+
+        if (!mounted) return;
 
         setState(() {
           _markers.removeWhere(
@@ -68,12 +68,12 @@ class _CommuterScreenState extends State<TrackingPage> {
       context,
     );
 
-    if (!mounted) return;
-
     final marker = await _commuterController.buildUserLocationMarker(
       position,
       photoUrl,
     );
+
+    if (!mounted) return;
 
     setState(() {
       _markers.removeWhere(

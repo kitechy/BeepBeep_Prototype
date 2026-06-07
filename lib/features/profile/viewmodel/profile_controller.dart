@@ -1,4 +1,4 @@
-import 'package:beepbeep_prototype/features/auth/service/google_auth_service.dart';
+import 'package:beepbeep_prototype/features/auth/service/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -13,7 +13,7 @@ class ProfileController {
   /// Handles user sign out
   Future<void> handleSignOut(BuildContext context) async {
     try {
-      await GoogleAuthService().signOut();
+      await AuthService().signOut();
       if (!context.mounted) return;
       Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
     } catch (e) {

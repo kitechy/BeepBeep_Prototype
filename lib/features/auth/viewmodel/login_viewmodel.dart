@@ -40,6 +40,7 @@ class LoginViewModel extends ChangeNotifier {
     }
   }
 
+
   Future<void> logout() async {
     try {
       await _repo.signOut();
