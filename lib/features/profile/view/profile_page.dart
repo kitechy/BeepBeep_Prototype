@@ -1,26 +1,54 @@
+import 'package:beepbeep_prototype/features/auth/repository/auth_repository.dart';
+import 'package:beepbeep_prototype/features/auth/service/auth_service.dart';
+import 'package:beepbeep_prototype/features/auth/view/login_page.dart';
 import 'package:beepbeep_prototype/features/auth/view/role_selection_page.dart';
-import 'package:beepbeep_prototype/features/profile/viewmodel/profile_controller.dart';
+import 'package:beepbeep_prototype/features/profile/viewmodel/profile_viewmodel.dart';
+import 'package:beepbeep_prototype/shared/dialogs/error_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
 
-class ProfilePage extends StatefulWidget {
+class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
   @override
-  State<ProfilePage> createState() => _ProfilePageScreenState();
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (context) => ProfileViewModel(AuthRepository(AuthService())),
+      child: _ProfileView(),
+    );
+  }
 }
 
-class _ProfilePageScreenState extends State<ProfilePage> {
-  late ProfileController _profileController;
+class _ProfileView extends StatefulWidget {
+  const _ProfileView();
 
   @override
-  void initState() {
-    super.initState();
-    _profileController = ProfileController();
-  }
+  State<_ProfileView> createState() => __ProfileViewState();
+}
 
-  Future<void> _handleSignOut() async {
-    _profileController.handleSignOut(context);
+class __ProfileViewState extends State<_ProfileView> {
+  Future<void> signOut() async {
+    final driverVM = context.read<ProfileViewModel>();
+
+    final success = await driverVM.logout();
+
+    if (!mounted) return;
+    if (success) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => LoginPage()),
+      );
+    } else {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return const ErrorDialog(
+            message: "Log out failed. Please try again later.",
+          );
+        },
+      );
+    }
   }
 
   void changeRole() {
@@ -32,13 +60,14 @@ class _ProfilePageScreenState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final profileVM = context.watch<ProfileViewModel>();
     return Scaffold(
       appBar: AppBar(
         title: Text('Profile'),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      body: _profileController.getCurrentUser() == null
+      body: profileVM.currentUser == null
           ? Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
               child: Column(
@@ -52,10 +81,10 @@ class _ProfilePageScreenState extends State<ProfilePage> {
                       shape: BoxShape.circle,
                       border: Border.all(color: Color(0xff0000FF), width: 2.r),
                     ),
-                    child: _profileController.getCurrentUser()!.photoURL != null
+                    child: profileVM.currentUser!.photoURL != null
                         ? ClipOval(
                             child: Image.network(
-                              _profileController.getCurrentUser()!.photoURL!,
+                              profileVM.currentUser!.photoURL!,
                               fit: BoxFit.cover,
                             ),
                           )
@@ -73,7 +102,7 @@ class _ProfilePageScreenState extends State<ProfilePage> {
                   SizedBox(height: 20.h),
                   // User Name
                   Text(
-                    _profileController.getCurrentUser()!.displayName ?? 'User',
+                    profileVM.currentUser!.displayName ?? 'User',
                     style: TextStyle(
                       fontSize: 24.sp,
                       fontWeight: FontWeight.bold,
@@ -83,7 +112,7 @@ class _ProfilePageScreenState extends State<ProfilePage> {
                   SizedBox(height: 8.h),
                   // User Email
                   Text(
-                    _profileController.getCurrentUser()!.email ?? '',
+                    profileVM.currentUser!.email ?? '',
                     style: TextStyle(fontSize: 14.sp, color: Colors.grey[600]),
                   ),
                   SizedBox(height: 40.h),
@@ -93,7 +122,7 @@ class _ProfilePageScreenState extends State<ProfilePage> {
                     child: SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: _handleSignOut,
+                        onPressed: signOut,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Color(0xff0000FF),
                           padding: EdgeInsets.symmetric(vertical: 12.h),

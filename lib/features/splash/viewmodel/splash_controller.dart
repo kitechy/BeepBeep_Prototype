@@ -2,7 +2,7 @@ import 'package:beepbeep_prototype/features/auth/view/login_page.dart';
 import 'package:flutter/material.dart';
 
 class SplashController {
-  /// Handles navigation to login page after delay
+
   Future<void> navigateToLogin(BuildContext context) async {
     await Future.delayed(const Duration(milliseconds: 2000));
 
