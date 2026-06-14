@@ -1,6 +1,6 @@
 import 'package:beepbeep_prototype/features/profile/view/profile_page.dart';
 import 'package:beepbeep_prototype/features/commuter/view/tracking_page.dart';
-import 'package:beepbeep_prototype/features/commuter/view/widgets/bottom_navigation_bar.dart';
+import 'package:beepbeep_prototype/shared/components/bottom_navigation_bar.dart';
 import 'package:beepbeep_prototype/features/commuter/viewmodel/commuter_home_page_viewmodel.dart';
 import 'package:flutter/material.dart';
 

@@ -1,3 +1,4 @@
+import 'package:beepbeep_prototype/features/auth/view/role_selection_page.dart';
 import 'package:beepbeep_prototype/features/profile/viewmodel/profile_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -20,6 +21,13 @@ class _ProfilePageScreenState extends State<ProfilePage> {
 
   Future<void> _handleSignOut() async {
     _profileController.handleSignOut(context);
+  }
+
+  void changeRole() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const RoleSelectionPage()),
+    );
   }
 
   @override
@@ -105,6 +113,10 @@ class _ProfilePageScreenState extends State<ProfilePage> {
                     ),
                   ),
                   SizedBox(height: 20.h),
+                  ElevatedButton(
+                    onPressed: changeRole,
+                    child: Icon(Icons.swap_horiz_outlined, size: 24),
+                  ),
                 ],
               ),
             ),

@@ -18,6 +18,7 @@ class AuthRepository {
     await _authService.saveRole(role);
   }
 
+
   User? get currentUser {
     return FirebaseAuth.instance.currentUser;
   }

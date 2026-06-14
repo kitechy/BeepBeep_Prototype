@@ -1,3 +1,4 @@
+import 'package:beepbeep_prototype/core/enums/user_role.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -36,6 +37,19 @@ class AuthService {
       'role': role,
       'createdAt': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
+  }
+
+  Future<void> changeRole(UserRole role) async {
+    final user = _firebaseAuth.currentUser;
+
+    if (user == null) {
+      throw Exception("User not logged in");
+    }
+
+    await _firestore.collection('users').doc(user.uid).update({
+      'role': role,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
   }
 
   Future<void> signOut() async {

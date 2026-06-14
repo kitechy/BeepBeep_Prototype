@@ -1,8 +1,10 @@
 import 'package:beepbeep_prototype/features/auth/repository/auth_repository.dart';
 import 'package:beepbeep_prototype/features/auth/service/auth_service.dart';
 import 'package:beepbeep_prototype/features/auth/view/login_page.dart';
+import 'package:beepbeep_prototype/features/auth/view/role_selection_page.dart';
 import 'package:beepbeep_prototype/features/driver/viewmodel/driver_viewmodel.dart';
 import 'package:beepbeep_prototype/shared/dialogs/error_dialog.dart';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -59,6 +61,13 @@ class __DriverViewState extends State<_DriverView> {
     }
   }
 
+  void changeRole() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const RoleSelectionPage()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,6 +77,10 @@ class __DriverViewState extends State<_DriverView> {
           children: [
             Text("Driver Home Page"),
             ElevatedButton(onPressed: () => signOut(), child: Text('Log Out')),
+            ElevatedButton(
+              onPressed: changeRole,
+              child: Icon(Icons.swap_horiz_outlined, size: 24),
+            ),
           ],
         ),
       ),

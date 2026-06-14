@@ -20,6 +20,7 @@ class DriverViewModel extends ChangeNotifier {
     }
   }
 
+
   Future<bool> logout() async {
     try {
       await _repo.signOut();
