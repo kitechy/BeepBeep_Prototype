@@ -3,12 +3,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class BottomNavigationBarWidget extends StatelessWidget {
   final int selectedIndex;
-  final Function(int) onIndexChanged;
-
+  final ValueChanged<int> onDestinationSelected;
   const BottomNavigationBarWidget({
     super.key,
     required this.selectedIndex,
-    required this.onIndexChanged,
+    required this.onDestinationSelected,
   });
 
   @override
@@ -44,7 +43,7 @@ class BottomNavigationBarWidget extends StatelessWidget {
           backgroundColor: Color(0xffFFFFFF),
           indicatorColor: Colors.transparent,
           selectedIndex: selectedIndex,
-          onDestinationSelected: onIndexChanged,
+          onDestinationSelected: onDestinationSelected,
           destinations: [
             NavigationDestination(
               icon: Icon(Icons.location_on_outlined, size: 24.r),

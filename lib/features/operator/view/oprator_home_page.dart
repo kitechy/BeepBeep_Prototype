@@ -1,5 +1,5 @@
-import 'package:beepbeep_prototype/features/auth/repository/auth_repository.dart';
-import 'package:beepbeep_prototype/features/auth/service/auth_service.dart';
+import 'package:beepbeep_prototype/core/repository/auth_repository.dart';
+import 'package:beepbeep_prototype/core/service/auth_service.dart';
 import 'package:beepbeep_prototype/features/auth/view/login_page.dart';
 import 'package:beepbeep_prototype/features/auth/view/role_selection_page.dart';
 import 'package:beepbeep_prototype/features/operator/viewmodel/operator_viewmodel.dart';

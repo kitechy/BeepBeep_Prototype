@@ -1,6 +1,6 @@
-import 'package:beepbeep_prototype/features/auth/repository/auth_repository.dart';
-import 'package:beepbeep_prototype/features/auth/repository/auth_wrapper.dart';
-import 'package:beepbeep_prototype/features/auth/service/auth_service.dart';
+import 'package:beepbeep_prototype/core/repository/auth_repository.dart';
+import 'package:beepbeep_prototype/core/repository/auth_wrapper.dart';
+import 'package:beepbeep_prototype/core/service/auth_service.dart';
 import 'package:beepbeep_prototype/features/auth/view/widgets/google_signin_button.dart';
 import 'package:beepbeep_prototype/features/auth/view/widgets/guest_button.dart';
 import 'package:beepbeep_prototype/features/auth/viewmodel/login_viewmodel.dart';

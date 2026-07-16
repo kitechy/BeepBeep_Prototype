@@ -1,4 +1,4 @@
-import 'package:beepbeep_prototype/features/auth/repository/auth_wrapper.dart';
+import 'package:beepbeep_prototype/core/repository/auth_wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';

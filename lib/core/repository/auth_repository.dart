@@ -1,4 +1,4 @@
-import 'package:beepbeep_prototype/features/auth/service/auth_service.dart';
+import 'package:beepbeep_prototype/core/service/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthRepository {

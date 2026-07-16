@@ -1,4 +1,4 @@
-import 'package:beepbeep_prototype/features/auth/repository/auth_repository.dart';
+import 'package:beepbeep_prototype/core/repository/auth_repository.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -25,7 +25,7 @@ class ProfileViewModel extends ChangeNotifier {
     return _repo.currentUser;
   }
 
- Future<bool> logout() async {
+  Future<bool> logout() async {
     try {
       await _repo.signOut();
       return true;

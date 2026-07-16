@@ -3,18 +3,15 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class DraggableSheet extends StatefulWidget {
   const DraggableSheet({super.key, required this.controller});
-final DraggableScrollableController controller;
+  final DraggableScrollableController controller;
   @override
   State<DraggableSheet> createState() => _RoutesSelectionState();
 }
 
 class _RoutesSelectionState extends State<DraggableSheet> {
-  
-
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
-      controller: widget.controller,
       initialChildSize: 0.4,
       minChildSize: 0.1,
       maxChildSize: 0.4,
