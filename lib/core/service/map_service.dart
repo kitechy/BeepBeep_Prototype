@@ -36,4 +36,29 @@ class MapService {
     final controller = await _controller.future;
     controller.animateCamera(CameraUpdate.zoomOut());
   }
+
+  Future<void> fitToRoute(List<LatLng> points) async {
+    if (points.isEmpty) return;
+
+    final controller = await _controller.future;
+
+    double minLat = points.first.latitude;
+    double maxLat = points.first.latitude;
+    double minLng = points.first.longitude;
+    double maxLng = points.first.longitude;
+
+    for (final point in points) {
+      if (point.latitude < minLat) minLat = point.latitude;
+      if (point.latitude > maxLat) maxLat = point.latitude;
+      if (point.longitude < minLng) minLng = point.longitude;
+      if (point.longitude > maxLng) maxLng = point.longitude;
+    }
+
+    final bounds = LatLngBounds(
+      southwest: LatLng(minLat, minLng),
+      northeast: LatLng(maxLat, maxLng),
+    );
+
+    await controller.animateCamera(CameraUpdate.newLatLngBounds(bounds, 80));
+  }
 }

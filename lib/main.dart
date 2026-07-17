@@ -1,5 +1,6 @@
 import 'package:beepbeep_prototype/app.dart';
 import 'package:beepbeep_prototype/core/repository/auth_repository.dart';
+import 'package:beepbeep_prototype/core/repository/routes_repository.dart';
 import 'package:beepbeep_prototype/core/service/auth_service.dart';
 import 'package:beepbeep_prototype/core/service/location_service.dart';
 import 'package:beepbeep_prototype/core/service/map_service.dart';
@@ -37,6 +38,7 @@ Future<void> main() async {
             context.read<LocationService>(),
             context.read<MarkerService>(),
             context.read<AuthRepository>(),
+            context.read<RouteRepository>(),
           ),
         ),
       ],
