@@ -1,8 +1,13 @@
 import 'package:beepbeep_prototype/core/repository/auth_repository.dart';
+import 'package:beepbeep_prototype/core/repository/user_repository.dart';
 import 'package:beepbeep_prototype/core/service/auth_service.dart';
+import 'package:beepbeep_prototype/core/service/user_service.dart';
 
 import 'package:beepbeep_prototype/features/auth/view/login_page.dart';
 import 'package:beepbeep_prototype/features/auth/view/role_selection_page.dart';
+import 'package:beepbeep_prototype/features/driver/repository/driver_repository.dart';
+import 'package:beepbeep_prototype/features/driver/service/driver_service.dart';
+
 import 'package:beepbeep_prototype/features/driver/viewmodel/driver_viewmodel.dart';
 import 'package:beepbeep_prototype/shared/dialogs/error_dialog.dart';
 
@@ -15,7 +20,11 @@ class DriverHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => DriverViewModel(AuthRepository(AuthService())),
+      create: (context) => DriverViewModel(
+        AuthRepository(AuthService()),
+        DriverRepository(DriverService()),
+        UserRepository(UserService()),
+      ),
       child: _DriverView(),
     );
   }

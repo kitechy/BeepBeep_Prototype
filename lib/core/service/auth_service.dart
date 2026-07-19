@@ -34,6 +34,7 @@ class AuthService {
       'name': user.displayName,
       'photoUrl': user.photoURL,
       'role': role,
+      'profileCompleted': role == 'commuter',
       'createdAt': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
   }

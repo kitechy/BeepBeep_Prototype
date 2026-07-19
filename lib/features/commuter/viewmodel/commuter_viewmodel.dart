@@ -3,7 +3,7 @@ import 'package:beepbeep_prototype/core/repository/routes_repository.dart';
 import 'package:beepbeep_prototype/core/service/location_service.dart';
 import 'package:beepbeep_prototype/core/service/map_service.dart';
 import 'package:beepbeep_prototype/core/service/marker_service.dart';
-import 'package:beepbeep_prototype/models/routes.dart';
+import 'package:beepbeep_prototype/models/routes_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -27,7 +27,7 @@ class CommuterViewModel extends ChangeNotifier {
 
   Set<Polyline> polylines = {};
   Set<Marker> get markers => _markers;
-  List<Routes> availableRoutes = [];
+  List<RoutesModel> availableRoutes = [];
 
   Future<void> onMapCreated(GoogleMapController controller) async {
     await _mapService.onMapCreated(controller);

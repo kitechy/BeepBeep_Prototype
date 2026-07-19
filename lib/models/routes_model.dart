@@ -1,20 +1,20 @@
 import 'dart:ui';
 
-class Routes {
+class RoutesModel {
   final String id;
   final String name;
   final Color color;
   final String encodedPolyline;
 
-  Routes({
+  RoutesModel({
     required this.id,
     required this.name,
     required this.color,
     required this.encodedPolyline,
   });
 
-  factory Routes.fromMap(String id, Map<String, dynamic> map) {
-    return Routes(
+  factory RoutesModel.fromMap(String id, Map<String, dynamic> map) {
+    return RoutesModel(
       id: id,
       name: map['name'],
       color: Color(int.parse(map['color'].replaceFirst('#', '0xff'))),
