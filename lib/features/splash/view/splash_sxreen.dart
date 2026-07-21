@@ -1,4 +1,3 @@
-
 import 'package:beepbeep_prototype/features/splash/viewmodel/splash_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -42,7 +41,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 style: GoogleFonts.montaguSlab(
                   fontSize: 40.sp,
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xff0000FF),
+                  color: const Color(0xff0057FF),
                 ),
               ),
             ],

@@ -11,9 +11,9 @@ class GuestButtonWidget extends StatelessWidget {
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         minimumSize: Size(double.infinity, 75.h),
-        backgroundColor: Color(0xff0000FF),
+        backgroundColor: Color(0xff0057FF),
         foregroundColor: Color(0xffFFFFFF),
-        side: BorderSide(color: Color(0xff0000FF), width: 1.w),
+        side: BorderSide(color: Color(0xff0057FF), width: 1.w),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,

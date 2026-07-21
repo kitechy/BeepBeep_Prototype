@@ -16,9 +16,9 @@ class GoogleSigninButtonWidget extends StatelessWidget {
       onPressed: isLoading ? null : onPressed,
       style: ElevatedButton.styleFrom(
         fixedSize: Size(0.8.sw, 75.h),
-        backgroundColor: Color(0xffFFFFFF),
+        backgroundColor: Color(0xffF8F7F4),
         foregroundColor: Color(0xff000000),
-        side: BorderSide(color: Color(0xff0000FF), width: 1.w),
+        side: BorderSide(color: Color(0xff0057FF), width: 1.w),
       ),
       child: isLoading
           ? SizedBox(

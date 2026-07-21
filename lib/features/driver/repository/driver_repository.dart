@@ -17,4 +17,8 @@ class DriverRepository {
   Future<void> updateDriverProfile(DriverProfile profile) async {
     await _driverService.updateDriverProfile(profile);
   }
+
+  Future<void> updateDriverStatus(String uid, String status) async {
+    await _driverService.updateDriverStatus(uid, status);
+  }
 }

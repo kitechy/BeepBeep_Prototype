@@ -7,7 +7,7 @@ import 'package:beepbeep_prototype/features/driver/service/driver_service.dart';
 import 'package:beepbeep_prototype/features/driver/view/driver_home_page.dart';
 import 'package:beepbeep_prototype/features/driver/view/widgets/field_label_widget.dart';
 import 'package:beepbeep_prototype/features/driver/view/widgets/form_field_widget.dart';
-import 'package:beepbeep_prototype/features/driver/viewmodel/driver_viewmodel.dart';
+import 'package:beepbeep_prototype/features/driver/viewmodel/driver_form_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
@@ -18,7 +18,7 @@ class DriverForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => DriverViewModel(
+      create: (_) => DriverFormViewModel(
         AuthRepository(AuthService()),
         DriverRepository(DriverService()),
         UserRepository(UserService()),
@@ -38,7 +38,7 @@ class _DriverFormView extends StatefulWidget {
 class __DriverFormViewState extends State<_DriverFormView> {
   @override
   Widget build(BuildContext context) {
-    final driverVM = context.watch<DriverViewModel>();
+    final driverVM = context.watch<DriverFormViewModel>();
     return Scaffold(
       body: SafeArea(
         child: Form(

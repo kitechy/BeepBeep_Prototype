@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           textTheme: GoogleFonts.openSansTextTheme(),
-          colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xffFFFFFF)),
+          colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xffF8F7F4)),
         ),
         home: AuthWrapper(),
       ),

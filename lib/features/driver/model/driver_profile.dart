@@ -1,9 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class DriverProfile {
   final String uid;
   final String phoneNumber;
   final String licenseNumber;
   final String address;
   final String status;
+  final String? currentRouteId;
 
   DriverProfile({
     required this.uid,
@@ -11,6 +14,7 @@ class DriverProfile {
     required this.licenseNumber,
     required this.address,
     this.status = "offline",
+    required this.currentRouteId,
   });
 
   Map<String, dynamic> toMap() {
@@ -20,7 +24,8 @@ class DriverProfile {
       'licenseNumber': licenseNumber,
       'address': address,
       'status': status,
-      'createdAt': DateTime.now(),
+      'currentRouteId': currentRouteId,
+      'createdAt': FieldValue.serverTimestamp(),
     };
   }
 
@@ -31,6 +36,24 @@ class DriverProfile {
       licenseNumber: map['licenseNumber'],
       address: map['address'],
       status: map['status'],
+      currentRouteId: map["currentRouteId"],
+    );
+  }
+
+  DriverProfile copyWith({
+    String? phoneNumber,
+    String? licenseNumber,
+    String? address,
+    String? status,
+    String? currentRouteId
+  }) {
+    return DriverProfile(
+      uid: uid,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
+      licenseNumber: licenseNumber ?? this.licenseNumber,
+      address: address ?? this.address,
+      status: status ?? this.status, currentRouteId: currentRouteId ?? this.currentRouteId,
+      
     );
   }
 }
