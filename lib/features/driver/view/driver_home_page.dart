@@ -117,12 +117,48 @@ class __DriverViewState extends State<_DriverView>
             ),
 
             Positioned(
-              top: 50,
-              left: 20,
-              child: StatusIndicator(
-                isOnline: driverVM.isOnline,
-                onPressed: driverVM.toggleStatus,
-                c: _c,
+              top: 0,
+              left: 0,
+              right: 0,
+              child: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Align(
+                    alignment: Alignment.topLeft,
+                    child: Material(
+                      color: const Color(0xffF8F7F4),
+                      shape: const CircleBorder(),
+                      elevation: 3,
+                      child: InkWell(
+                        onTap: () {
+                          // TODO: Open drawer/menu
+                        },
+                        customBorder: const CircleBorder(),
+                        child: const Padding(
+                          padding: EdgeInsets.all(10),
+                          child: Icon(
+                            Icons.menu_rounded,
+                            size: 22,
+                            color: Color(0xff1C1A17),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            Positioned(
+              top: 55,
+              left: 16,
+              right: 16,
+              child: SafeArea(
+                child: StatusIndicator(
+                  isOnline: driverVM.isOnline,
+                  greeting: driverVM.greeting,
+                  driverName: driverVM.driverName,
+                ),
               ),
             ),
 

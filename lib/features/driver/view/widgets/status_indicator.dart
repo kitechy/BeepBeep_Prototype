@@ -1,33 +1,92 @@
-import 'package:beepbeep_prototype/features/driver/view/widgets/status_dot.dart';
 import 'package:flutter/material.dart';
 
 class StatusIndicator extends StatelessWidget {
   final bool isOnline;
-  final VoidCallback onPressed;
-  final AnimationController c;
+  final String greeting;
+  final String? route;
+  final String driverName;
+
   const StatusIndicator({
     super.key,
     required this.isOnline,
-    required this.onPressed,
-    required this.c,
+
+    required this.greeting,
+    this.route,
+    required this.driverName,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        StatusDot(isOnline: isOnline, c: c),
-        const SizedBox(width: 9),
-        Text(
-          isOnline ? "ONLINE" : "OFFLINE",
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w800,
-            letterSpacing: 1.0,
-            color: isOnline ? Color(0xff2E7D5B) : Color(0xff8A8378),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: Color(0xffFFFFFF),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
-        ),
-      ],
+        ],
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+
+              children: [
+                Text(
+                  greeting + ", " + driverName,
+                  style: const TextStyle(
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xff1C1A17),
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  route ?? "No route selected",
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontStyle: route == null
+                        ? FontStyle.italic
+                        : FontStyle.normal,
+                    color: route == null
+                        ? Color(0xff8A8378)
+                        : Color(0xffC7852F),
+                    fontWeight: route == null
+                        ? FontWeight.w400
+                        : FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Row(
+            children: [
+              Container(
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: isOnline ? Color(0xff2E7D5B) : Color(0xff8A8378),
+                ),
+              ),
+              const SizedBox(width: 5),
+              Text(
+                isOnline ? "Online" : "Offline",
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: isOnline ? Color(0xff2E7D5B) : Color(0xff8A8378),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
