@@ -141,10 +141,20 @@ class __DriverViewState extends State<_DriverView>
                     onPressed: () {},
                   ),
                   const SizedBox(height: 12),
+                  FloatingActionButton(
+                    heroTag: "status",
+                    backgroundColor: Colors.white,
+                    onPressed: driverVM.toggleStatus,
+                    child: const Icon(
+                      Icons.radio_button_checked_rounded,
+                      color: Color(0xff0057FF),
+                    ),
+                  ),
                 ],
               ),
             ),
 
+            /// Animated Border
             IgnorePointer(
               child: AnimatedBuilder(
                 animation: _c,
