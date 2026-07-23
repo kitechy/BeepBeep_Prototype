@@ -38,7 +38,7 @@ Future<void> main() async {
             context.read<LocationService>(),
             context.read<MarkerService>(),
             context.read<AuthRepository>(),
-            context.read<RouteRepository>(),
+            context.read<RoutesRepository>(),
           ),
         ),
       ],

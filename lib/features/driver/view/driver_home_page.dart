@@ -1,6 +1,8 @@
 import 'package:beepbeep_prototype/core/repository/auth_repository.dart';
+import 'package:beepbeep_prototype/core/repository/routes_repository.dart';
 import 'package:beepbeep_prototype/core/service/auth_service.dart';
 import 'package:beepbeep_prototype/core/service/map_service.dart';
+import 'package:beepbeep_prototype/core/service/routes_service.dart';
 import 'package:beepbeep_prototype/features/auth/view/login_page.dart';
 import 'package:beepbeep_prototype/features/auth/view/role_selection_page.dart';
 import 'package:beepbeep_prototype/features/driver/repository/driver_repository.dart';
@@ -8,6 +10,7 @@ import 'package:beepbeep_prototype/features/driver/service/driver_service.dart';
 import 'package:beepbeep_prototype/features/driver/view/widgets/status_indicator.dart';
 import 'package:beepbeep_prototype/features/driver/viewmodel/driver_viewmodel.dart';
 import 'package:beepbeep_prototype/shared/dialogs/error_dialog.dart';
+import 'package:beepbeep_prototype/shared/widgets/route_bottom_sheet.dart';
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -23,6 +26,7 @@ class DriverHomePage extends StatelessWidget {
         AuthRepository(AuthService()),
         DriverRepository(DriverService()),
         MapService(),
+        RoutesRepository(RoutesService()),
       ),
       child: _DriverView(),
     );
@@ -46,8 +50,11 @@ class __DriverViewState extends State<_DriverView>
   void initState() {
     super.initState();
 
-    Future.microtask(() {
-      context.read<DriverViewModel>().loadDriverProfile();
+    Future.microtask(() async {
+      final driverVM = context.read<DriverViewModel>();
+
+      await driverVM.loadRoutes();
+      await driverVM.loadDriverProfile();
     });
   }
 
@@ -114,6 +121,7 @@ class __DriverViewState extends State<_DriverView>
               ),
               zoomControlsEnabled: false,
               onMapCreated: driverVM.onMapCreated,
+              polylines: driverVM.polylines,
             ),
 
             Positioned(
@@ -174,7 +182,17 @@ class __DriverViewState extends State<_DriverView>
                       Icons.route_rounded,
                       color: Color(0xff0057FF),
                     ),
-                    onPressed: () {},
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        builder: (context) => RouteBottomSheet(
+                          routes: driverVM.availableRoutes,
+                          onRouteSelected: (routes) async {
+                            await driverVM.selectRoute(routes);
+                          },
+                        ),
+                      );
+                    },
                   ),
                   const SizedBox(height: 12),
                   FloatingActionButton(

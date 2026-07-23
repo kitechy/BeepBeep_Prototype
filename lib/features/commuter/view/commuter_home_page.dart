@@ -4,7 +4,8 @@ import 'package:beepbeep_prototype/core/service/auth_service.dart';
 import 'package:beepbeep_prototype/core/service/location_service.dart';
 import 'package:beepbeep_prototype/core/service/map_service.dart';
 import 'package:beepbeep_prototype/core/service/marker_service.dart';
-import 'package:beepbeep_prototype/features/commuter/view/widgets/route_bottom_sheet.dart';
+import 'package:beepbeep_prototype/core/service/routes_service.dart';
+import 'package:beepbeep_prototype/shared/widgets/route_bottom_sheet.dart';
 import 'package:beepbeep_prototype/features/commuter/viewmodel/commuter_viewmodel.dart';
 import 'package:beepbeep_prototype/features/profile/view/profile_page.dart';
 import 'package:beepbeep_prototype/shared/components/bottom_navigation_bar.dart';
@@ -23,7 +24,7 @@ class CommuterHomePage extends StatelessWidget {
         LocationService(),
         MarkerService(),
         AuthRepository(AuthService()),
-        RouteRepository(),
+        RoutesRepository(RoutesService()),
       ),
       child: const _CommuterView(),
     );
@@ -85,7 +86,12 @@ Widget _buildMapPage(CommuterViewModel commuterVM, BuildContext context) {
               onPressed: () {
                 showModalBottomSheet(
                   context: context,
-                  builder: (_) => RouteBottomSheet(vm: commuterVM),
+                  builder: (_) => RouteBottomSheet(
+                    routes: commuterVM.availableRoutes,
+                    onRouteSelected: (route) async {
+                      await commuterVM.loadRoute(route.id);
+                    },
+                  ),
                 );
               },
             ),

@@ -10,7 +10,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class CommuterViewModel extends ChangeNotifier {
   final AuthRepository _repo;
-  final RouteRepository _routeRepo;
+  final RoutesRepository _routeRepo;
   final MapService _mapService;
   final LocationService _locationService;
   final MarkerService _markerService;

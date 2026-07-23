@@ -21,4 +21,8 @@ class DriverRepository {
   Future<void> updateDriverStatus(String uid, String status) async {
     await _driverService.updateDriverStatus(uid, status);
   }
+
+  Future<void> updateCurrentRoute(String uid, String routeId) {
+    return _driverService.updateCurrentRoute(uid, routeId);
+  }
 }

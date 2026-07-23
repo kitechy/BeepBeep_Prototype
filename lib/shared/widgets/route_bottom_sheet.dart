@@ -1,4 +1,4 @@
-import 'package:beepbeep_prototype/features/commuter/viewmodel/commuter_viewmodel.dart';
+import 'package:beepbeep_prototype/models/routes_model.dart';
 import 'package:flutter/material.dart';
 
 class _Palette {
@@ -8,17 +8,22 @@ class _Palette {
   static const gold = Color(0xFFC7952F);
 
   static const tags = [
-    Color(0xFF2E7D5B), // green
-    Color(0xFFB2542D), // clay
-    Color(0xFF3D6EA8), // blue
-    Color(0xFF8A5CB0), // violet
+    Color(0xFF2E7D5B),
+    Color(0xFFB2542D),
+    Color(0xFF3D6EA8),
+    Color(0xFF8A5CB0),
   ];
 }
 
 class RouteBottomSheet extends StatefulWidget {
-  final CommuterViewModel vm;
+  final List<RoutesModel> routes;
+  final Future<void> Function(RoutesModel routes) onRouteSelected;
 
-  const RouteBottomSheet({super.key, required this.vm});
+  const RouteBottomSheet({
+    super.key,
+    required this.routes,
+    required this.onRouteSelected,
+  });
 
   @override
   State<RouteBottomSheet> createState() => _RouteBottomSheetState();
@@ -33,12 +38,13 @@ class _RouteBottomSheetState extends State<RouteBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final routes = widget.vm.availableRoutes
+    final routes = widget.routes
         .where((r) => r.name.toLowerCase().contains(_query.toLowerCase()))
         .toList();
 
     return Container(
       decoration: const BoxDecoration(
+        color: Color(0xffF8F7F4),
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
       child: SafeArea(
@@ -51,7 +57,7 @@ class _RouteBottomSheetState extends State<RouteBottomSheet> {
               width: 36,
               height: 4,
               decoration: BoxDecoration(
-                color: _Palette.line,
+                color: Color(0xFFE7E0D2),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -60,7 +66,7 @@ class _RouteBottomSheetState extends State<RouteBottomSheet> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 22),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
                     'AVAILABLE ROUTES',
@@ -68,7 +74,7 @@ class _RouteBottomSheetState extends State<RouteBottomSheet> {
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
                       letterSpacing: 1.6,
-                      color: _Palette.gold,
+                      color: Color(0xFFC7952F),
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -160,8 +166,12 @@ class _RouteBottomSheetState extends State<RouteBottomSheet> {
                               ? null
                               : () async {
                                   setState(() => _loadingRouteId = route.id);
-                                  await widget.vm.loadRoute(route.id);
-                                  if (context.mounted) Navigator.pop(context);
+
+                                  await widget.onRouteSelected(route);
+
+                                  if (context.mounted) {
+                                    Navigator.pop(context);
+                                  }
                                 },
                           child: Padding(
                             padding: const EdgeInsets.symmetric(

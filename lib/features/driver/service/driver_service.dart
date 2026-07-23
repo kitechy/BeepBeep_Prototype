@@ -32,4 +32,10 @@ class DriverService {
       'status': status,
     });
   }
+
+  Future<void> updateCurrentRoute(String uid, String routeId) async {
+    await _firestore.collection('driver_profiles').doc(uid).update({
+      'currentRouteId': routeId,
+    });
+  }
 }
