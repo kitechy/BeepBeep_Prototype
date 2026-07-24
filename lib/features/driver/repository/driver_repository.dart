@@ -33,4 +33,8 @@ class DriverRepository {
   ) {
     return _driverService.updateDriverLocation(uid, latitude, longitude);
   }
+
+  Stream<List<DriverProfile>> getOnlineDrivers(String routeId) {
+    return _driverService.getOnlineDrivers(routeId);
+  }
 }

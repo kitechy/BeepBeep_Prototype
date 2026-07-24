@@ -7,6 +7,7 @@ import 'package:beepbeep_prototype/core/service/map_service.dart';
 import 'package:beepbeep_prototype/core/service/marker_service.dart';
 import 'package:beepbeep_prototype/features/auth/viewmodel/login_viewmodel.dart';
 import 'package:beepbeep_prototype/features/commuter/viewmodel/commuter_viewModel.dart';
+import 'package:beepbeep_prototype/features/driver/repository/driver_repository.dart';
 import 'package:beepbeep_prototype/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -34,11 +35,12 @@ Future<void> main() async {
         ),
         ChangeNotifierProvider(
           create: (context) => CommuterViewModel(
+            context.read<AuthRepository>(),
+            context.read<RoutesRepository>(),
+            context.read<DriverRepository>(),
             context.read<MapService>(),
             context.read<LocationService>(),
             context.read<MarkerService>(),
-            context.read<AuthRepository>(),
-            context.read<RoutesRepository>(),
           ),
         ),
       ],

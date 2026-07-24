@@ -5,6 +5,8 @@ import 'package:beepbeep_prototype/core/service/location_service.dart';
 import 'package:beepbeep_prototype/core/service/map_service.dart';
 import 'package:beepbeep_prototype/core/service/marker_service.dart';
 import 'package:beepbeep_prototype/core/service/routes_service.dart';
+import 'package:beepbeep_prototype/features/driver/repository/driver_repository.dart';
+import 'package:beepbeep_prototype/features/driver/service/driver_service.dart';
 import 'package:beepbeep_prototype/shared/widgets/route_bottom_sheet.dart';
 import 'package:beepbeep_prototype/features/commuter/viewmodel/commuter_viewmodel.dart';
 import 'package:beepbeep_prototype/features/profile/view/profile_page.dart';
@@ -20,11 +22,12 @@ class CommuterHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => CommuterViewModel(
+        AuthRepository(AuthService()),
+        RoutesRepository(RoutesService()),
+        DriverRepository(DriverService()),
         MapService(),
         LocationService(),
         MarkerService(),
-        AuthRepository(AuthService()),
-        RoutesRepository(RoutesService()),
       ),
       child: const _CommuterView(),
     );

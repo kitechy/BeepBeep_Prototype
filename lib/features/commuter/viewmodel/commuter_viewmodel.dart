@@ -1,28 +1,41 @@
+import 'dart:async';
+
 import 'package:beepbeep_prototype/core/repository/auth_repository.dart';
 import 'package:beepbeep_prototype/core/repository/routes_repository.dart';
 import 'package:beepbeep_prototype/core/service/location_service.dart';
 import 'package:beepbeep_prototype/core/service/map_service.dart';
 import 'package:beepbeep_prototype/core/service/marker_service.dart';
+import 'package:beepbeep_prototype/features/driver/model/driver_profile.dart';
+import 'package:beepbeep_prototype/features/driver/repository/driver_repository.dart';
 import 'package:beepbeep_prototype/models/routes_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'dart:math';
 
 class CommuterViewModel extends ChangeNotifier {
   final AuthRepository _repo;
   final RoutesRepository _routeRepo;
+  final DriverRepository _driverRepo;
+
   final MapService _mapService;
   final LocationService _locationService;
   final MarkerService _markerService;
+
   final Set<Marker> _markers = {};
   final PolylinePoints polylinePoints = PolylinePoints();
+  final Map<String, LatLng> _driverPositions = {};
+
+  StreamSubscription<List<DriverProfile>>? _driversSubscription;
 
   CommuterViewModel(
+    this._repo,
+    this._routeRepo,
+    this._driverRepo,
+
     this._mapService,
     this._locationService,
     this._markerService,
-    this._repo,
-    this._routeRepo,
   );
 
   Set<Polyline> polylines = {};
@@ -80,10 +93,107 @@ class CommuterViewModel extends ChangeNotifier {
 
     notifyListeners();
     await _mapService.fitToRoute(points);
+    await listenToDrivers(routeId);
   }
 
   Future<void> loadRoutes() async {
     availableRoutes = await _routeRepo.getRoutes();
     notifyListeners();
+  }
+
+  Future<void> listenToDrivers(String routeId) async {
+    await _driversSubscription?.cancel();
+
+    _driversSubscription = _driverRepo.getOnlineDrivers(routeId).listen((
+      drivers,
+    ) async {
+      final activeIds = drivers.map((d) => d.uid).toSet();
+
+      _markers.removeWhere((marker) {
+        if (!marker.markerId.value.startsWith("driver_")) {
+          return false;
+        }
+
+        final uid = marker.markerId.value.replaceFirst("driver_", "");
+        return !activeIds.contains(uid);
+      });
+
+      _driverPositions.removeWhere((uid, _) => !activeIds.contains(uid));
+
+      for (final driver in drivers) {
+        if (driver.latitude == null || driver.longitude == null) {
+          continue;
+        }
+
+        final newPosition = LatLng(driver.latitude!, driver.longitude!);
+
+        final oldPosition = _driverPositions[driver.uid];
+
+        if (oldPosition == null) {
+          final marker = await _markerService.buildJeepneyMarker(
+            id: "driver_${driver.uid}",
+            position: newPosition,
+            title: "Jeepney",
+          );
+
+          _markers.add(marker);
+          _driverPositions[driver.uid] = newPosition;
+        } else {
+          await _animateMarker(driver.uid, oldPosition, newPosition);
+        }
+      }
+
+      notifyListeners();
+    });
+  }
+
+  Future<void> _animateMarker(String driverId, LatLng from, LatLng to) async {
+    const int steps = 25;
+    const Duration frameDuration = Duration(milliseconds: 40);
+
+    for (int i = 1; i <= steps; i++) {
+      final position = LatLng(
+        from.latitude + (to.latitude - from.latitude) * i / steps,
+        from.longitude + (to.longitude - from.longitude) * i / steps,
+      );
+
+      final rotation = _calculateBearing(from, to);
+
+      final marker = await _markerService.buildJeepneyMarker(
+        id: "driver_$driverId",
+        position: position,
+        title: "Jeepney",
+        rotation: rotation,
+      );
+
+      _markers.removeWhere((m) => m.markerId.value == "driver_$driverId");
+
+      _markers.add(marker);
+
+      notifyListeners();
+
+      await Future.delayed(frameDuration);
+    }
+    _driverPositions[driverId] = to;
+  }
+
+  double _calculateBearing(LatLng start, LatLng end) {
+    final lat1 = start.latitude * pi / 180;
+    final lon1 = start.longitude * pi / 180;
+
+    final lat2 = end.latitude * pi / 180;
+    final lon2 = end.longitude * pi / 180;
+
+    final dLon = lon2 - lon1;
+
+    final y = sin(dLon) * cos(lat2);
+
+    final x = cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(dLon);
+
+    var bearing = atan2(y, x);
+
+    bearing = bearing * 180 / pi;
+
+    return (bearing + 360) % 360;
   }
 }

@@ -50,4 +50,17 @@ class DriverService {
       'lastUpdated': FieldValue.serverTimestamp(),
     });
   }
+
+  Stream<List<DriverProfile>> getOnlineDrivers(String routeId) {
+    return _firestore
+        .collection('driver_profiles')
+        .where('status', isEqualTo: 'online')
+        .where('currentRouteId', isEqualTo: routeId)
+        .snapshots()
+        .map((snapshot) {
+          return snapshot.docs
+              .map((doc) => DriverProfile.fromMap(doc.data()))
+              .toList();
+        });
+  }
 }

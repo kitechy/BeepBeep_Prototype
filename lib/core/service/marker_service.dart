@@ -5,6 +5,15 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 
 class MarkerService {
+  BitmapDescriptor? _jeepneyIcon;
+
+  Future<void> initialize() async {
+    _jeepneyIcon ??= await BitmapDescriptor.asset(
+      const ImageConfiguration(size: Size(64, 64)),
+      "assets/icons/jeepney_icon.png",
+    );
+  }
+
   Future<BitmapDescriptor> getMarkerFromUrl(String imageUrl) async {
     final response = await http.get(Uri.parse(imageUrl));
 
@@ -103,7 +112,11 @@ class MarkerService {
     BitmapDescriptor icon = BitmapDescriptor.defaultMarker;
 
     if (photoUrl != null && photoUrl.isNotEmpty) {
-      icon = await getMarkerFromUrl(photoUrl);
+      try {
+        icon = await getMarkerFromUrl(photoUrl);
+      } catch (_) {
+        icon = BitmapDescriptor.defaultMarker;
+      }
     }
 
     return Marker(
@@ -111,6 +124,25 @@ class MarkerService {
       position: position,
       icon: icon,
       anchor: anchor,
+      infoWindow: InfoWindow(title: title),
+    );
+  }
+
+  Future<Marker> buildJeepneyMarker({
+    required String id,
+    required LatLng position,
+    String? title,
+    double rotation = 0,
+  }) async {
+    await initialize();
+
+    return Marker(
+      markerId: MarkerId(id),
+      position: position,
+      icon: _jeepneyIcon!,
+      rotation: rotation,
+      flat: true,
+      anchor: const Offset(0.5, 0.5),
       infoWindow: InfoWindow(title: title),
     );
   }

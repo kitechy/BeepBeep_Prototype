@@ -7,6 +7,8 @@ class DriverProfile {
   final String address;
   final String status;
   final String? currentRouteId;
+  final double? latitude;
+  final double? longitude;
 
   DriverProfile({
     required this.uid,
@@ -15,6 +17,8 @@ class DriverProfile {
     required this.address,
     this.status = "offline",
     required this.currentRouteId,
+    this.latitude,
+    this.longitude,
   });
 
   Map<String, dynamic> toMap() {
@@ -26,6 +30,8 @@ class DriverProfile {
       'status': status,
       'currentRouteId': currentRouteId,
       'createdAt': FieldValue.serverTimestamp(),
+      'latitude': latitude,
+      'longitude': longitude,
     };
   }
 
@@ -37,6 +43,8 @@ class DriverProfile {
       address: map['address'],
       status: map['status'],
       currentRouteId: map["currentRouteId"],
+      latitude: (map['latitude'] as num?)?.toDouble(),
+      longitude: (map['longitude'] as num?)?.toDouble(),
     );
   }
 
@@ -45,15 +53,19 @@ class DriverProfile {
     String? licenseNumber,
     String? address,
     String? status,
-    String? currentRouteId
+    String? currentRouteId,
+    double? latitude,
+    double? longitude,
   }) {
     return DriverProfile(
       uid: uid,
       phoneNumber: phoneNumber ?? this.phoneNumber,
       licenseNumber: licenseNumber ?? this.licenseNumber,
       address: address ?? this.address,
-      status: status ?? this.status, currentRouteId: currentRouteId ?? this.currentRouteId,
-      
+      status: status ?? this.status,
+      currentRouteId: currentRouteId ?? this.currentRouteId,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
     );
   }
 }
