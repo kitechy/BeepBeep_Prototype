@@ -38,4 +38,16 @@ class DriverService {
       'currentRouteId': routeId,
     });
   }
+
+  Future<void> updateDriverLocation(
+    String uid,
+    double latitude,
+    double longitude,
+  ) async {
+    await _firestore.collection('driver_profiles').doc(uid).update({
+      'latitude': latitude,
+      'longitude': longitude,
+      'lastUpdated': FieldValue.serverTimestamp(),
+    });
+  }
 }

@@ -1,34 +1,49 @@
+import 'dart:async';
+
 import 'package:beepbeep_prototype/core/repository/auth_repository.dart';
 import 'package:beepbeep_prototype/core/repository/routes_repository.dart';
+import 'package:beepbeep_prototype/core/service/location_service.dart';
 import 'package:beepbeep_prototype/core/service/map_service.dart';
+import 'package:beepbeep_prototype/core/service/marker_service.dart';
 import 'package:beepbeep_prototype/features/driver/model/driver_profile.dart';
 import 'package:beepbeep_prototype/features/driver/repository/driver_repository.dart';
 import 'package:beepbeep_prototype/models/routes_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class DriverViewModel extends ChangeNotifier {
   final AuthRepository _repo;
   final DriverRepository _driverRepo;
-  final MapService _mapService;
   final RoutesRepository _routeRepo;
+
+  final MapService _mapService;
+  final LocationService _locationService;
+  final MarkerService _markerService;
+
   final PolylinePoints polylinePoints = PolylinePoints();
+  final Set<Marker> _markers = {};
 
   DriverViewModel(
     this._repo,
     this._driverRepo,
     this._mapService,
     this._routeRepo,
+    this._locationService,
+    this._markerService,
   );
 
   String? errorMessage;
   bool isLoading = false;
   bool _disposed = false;
   List<RoutesModel> availableRoutes = [];
+
+  Set<Marker> get markers => _markers;
   Set<Polyline> polylines = {};
 
   DriverProfile? driverProfile;
+  StreamSubscription<Position>? _locationSubscription;
 
   void _safeNotify() {
     if (!_disposed) {
@@ -106,6 +121,12 @@ class DriverViewModel extends ChangeNotifier {
 
       driverProfile = driverProfile!.copyWith(status: newStatus);
 
+      if (newStatus == "online") {
+        await startLocationTracking();
+      } else {
+        await stopLocationTracking();
+      }
+
       _safeNotify();
     } catch (e) {
       errorMessage = e.toString();
@@ -149,6 +170,75 @@ class DriverViewModel extends ChangeNotifier {
     notifyListeners();
 
     await _mapService.fitToRoute(points);
+  }
+
+  Future<void> startLocationTracking() async {
+    final uid = _repo.currentUser?.uid;
+
+    if (uid == null) return;
+
+    final granted = await _locationService.requestPermission();
+
+    if (!granted) {
+      errorMessage = "Location permission denied.";
+      _safeNotify();
+      return;
+    }
+
+    final current = await _locationService.getCurrentLocation();
+
+    await _driverRepo.updateDriverLocation(
+      uid,
+      current.latitude,
+      current.longitude,
+    );
+
+    await _updateDriverMarker(current);
+
+    await _mapService.animateToLocation(current.latitude, current.longitude);
+
+    await _locationSubscription?.cancel();
+
+    _locationSubscription = _locationService.getLocationStream().listen((
+      position,
+    ) async {
+      await _driverRepo.updateDriverLocation(
+        uid,
+        position.latitude,
+        position.longitude,
+      );
+
+      await _updateDriverMarker(position);
+
+      await _mapService.animateToLocation(
+        position.latitude,
+        position.longitude,
+      );
+    });
+  }
+
+  Future<void> stopLocationTracking() async {
+    await _locationSubscription?.cancel();
+    _locationSubscription = null;
+  }
+
+  Future<void> _updateDriverMarker(Position position) async {
+    final user = _repo.currentUser;
+
+    if (user == null) return;
+
+    final marker = await _markerService.buildMarker(
+      id: "driver",
+      position: LatLng(position.latitude, position.longitude),
+      photoUrl: user.photoURL,
+      title: driverName,
+    );
+
+    _markers
+      ..removeWhere((m) => m.markerId == marker.markerId)
+      ..add(marker);
+
+    _safeNotify();
   }
 
   Future<bool> logout() async {

@@ -1,7 +1,9 @@
 import 'package:beepbeep_prototype/core/repository/auth_repository.dart';
 import 'package:beepbeep_prototype/core/repository/routes_repository.dart';
 import 'package:beepbeep_prototype/core/service/auth_service.dart';
+import 'package:beepbeep_prototype/core/service/location_service.dart';
 import 'package:beepbeep_prototype/core/service/map_service.dart';
+import 'package:beepbeep_prototype/core/service/marker_service.dart';
 import 'package:beepbeep_prototype/core/service/routes_service.dart';
 import 'package:beepbeep_prototype/features/auth/view/login_page.dart';
 import 'package:beepbeep_prototype/features/auth/view/role_selection_page.dart';
@@ -27,6 +29,8 @@ class DriverHomePage extends StatelessWidget {
         DriverRepository(DriverService()),
         MapService(),
         RoutesRepository(RoutesService()),
+        LocationService(),
+        MarkerService(),
       ),
       child: _DriverView(),
     );
@@ -122,6 +126,7 @@ class __DriverViewState extends State<_DriverView>
               zoomControlsEnabled: false,
               onMapCreated: driverVM.onMapCreated,
               polylines: driverVM.polylines,
+              markers: driverVM.markers,
             ),
 
             Positioned(
@@ -208,7 +213,6 @@ class __DriverViewState extends State<_DriverView>
               ),
             ),
 
-            /// Animated Border
             IgnorePointer(
               child: AnimatedBuilder(
                 animation: _c,

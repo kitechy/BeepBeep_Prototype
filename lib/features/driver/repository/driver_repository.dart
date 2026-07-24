@@ -25,4 +25,12 @@ class DriverRepository {
   Future<void> updateCurrentRoute(String uid, String routeId) {
     return _driverService.updateCurrentRoute(uid, routeId);
   }
+
+  Future<void> updateDriverLocation(
+    String uid,
+    double latitude,
+    double longitude,
+  ) {
+    return _driverService.updateDriverLocation(uid, latitude, longitude);
+  }
 }
