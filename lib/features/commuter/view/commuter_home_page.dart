@@ -9,8 +9,6 @@ import 'package:beepbeep_prototype/features/driver/repository/driver_repository.
 import 'package:beepbeep_prototype/features/driver/service/driver_service.dart';
 import 'package:beepbeep_prototype/shared/widgets/route_bottom_sheet.dart';
 import 'package:beepbeep_prototype/features/commuter/viewmodel/commuter_viewmodel.dart';
-import 'package:beepbeep_prototype/features/profile/view/profile_page.dart';
-import 'package:beepbeep_prototype/shared/components/bottom_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
@@ -42,71 +40,92 @@ class _CommuterView extends StatefulWidget {
 }
 
 class __CommuterViewState extends State<_CommuterView> {
-  int _selectedIndex = 0;
-
-  final _profilePage = const ProfilePage();
   @override
   Widget build(BuildContext context) {
     final commuterVM = context.watch<CommuterViewModel>();
     return Scaffold(
-      appBar: AppBar(backgroundColor: Color(0xff0000FF)),
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: [_buildMapPage(commuterVM, context), _profilePage],
-      ),
-      bottomNavigationBar: BottomNavigationBarWidget(
-        selectedIndex: _selectedIndex,
-        onDestinationSelected: (i) => setState(() {
-          _selectedIndex = i;
-        }),
+      body: Stack(
+        children: [
+          GoogleMap(
+            initialCameraPosition: const CameraPosition(
+              target: LatLng(13.1391, 123.7438),
+              zoom: 15,
+            ),
+            polylines: commuterVM.polylines,
+            zoomControlsEnabled: false,
+            markers: commuterVM.markers,
+            onMapCreated: commuterVM.onMapCreated,
+          ),
+
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Align(
+                  alignment: Alignment.topLeft,
+                  child: Material(
+                    color: const Color(0xffFFFFFF),
+                    shape: const CircleBorder(),
+                    elevation: 3,
+                    child: InkWell(
+                      onTap: () {
+                        // TODO: Open drawer/menu
+                      },
+                      customBorder: const CircleBorder(),
+                      child: const Padding(
+                        padding: EdgeInsets.all(10),
+                        child: Icon(
+                          Icons.menu_rounded,
+                          size: 22,
+                          color: Color(0xff1C1A17),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+          Positioned(
+            bottom: 50,
+            right: 20,
+            child: Column(
+              children: [
+                FloatingActionButton(
+                  heroTag: "routes",
+                  backgroundColor: Colors.white,
+                  child: const Icon(Icons.alt_route, color: Color(0xff0000FF)),
+                  onPressed: () {
+                    showModalBottomSheet(
+                      context: context,
+                      builder: (_) => RouteBottomSheet(
+                        routes: commuterVM.availableRoutes,
+                        onRouteSelected: (route) async {
+                          await commuterVM.loadRoute(route.id);
+                        },
+                        activeDriverCount: commuterVM.getActiveDriverCount,
+                      ),
+                    );
+                  },
+                ),
+                SizedBox(height: 10),
+                FloatingActionButton(
+                  backgroundColor: Color(0xffFFFFFF),
+                  onPressed: commuterVM.initializeTracking,
+                  child: const Icon(
+                    Icons.my_location,
+                    color: Color(0xff0000FF),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
-}
-
-Widget _buildMapPage(CommuterViewModel commuterVM, BuildContext context) {
-  return Stack(
-    children: [
-      GoogleMap(
-        initialCameraPosition: const CameraPosition(
-          target: LatLng(13.1391, 123.7438),
-          zoom: 15,
-        ),
-        polylines: commuterVM.polylines,
-        zoomControlsEnabled: false,
-        markers: commuterVM.markers,
-        onMapCreated: commuterVM.onMapCreated,
-      ),
-      Positioned(
-        bottom: 50,
-        right: 20,
-        child: Column(
-          children: [
-            FloatingActionButton(
-              heroTag: "routes",
-              backgroundColor: Colors.white,
-              child: const Icon(Icons.alt_route, color: Color(0xff0000FF)),
-              onPressed: () {
-                showModalBottomSheet(
-                  context: context,
-                  builder: (_) => RouteBottomSheet(
-                    routes: commuterVM.availableRoutes,
-                    onRouteSelected: (route) async {
-                      await commuterVM.loadRoute(route.id);
-                    },
-                  ),
-                );
-              },
-            ),
-            SizedBox(height: 10),
-            FloatingActionButton(
-              backgroundColor: Color(0xffFFFFFF),
-              onPressed: commuterVM.initializeTracking,
-              child: const Icon(Icons.my_location, color: Color(0xff0000FF)),
-            ),
-          ],
-        ),
-      ),
-    ],
-  );
 }

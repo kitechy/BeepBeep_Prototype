@@ -176,8 +176,8 @@ class __DriverViewState extends State<_DriverView>
             ),
 
             Positioned(
-              bottom: 50,
-              right: 20,
+              bottom: 50 + 52 + 16,
+              right: 25,
               child: Column(
                 children: [
                   FloatingActionButton(
@@ -199,17 +199,37 @@ class __DriverViewState extends State<_DriverView>
                       );
                     },
                   ),
-                  const SizedBox(height: 12),
-                  FloatingActionButton(
-                    heroTag: "status",
-                    backgroundColor: Colors.white,
-                    onPressed: driverVM.toggleStatus,
-                    child: const Icon(
-                      Icons.radio_button_checked_rounded,
-                      color: Color(0xff0057FF),
+                ],
+              ),
+            ),
+
+            Positioned(
+              left: 25,
+              right: 25,
+              bottom: 50,
+              child: SizedBox(
+                height: 52,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: driverVM.isOnline
+                        ? Color(0xff808080)
+                        : Color(0xff0056FF),
+                    foregroundColor: driverVM.isOnline
+                        ? Color(0xffff0000)
+                        : Color(0xffFFFFFF),
+                  ),
+                  onPressed: driverVM.toggleStatus,
+                  child: Text(
+                    driverVM.isOnline
+                        ? 'Stop sharing live location'
+                        : 'Start sharing live location',
+                    style: TextStyle(
+                      fontSize: 13.5,
+                      letterSpacing: 0.6,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                ],
+                ),
               ),
             ),
 

@@ -18,11 +18,13 @@ class _Palette {
 class RouteBottomSheet extends StatefulWidget {
   final List<RoutesModel> routes;
   final Future<void> Function(RoutesModel routes) onRouteSelected;
+  final int Function(String routeId)? activeDriverCount;
 
   const RouteBottomSheet({
     super.key,
     required this.routes,
     required this.onRouteSelected,
+    this.activeDriverCount,
   });
 
   @override
@@ -68,16 +70,6 @@ class _RouteBottomSheetState extends State<RouteBottomSheet> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text(
-                    'AVAILABLE ROUTES',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 1.6,
-                      color: Color(0xFFC7952F),
-                    ),
-                  ),
-                  const SizedBox(height: 2),
                   const Text(
                     'Select a route',
                     style: TextStyle(
@@ -92,7 +84,6 @@ class _RouteBottomSheetState extends State<RouteBottomSheet> {
               ),
             ),
             const SizedBox(height: 16),
-
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 22),
               child: Container(
@@ -158,6 +149,9 @@ class _RouteBottomSheetState extends State<RouteBottomSheet> {
                       ),
                       itemBuilder: (context, index) {
                         final route = routes[index];
+                        final activeDrivers = widget.activeDriverCount?.call(
+                          route.id,
+                        );
                         final tagColor = _tagColorFor(route.id.toString());
                         final isLoading = _loadingRouteId == route.id;
 
@@ -204,6 +198,31 @@ class _RouteBottomSheetState extends State<RouteBottomSheet> {
                                     ),
                                   ),
                                 ),
+                                if (activeDrivers != null) ...[
+                                  const SizedBox(width: 14),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: activeDrivers > 0
+                                          ? Colors.green.shade50
+                                          : Colors.grey.shade200,
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      '$activeDrivers Active',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: activeDrivers > 0
+                                            ? Colors.green.shade700
+                                            : Colors.grey.shade700,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                                 if (isLoading)
                                   const SizedBox(
                                     width: 18,

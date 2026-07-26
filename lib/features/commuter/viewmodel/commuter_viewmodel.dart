@@ -25,6 +25,8 @@ class CommuterViewModel extends ChangeNotifier {
   final Set<Marker> _markers = {};
   final PolylinePoints polylinePoints = PolylinePoints();
   final Map<String, LatLng> _driverPositions = {};
+  final Map<String, int> _activeDriverCounts = {};
+  final List<StreamSubscription> _routeSubscriptions = [];
 
   StreamSubscription<List<DriverProfile>>? _driversSubscription;
 
@@ -98,6 +100,9 @@ class CommuterViewModel extends ChangeNotifier {
 
   Future<void> loadRoutes() async {
     availableRoutes = await _routeRepo.getRoutes();
+
+    await startListeningToActiveDrivers();
+
     notifyListeners();
   }
 
@@ -195,5 +200,29 @@ class CommuterViewModel extends ChangeNotifier {
     bearing = bearing * 180 / pi;
 
     return (bearing + 360) % 360;
+  }
+
+  int getActiveDriverCount(String routeId) {
+    return _activeDriverCounts[routeId] ?? 0;
+  }
+
+  Future<void> startListeningToActiveDrivers() async {
+    for (final route in availableRoutes) {
+      final sub = _driverRepo.getOnlineDrivers(route.id).listen((drivers) {
+        _activeDriverCounts[route.id] = drivers.length;
+        notifyListeners();
+      });
+
+      _routeSubscriptions.add(sub);
+    }
+  }
+
+  @override
+  void dispose() {
+    for (final sub in _routeSubscriptions) {
+      sub.cancel();
+    }
+
+    super.dispose();
   }
 }

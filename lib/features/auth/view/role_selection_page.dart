@@ -37,18 +37,27 @@ class _RoleSelectionView extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(height: 0.01.sh),
-
-            TextWidget(
-              text: 'Select Your Role',
-              textStyle: GoogleFonts.montaguSlab(
-                fontSize: 24.sp,
-                fontWeight: FontWeight.w600,
+            Align(
+              alignment: AlignmentGeometry.centerLeft,
+              child: Column(
+                children: [
+                  TextWidget(
+                    text: 'Select Your Role',
+                    textStyle: GoogleFonts.montaguSlab(
+                      fontSize: 24.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    fontSize: 24.sp,
+                  ),
+                  TextWidget(
+                    text: "Choose how you'll use BeepBeep",
+                    fontSize: 13.sp,
+                  ),
+                ],
               ),
-              fontSize: 24.sp,
             ),
 
-            SizedBox(height: 0.08.sh),
+            SizedBox(height: 0.04.sh),
 
             RoleContainerWidget(
               text: 'Commuter',
