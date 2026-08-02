@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:beepbeep_prototype/shared/widgets/route_bottom_sheet.dart';
 import 'package:beepbeep_prototype/models/app.user.role.dart';
 import 'package:beepbeep_prototype/shared/widgets/drawer_component.dart';
+import 'package:beepbeep_prototype/features/about/view/about_page.dart';
 
 class OperatorHomePage extends StatelessWidget {
   const OperatorHomePage({super.key});
@@ -73,11 +74,11 @@ class __OperatorViewState extends State<_OperatorView> {
         role: AppUserRole.operator,
         onHomeTap: () {},
         onPlaceholderTap: () {
-          debugPrint('Routes');
+          debugPrint('Placeholder');
         },
-        onPlaceholder2Tap: () {
-          debugPrint('Settings');
-        },
+        onAboutTap: () => Navigator.push(
+          context, MaterialPageRoute(builder: (_) => const AboutPage()),
+        ),
         onLogOutTap: signOut,
       ),
 
