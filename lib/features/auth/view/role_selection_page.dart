@@ -2,7 +2,6 @@ import 'package:beepbeep_prototype/core/repository/auth_repository.dart';
 import 'package:beepbeep_prototype/features/auth/viewmodel/role_selection_viewmodel.dart';
 import 'package:beepbeep_prototype/features/commuter/view/commuter_home_page.dart';
 import 'package:beepbeep_prototype/features/driver/view/driver_form.dart';
-import 'package:beepbeep_prototype/features/operator/view/oprator_home_page.dart';
 import 'package:beepbeep_prototype/shared/widgets/elevatedbtn_widget.dart';
 import 'package:beepbeep_prototype/features/auth/view/widgets/role_container_widget.dart';
 import 'package:beepbeep_prototype/shared/widgets/text_widget.dart';
@@ -10,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:beepbeep_prototype/features/operator/view/operator_form.dart';
 
 class RoleSelectionPage extends StatelessWidget {
   const RoleSelectionPage({super.key});
