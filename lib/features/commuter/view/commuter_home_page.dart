@@ -75,6 +75,7 @@ Future<void> signOut() async {
 
       drawer: DrawerComponent(
         role: AppUserRole.commuter,
+        user: commuterVM.currentUser,
         onHomeTap: () {},
         onPlaceholderTap: () {
           debugPrint('Routes');

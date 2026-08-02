@@ -1,9 +1,12 @@
 import 'package:beepbeep_prototype/models/app.user.role.dart';
 import 'package:beepbeep_prototype/models/drawer_item.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class DrawerComponent extends StatelessWidget {
   final AppUserRole role;
+
+  final User? user;
 
   final VoidCallback? onHomeTap;
 
@@ -12,12 +15,13 @@ class DrawerComponent extends StatelessWidget {
   final VoidCallback? onPlaceholderTap;
 
   final VoidCallback? onPlaceholder2Tap;
-
+  
   final VoidCallback? onLogOutTap;
 
   const DrawerComponent({
     super.key,
     required this.role,
+    this.user,
     this.onHomeTap,
     this.onProfileTap,
     this.onPlaceholderTap,
@@ -128,7 +132,7 @@ class DrawerComponent extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _DrawerHeader(role: role),
+            _DrawerHeader(role: role, user: user),
 
             const Divider(height: 1, thickness: 1, color: Color(0xffE0DED9)),
             const SizedBox(height: 8),
@@ -152,8 +156,9 @@ class DrawerComponent extends StatelessWidget {
 
 class _DrawerHeader extends StatelessWidget {
   final AppUserRole role;
+  final User? user;
 
-  const _DrawerHeader({required this.role});
+  const _DrawerHeader({required this.role, this.user});
 
   String get _roleLabel {
     switch (role) {
@@ -168,42 +173,78 @@ class _DrawerHeader extends StatelessWidget {
     }
   }
 
+  String get _displayFirstName {
+    final name = user?.displayName;
+    if (name != null && name.trim().isNotEmpty) {
+      return name.trim().split(' ').first;
+    }
+    return 'BeepBeep';
+  }
+
+  String get _subtitle {
+    if (user?.email != null && user!.email!.isNotEmpty) {
+      return user!.email!;
+    }
+    return _roleLabel;
+  }
+
+  String get _avatarInitial {
+    if (_displayFirstName.isNotEmpty && _displayFirstName != 'BeepBeep') {
+      return _displayFirstName[0].toUpperCase();
+    }
+    return '?';
+  }
+
   @override
   Widget build(BuildContext context) {
+    final photoUrl = user?.photoURL;
+    final hasPhoto = photoUrl != null && photoUrl.isNotEmpty;
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
       child: Row(
         children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: const BoxDecoration(
-              color: Color(0xff0056FF),
-              shape: BoxShape.circle,
-            ),
+          CircleAvatar(
+            radius: 22,
+            backgroundColor: const Color(0xff0056FF),
+            backgroundImage: hasPhoto ? NetworkImage(photoUrl) : null,
+            child: hasPhoto
+                ? null
+                : Text(
+                    _avatarInitial,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 16,
+                    ),
+                  ),
           ),
           const SizedBox(width: 12),
 
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'BeepBeep',
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xff1C1A17),
-                  letterSpacing: 0.2,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _displayFirstName,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xff1C1A17),
+                    letterSpacing: 0.2,
+                  ),
                 ),
-              ),
-              Text(
-                _roleLabel,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Color(0xff6B6966),
+                Text(
+                  _subtitle,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Color(0xff6B6966),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),

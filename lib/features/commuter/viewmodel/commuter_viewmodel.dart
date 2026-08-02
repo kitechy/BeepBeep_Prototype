@@ -13,6 +13,7 @@ import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:math';
 import 'package:beepbeep_prototype/features/auth/view/login_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class CommuterViewModel extends ChangeNotifier {
   final AuthRepository _repo;
@@ -43,6 +44,7 @@ class CommuterViewModel extends ChangeNotifier {
 
   Set<Polyline> polylines = {};
   Set<Marker> get markers => _markers;
+  User? get currentUser => _repo.currentUser;
   List<RoutesModel> availableRoutes = [];
 
   Future<void> onMapCreated(GoogleMapController controller) async {
