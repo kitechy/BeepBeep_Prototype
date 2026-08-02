@@ -12,6 +12,10 @@ import 'package:beepbeep_prototype/features/commuter/viewmodel/commuter_viewmode
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:beepbeep_prototype/models/app.user.role.dart';
+import 'package:beepbeep_prototype/shared/widgets/drawer_component.dart';
+import 'package:beepbeep_prototype/features/auth/view/login_page.dart';
+import 'package:beepbeep_prototype/shared/dialogs/error_dialog.dart';
 
 class CommuterHomePage extends StatelessWidget {
   const CommuterHomePage({super.key});
@@ -40,10 +44,47 @@ class _CommuterView extends StatefulWidget {
 }
 
 class __CommuterViewState extends State<_CommuterView> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+Future<void> signOut() async {
+  final commuterVM = context.read<CommuterViewModel>();
+  final success = await commuterVM.logout();
+
+  if (!mounted) return;
+
+  if (success) {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const LoginPage()),
+    );
+  } else {
+    showDialog(
+      context: context,
+      builder: (_) => const ErrorDialog(
+        message: 'Log out failed',
+      ),
+    );
+  }
+}
   @override
   Widget build(BuildContext context) {
     final commuterVM = context.watch<CommuterViewModel>();
+
     return Scaffold(
+      key: _scaffoldKey,
+
+      drawer: DrawerComponent(
+        role: AppUserRole.commuter,
+        onHomeTap: () {},
+        onPlaceholderTap: () {
+          debugPrint('Routes');
+        },
+        onPlaceholder2Tap: () {
+          debugPrint('Settings');
+        },
+        onLogOutTap: signOut,
+      ),
+
       body: Stack(
         children: [
           GoogleMap(
@@ -71,9 +112,7 @@ class __CommuterViewState extends State<_CommuterView> {
                     shape: const CircleBorder(),
                     elevation: 3,
                     child: InkWell(
-                      onTap: () {
-                        // TODO: Open drawer/menu
-                      },
+                      onTap: () => _scaffoldKey.currentState!.openDrawer(),
                       customBorder: const CircleBorder(),
                       child: const Padding(
                         padding: EdgeInsets.all(10),

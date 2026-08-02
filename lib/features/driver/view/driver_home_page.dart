@@ -13,7 +13,8 @@ import 'package:beepbeep_prototype/features/driver/view/widgets/status_indicator
 import 'package:beepbeep_prototype/features/driver/viewmodel/driver_viewmodel.dart';
 import 'package:beepbeep_prototype/shared/dialogs/error_dialog.dart';
 import 'package:beepbeep_prototype/shared/widgets/route_bottom_sheet.dart';
-
+import 'package:beepbeep_prototype/models/app.user.role.dart';
+import 'package:beepbeep_prototype/shared/widgets/drawer_component.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
@@ -50,6 +51,8 @@ class __DriverViewState extends State<_DriverView>
     vsync: this,
     duration: const Duration(milliseconds: 1000),
   )..repeat(reverse: true);
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   void initState() {
     super.initState();
@@ -101,6 +104,7 @@ class __DriverViewState extends State<_DriverView>
   @override
   Widget build(BuildContext context) {
     final driverVM = context.watch<DriverViewModel>();
+
     return AnimatedBuilder(
       animation: _c,
       builder: (context, child) {
@@ -115,7 +119,22 @@ class __DriverViewState extends State<_DriverView>
           child: child,
         );
       },
+
       child: Scaffold(
+        key: _scaffoldKey,
+
+        drawer: DrawerComponent(
+          role: AppUserRole.driver,
+          onHomeTap: () {},
+          onPlaceholderTap: () {
+            debugPrint('Routes');
+          },
+          onPlaceholder2Tap: () {
+            debugPrint('Settings');
+          },
+          onLogOutTap: signOut,
+        ),
+
         body: Stack(
           children: [
             GoogleMap(
@@ -143,9 +162,7 @@ class __DriverViewState extends State<_DriverView>
                       shape: const CircleBorder(),
                       elevation: 3,
                       child: InkWell(
-                        onTap: () {
-                          // TODO: Open drawer/menu
-                        },
+                        onTap: () => _scaffoldKey.currentState!.openDrawer(),
                         customBorder: const CircleBorder(),
                         child: const Padding(
                           padding: EdgeInsets.all(10),
@@ -155,12 +172,12 @@ class __DriverViewState extends State<_DriverView>
                             color: Color(0xff1C1A17),
                           ),
                         ),
+                          ),
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ),
 
             Positioned(
               top: 55,

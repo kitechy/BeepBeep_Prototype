@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:math';
+import 'package:beepbeep_prototype/features/auth/view/login_page.dart';
 
 class CommuterViewModel extends ChangeNotifier {
   final AuthRepository _repo;
@@ -217,6 +218,15 @@ class CommuterViewModel extends ChangeNotifier {
     }
   }
 
+Future<bool> logout() async {
+  try {
+    await _repo.signOut();
+    return true;
+    } catch (e) {
+      return false;
+    }
+  }
+  
   @override
   void dispose() {
     for (final sub in _routeSubscriptions) {
