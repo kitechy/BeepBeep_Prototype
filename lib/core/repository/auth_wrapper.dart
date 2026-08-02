@@ -3,6 +3,7 @@ import 'package:beepbeep_prototype/features/auth/view/role_selection_page.dart';
 import 'package:beepbeep_prototype/features/commuter/view/commuter_home_page.dart';
 import 'package:beepbeep_prototype/features/driver/view/driver_form.dart';
 import 'package:beepbeep_prototype/features/driver/view/driver_home_page.dart';
+import 'package:beepbeep_prototype/features/operator/view/operator_form.dart';
 import 'package:beepbeep_prototype/features/operator/view/oprator_home_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -53,7 +54,11 @@ class AuthWrapper extends StatelessWidget {
         }
 
         if (role == 'operator') {
-          return const OperatorHomePage();
+          if (isProfileComplete) {
+            return OperatorHomePage();
+          } else {
+            return OperatorForm();
+          }
         }
 
         return const LoginPage();
