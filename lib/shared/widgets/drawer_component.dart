@@ -14,8 +14,8 @@ class DrawerComponent extends StatelessWidget {
 
   final VoidCallback? onPlaceholderTap;
 
-  final VoidCallback? onPlaceholder2Tap;
-  
+  final VoidCallback? onAboutTap;
+
   final VoidCallback? onLogOutTap;
 
   const DrawerComponent({
@@ -25,7 +25,7 @@ class DrawerComponent extends StatelessWidget {
     this.onHomeTap,
     this.onProfileTap,
     this.onPlaceholderTap,
-    this.onPlaceholder2Tap,
+    this.onAboutTap,
     this.onLogOutTap,
   });
 
@@ -44,9 +44,9 @@ class DrawerComponent extends StatelessWidget {
           onTap: onPlaceholderTap ?? () {},
         ),
         DrawerItem(
-          icon: Icons.extension_outlined,
-          label: 'Placeholder',
-          onTap: onPlaceholder2Tap ?? () {},
+          icon: Icons.info_outline_rounded,
+          label: 'About',
+          onTap: onAboutTap ?? () {},
         ),
         DrawerItem(
           icon: Icons.logout_rounded,
@@ -69,9 +69,9 @@ class DrawerComponent extends StatelessWidget {
           onTap: onProfileTap ?? () {},
         ),
         DrawerItem(
-          icon: Icons.extension_outlined,
-          label: 'Placeholder',
-          onTap: onPlaceholder2Tap ?? () {},
+          icon: Icons.info_outline_rounded,
+          label: 'About',
+          onTap: onAboutTap ?? () {},
         ),
         DrawerItem(
           icon: Icons.logout_rounded,
@@ -94,9 +94,9 @@ class DrawerComponent extends StatelessWidget {
           onTap: onProfileTap ?? () {},
         ),
         DrawerItem(
-          icon: Icons.extension_outlined,
-          label: 'Placeholder',
-          onTap: onPlaceholder2Tap ?? () {},
+          icon: Icons.info_outline_rounded,
+          label: 'About',
+          onTap: onAboutTap ?? () {},
         ),
         DrawerItem(
           icon: Icons.logout_rounded,
@@ -112,6 +112,11 @@ class DrawerComponent extends StatelessWidget {
           icon: Icons.map_outlined,
           label: 'Live Map',
           onTap: onHomeTap ?? () {},
+        ),
+        DrawerItem(
+          icon: Icons.info_outline_rounded,
+          label: 'About',
+          onTap: onAboutTap ?? () {},
         ),
         DrawerItem(
           icon: Icons.login_rounded,

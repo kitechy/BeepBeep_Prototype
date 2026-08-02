@@ -17,6 +17,17 @@ class OperatorViewModel extends ChangeNotifier {
   bool _disposed = false;
   OperatorProfile? operatorProfile;
 
+  Future<bool> logout() async {
+    try {
+      await _repo.signOut();
+      return true;
+    } catch (e) {
+      errorMessage = e.toString();
+      _safeNotify();
+      return false;
+    }
+  }
+
   @override
   void dispose() {
     _disposed = true;

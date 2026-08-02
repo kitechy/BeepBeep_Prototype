@@ -1,13 +1,17 @@
 import 'package:beepbeep_prototype/core/repository/auth_repository.dart';
 import 'package:beepbeep_prototype/core/service/auth_service.dart';
 import 'package:beepbeep_prototype/core/service/map_service.dart';
+import 'package:beepbeep_prototype/features/about/view/about_page.dart';
+import 'package:beepbeep_prototype/features/auth/view/login_page.dart';
 import 'package:beepbeep_prototype/features/operator/repository/operator_repository.dart';
 import 'package:beepbeep_prototype/features/operator/service/operator_service.dart';
 import 'package:beepbeep_prototype/features/operator/viewmodel/operator_viewmodel.dart';
+import 'package:beepbeep_prototype/models/app.user.role.dart';
+import 'package:beepbeep_prototype/shared/dialogs/error_dialog.dart';
+import 'package:beepbeep_prototype/shared/widgets/drawer_component.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
-
 
 class OperatorHomePage extends StatelessWidget {
   const OperatorHomePage({super.key});
@@ -34,10 +38,47 @@ class _OperatorView extends StatefulWidget {
 
 class __OperatorViewState extends State<_OperatorView> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  Future<void> signOut() async {
+    final operatorVM = context.read<OperatorViewModel>();
+    final success = await operatorVM.logout();
+
+    if (!mounted) return;
+
+    if (success) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginPage()),
+      );
+    } else {
+      showDialog(
+        context: context,
+        builder: (_) => const ErrorDialog(
+          message: 'Log out failed. Please try again later.',
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final operatorVM = context.watch<OperatorViewModel>();
     return Scaffold(
+      key: _scaffoldKey,
+
+      drawer: DrawerComponent(
+        role: AppUserRole.operator,
+        onHomeTap: () {},
+        onPlaceholderTap: () {
+          debugPrint('Placeholder');
+        },
+        onAboutTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const AboutPage()),
+        ),
+        onLogOutTap: signOut,
+      ),
+
       body: Stack(
         children: [
           GoogleMap(

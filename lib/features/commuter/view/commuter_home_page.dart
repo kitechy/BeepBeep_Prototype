@@ -16,7 +16,7 @@ import 'package:beepbeep_prototype/models/app.user.role.dart';
 import 'package:beepbeep_prototype/shared/widgets/drawer_component.dart';
 import 'package:beepbeep_prototype/features/auth/view/login_page.dart';
 import 'package:beepbeep_prototype/shared/dialogs/error_dialog.dart';
-
+import 'package:beepbeep_prototype/features/about/view/about_page.dart';
 class CommuterHomePage extends StatelessWidget {
   const CommuterHomePage({super.key});
 
@@ -78,11 +78,11 @@ Future<void> signOut() async {
         user: commuterVM.currentUser,
         onHomeTap: () {},
         onPlaceholderTap: () {
-          debugPrint('Routes');
+          debugPrint('Placeholder');
         },
-        onPlaceholder2Tap: () {
-          debugPrint('Settings');
-        },
+        onAboutTap: () => Navigator.push(
+          context, MaterialPageRoute(builder: (_) => const AboutPage()),
+        ),
         onLogOutTap: signOut,
       ),
 
