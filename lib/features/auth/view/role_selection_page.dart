@@ -172,7 +172,7 @@ class _RoleSelectionView extends StatelessWidget {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const OperatorHomePage(),
+                      builder: (context) => const OperatorForm(),
                     ),
                   );
                 }

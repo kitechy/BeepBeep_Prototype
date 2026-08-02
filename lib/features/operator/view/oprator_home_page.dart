@@ -1,10 +1,11 @@
 import 'package:beepbeep_prototype/core/repository/auth_repository.dart';
 import 'package:beepbeep_prototype/core/service/auth_service.dart';
-import 'package:beepbeep_prototype/features/auth/view/login_page.dart';
-import 'package:beepbeep_prototype/features/auth/view/role_selection_page.dart';
+import 'package:beepbeep_prototype/core/service/map_service.dart';
+import 'package:beepbeep_prototype/features/operator/repository/operator_repository.dart';
+import 'package:beepbeep_prototype/features/operator/service/operator_service.dart';
 import 'package:beepbeep_prototype/features/operator/viewmodel/operator_viewmodel.dart';
-import 'package:beepbeep_prototype/shared/dialogs/error_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:beepbeep_prototype/shared/widgets/route_bottom_sheet.dart';
 import 'package:beepbeep_prototype/models/app.user.role.dart';
@@ -17,7 +18,11 @@ class OperatorHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => OperatorViewModel(AuthRepository(AuthService())),
+      create: (context) => OperatorViewModel(
+        AuthRepository(AuthService()),
+        OperatorRepository(OperatorService()),
+        MapService(),
+      ),
       child: _OperatorView(),
     );
   }
@@ -32,41 +37,9 @@ class _OperatorView extends StatefulWidget {
 
 class __OperatorViewState extends State<_OperatorView> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
-  Future<void> signOut() async {
-    final driverVM = context.read<OperatorViewModel>();
-
-    final success = await driverVM.logout();
-
-    if (!mounted) return;
-    if (success) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => LoginPage()),
-      );
-    } else {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return const ErrorDialog(
-            message: "Log out failed. Please try again later.",
-          );
-        },
-      );
-    }
-  }
-
-  void changeRole() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const RoleSelectionPage()),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final operatorVM = context.watch<OperatorViewModel>();
-
     return Scaffold(
       key: _scaffoldKey,
 
@@ -84,13 +57,12 @@ class __OperatorViewState extends State<_OperatorView> {
 
       body: Stack(
         children: [
-          const Center(child: Text('Operator Page')),
-          Center(
-            child: ElevatedButton.icon(
-              onPressed: changeRole,
-              icon: const Icon(Icons.swap_horiz_outlined),
-              label: const Text('Change Role'),
+          GoogleMap(
+            initialCameraPosition: const CameraPosition(
+              target: LatLng(13.1391, 123.7438),
             ),
+            zoomControlsEnabled: false,
+            onMapCreated: operatorVM.onMapCreated,
           ),
 
           Positioned(

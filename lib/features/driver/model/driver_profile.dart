@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DriverProfile {
   final String uid;
+  final String? operatorUid;
   final String phoneNumber;
   final String licenseNumber;
   final String address;
@@ -12,6 +13,7 @@ class DriverProfile {
 
   DriverProfile({
     required this.uid,
+    this.operatorUid,
     required this.phoneNumber,
     required this.licenseNumber,
     required this.address,
@@ -24,6 +26,7 @@ class DriverProfile {
   Map<String, dynamic> toMap() {
     return {
       'uid': uid,
+      'operatorUid': operatorUid,
       'contactNumber': phoneNumber,
       'licenseNumber': licenseNumber,
       'address': address,
@@ -38,6 +41,7 @@ class DriverProfile {
   factory DriverProfile.fromMap(Map<String, dynamic> map) {
     return DriverProfile(
       uid: map['uid'],
+      operatorUid: map['operatorUid'],
       phoneNumber: map['contactNumber'],
       licenseNumber: map['licenseNumber'],
       address: map['address'],
@@ -49,6 +53,7 @@ class DriverProfile {
   }
 
   DriverProfile copyWith({
+    String? operatorUid,
     String? phoneNumber,
     String? licenseNumber,
     String? address,
@@ -59,6 +64,7 @@ class DriverProfile {
   }) {
     return DriverProfile(
       uid: uid,
+      operatorUid: operatorUid ?? this.operatorUid,
       phoneNumber: phoneNumber ?? this.phoneNumber,
       licenseNumber: licenseNumber ?? this.licenseNumber,
       address: address ?? this.address,
