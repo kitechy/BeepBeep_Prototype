@@ -16,68 +16,48 @@ class AuthWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     
 
-    return StreamBuilder<User?>(
-      stream: FirebaseAuth.instance.authStateChanges(),
-      builder: (context, authSnapshot) {
-        if (authSnapshot.connectionState == ConnectionState.waiting) {
+    if (user == null) {
+      return const LoginPage();
+    }
+
+    return FutureBuilder<DocumentSnapshot>(
+      future: FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
         }
 
-        final user = authSnapshot.data;
+        final data = snapshot.data!.data() as Map<String, dynamic>?;
 
-        if (user == null) {
-          return const LoginPage();
+        final role = data?['role'];
+        final isProfileComplete = data?['profileCompleted'];
+
+        if (role == null) {
+          return const RoleSelectionPage();
         }
 
-        return StreamBuilder<DocumentSnapshot>(
-          stream: FirebaseFirestore.instance
-              .collection('users')
-              .doc(user.uid)
-              .snapshots(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return const Scaffold(
-                body: Center(child: CircularProgressIndicator()),
-              );
-            }
+        if (role == 'commuter') {
+          return const CommuterHomePage();
+        }
 
-            final data = snapshot.data!.data() as Map<String, dynamic>?;
-
-            final role = data?['role'];
-            final isProfileComplete = data?['profileCompleted'] == true;
-        if (role == 'operator') {
+        if (role == 'driver') {
           if (isProfileComplete) {
-            return OperatorHomePage();
+            return DriverHomePage();
           } else {
-            return OperatorForm();
+            return DriverForm();
           }
         }
 
-            if (role == null) {
-              return const RoleSelectionPage();
-            }
+        if (role == 'operator') {
+          return const OperatorHomePage();
+        }
 
-            if (role == 'commuter') {
-              return const CommuterHomePage();
-            }
-
-            if (role == 'driver') {
-              if (isProfileComplete) {
-                return DriverHomePage();
-              } else {
-                return DriverForm();
-              }
-            }
-
-            if (role == 'operator') {
-              return const OperatorHomePage();
-            }
-
-            return const LoginPage();
-          },
-        );
+        return const LoginPage();
       },
     );
   }

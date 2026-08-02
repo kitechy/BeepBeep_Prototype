@@ -7,7 +7,10 @@ import 'package:beepbeep_prototype/features/operator/viewmodel/operator_viewmode
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
-
+import 'package:beepbeep_prototype/shared/widgets/route_bottom_sheet.dart';
+import 'package:beepbeep_prototype/models/app.user.role.dart';
+import 'package:beepbeep_prototype/shared/widgets/drawer_component.dart';
+import 'package:beepbeep_prototype/features/about/view/about_page.dart';
 
 class OperatorHomePage extends StatelessWidget {
   const OperatorHomePage({super.key});
@@ -38,6 +41,20 @@ class __OperatorViewState extends State<_OperatorView> {
   Widget build(BuildContext context) {
     final operatorVM = context.watch<OperatorViewModel>();
     return Scaffold(
+      key: _scaffoldKey,
+
+      drawer: DrawerComponent(
+        role: AppUserRole.operator,
+        onHomeTap: () {},
+        onPlaceholderTap: () {
+          debugPrint('Placeholder');
+        },
+        onAboutTap: () => Navigator.push(
+          context, MaterialPageRoute(builder: (_) => const AboutPage()),
+        ),
+        onLogOutTap: signOut,
+      ),
+
       body: Stack(
         children: [
           GoogleMap(

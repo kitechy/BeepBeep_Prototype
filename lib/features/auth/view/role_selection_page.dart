@@ -2,7 +2,7 @@ import 'package:beepbeep_prototype/core/repository/auth_repository.dart';
 import 'package:beepbeep_prototype/features/auth/viewmodel/role_selection_viewmodel.dart';
 import 'package:beepbeep_prototype/features/commuter/view/commuter_home_page.dart';
 import 'package:beepbeep_prototype/features/driver/view/driver_form.dart';
-import 'package:beepbeep_prototype/features/operator/view/operator_form.dart';
+import 'package:beepbeep_prototype/features/operator/view/oprator_home_page.dart';
 import 'package:beepbeep_prototype/shared/widgets/elevatedbtn_widget.dart';
 import 'package:beepbeep_prototype/features/auth/view/widgets/role_container_widget.dart';
 import 'package:beepbeep_prototype/shared/widgets/text_widget.dart';

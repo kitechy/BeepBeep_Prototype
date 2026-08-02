@@ -18,6 +18,7 @@ import 'package:beepbeep_prototype/shared/widgets/drawer_component.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:beepbeep_prototype/features/about/view/about_page.dart';
 
 class DriverHomePage extends StatelessWidget {
   const DriverHomePage({super.key});
@@ -127,11 +128,11 @@ class __DriverViewState extends State<_DriverView>
           role: AppUserRole.driver,
           onHomeTap: () {},
           onPlaceholderTap: () {
-            debugPrint('Routes');
+            debugPrint('Placeholder');
           },
-          onPlaceholder2Tap: () {
-            debugPrint('Settings');
-          },
+          onAboutTap: () => Navigator.push(
+          context, MaterialPageRoute(builder: (_) => const AboutPage()),
+        ),
           onLogOutTap: signOut,
         ),
 
