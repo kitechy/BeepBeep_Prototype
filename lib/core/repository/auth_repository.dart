@@ -14,10 +14,6 @@ class AuthRepository {
     await _authService.signOut();
   }
 
-  Future<void> saveRole(String role) async {
-    await _authService.saveRole(role);
-  }
-
   User? get currentUser {
     return _authService.currentUser;
   }

@@ -1,22 +1,24 @@
 import 'package:beepbeep_prototype/core/repository/auth_repository.dart';
 import 'package:beepbeep_prototype/core/repository/routes_repository.dart';
+import 'package:beepbeep_prototype/core/repository/user_repository.dart';
 import 'package:beepbeep_prototype/core/service/auth_service.dart';
 import 'package:beepbeep_prototype/core/service/location_service.dart';
 import 'package:beepbeep_prototype/core/service/map_service.dart';
 import 'package:beepbeep_prototype/core/service/marker_service.dart';
 import 'package:beepbeep_prototype/core/service/routes_service.dart';
+import 'package:beepbeep_prototype/core/service/user_service.dart';
 import 'package:beepbeep_prototype/features/driver/repository/driver_repository.dart';
 import 'package:beepbeep_prototype/features/driver/service/driver_service.dart';
-import 'package:beepbeep_prototype/shared/widgets/route_bottom_sheet.dart';
+import 'package:beepbeep_prototype/shared/components/route_bottom_sheet/route_bottom_sheet.dart';
 import 'package:beepbeep_prototype/features/commuter/viewmodel/commuter_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:beepbeep_prototype/models/app.user.role.dart';
-import 'package:beepbeep_prototype/shared/widgets/drawer_component.dart';
+import 'package:beepbeep_prototype/shared/components/drawer/drawer_component.dart';
 import 'package:beepbeep_prototype/features/auth/view/login_page.dart';
 import 'package:beepbeep_prototype/shared/dialogs/error_dialog.dart';
 import 'package:beepbeep_prototype/features/about/view/about_page.dart';
+
 class CommuterHomePage extends StatelessWidget {
   const CommuterHomePage({super.key});
 
@@ -25,6 +27,7 @@ class CommuterHomePage extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => CommuterViewModel(
         AuthRepository(AuthService()),
+        UserRepository(UserService()),
         RoutesRepository(RoutesService()),
         DriverRepository(DriverService()),
         MapService(),
@@ -46,26 +49,43 @@ class _CommuterView extends StatefulWidget {
 class __CommuterViewState extends State<_CommuterView> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-Future<void> signOut() async {
-  final commuterVM = context.read<CommuterViewModel>();
-  final success = await commuterVM.logout();
+  @override
+  void initState() {
+    super.initState();
 
-  if (!mounted) return;
+    Future.microtask(() {
+      final commuterVM = context.read<CommuterViewModel>();
 
-  if (success) {
-    Navigator.pushReplacement(
+      commuterVM.loadCurrentUser();
+    });
+  }
+
+  Future<void> signOut() async {
+    final commuterVM = context.read<CommuterViewModel>();
+    final success = await commuterVM.logout();
+
+    if (!mounted) return;
+
+    if (success) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginPage()),
+      );
+    } else {
+      showDialog(
+        context: context,
+        builder: (_) => const ErrorDialog(message: 'Log out failed'),
+      );
+    }
+  }
+
+  void navigateToAboutPage() {
+    Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => const LoginPage()),
-    );
-  } else {
-    showDialog(
-      context: context,
-      builder: (_) => const ErrorDialog(
-        message: 'Log out failed',
-      ),
+      MaterialPageRoute(builder: (context) => AboutPage()),
     );
   }
-}
+
   @override
   Widget build(BuildContext context) {
     final commuterVM = context.watch<CommuterViewModel>();
@@ -74,15 +94,12 @@ Future<void> signOut() async {
       key: _scaffoldKey,
 
       drawer: DrawerComponent(
-        role: AppUserRole.commuter,
-        user: commuterVM.currentUser,
+        currentUser: commuterVM.commuterName,
+        role: commuterVM.role,
+        photoURL: commuterVM.photoUrl,
         onHomeTap: () {},
-        onPlaceholderTap: () {
-          debugPrint('Placeholder');
-        },
-        onAboutTap: () => Navigator.push(
-          context, MaterialPageRoute(builder: (_) => const AboutPage()),
-        ),
+        onPlaceholderTap: () {},
+        onAboutTap: navigateToAboutPage,
         onLogOutTap: signOut,
       ),
 

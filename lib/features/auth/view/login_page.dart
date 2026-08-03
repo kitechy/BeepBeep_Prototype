@@ -1,6 +1,8 @@
 import 'package:beepbeep_prototype/core/repository/auth_repository.dart';
 import 'package:beepbeep_prototype/core/repository/auth_wrapper.dart';
 import 'package:beepbeep_prototype/core/service/auth_service.dart';
+import 'package:beepbeep_prototype/features/about/view/privacy_policy_page.dart';
+import 'package:beepbeep_prototype/features/about/view/terms_of_service_page.dart';
 import 'package:beepbeep_prototype/features/auth/view/widgets/google_signin_button.dart';
 import 'package:beepbeep_prototype/features/auth/view/widgets/guest_button.dart';
 import 'package:beepbeep_prototype/features/auth/viewmodel/login_viewmodel.dart';
@@ -166,7 +168,16 @@ class _LoginViewState extends State<_LoginView> with TickerProviderStateMixin {
                                 fontWeight: FontWeight.bold,
                                 decoration: TextDecoration.underline,
                               ),
-                              recognizer: TapGestureRecognizer()..onTap = () {},
+                              recognizer: TapGestureRecognizer()
+                                ..onTap = () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          TermsOfServicePage(),
+                                    ),
+                                  );
+                                },
                             ),
 
                             const TextSpan(text: " and "),
@@ -178,7 +189,15 @@ class _LoginViewState extends State<_LoginView> with TickerProviderStateMixin {
                                 fontWeight: FontWeight.bold,
                                 decoration: TextDecoration.underline,
                               ),
-                              recognizer: TapGestureRecognizer()..onTap = () {},
+                              recognizer: TapGestureRecognizer()
+                                ..onTap = () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => PrivacyPolicyPage(),
+                                    ),
+                                  );
+                                },
                             ),
 
                             const TextSpan(text: "."),

@@ -1,4 +1,6 @@
+import 'package:beepbeep_prototype/core/model/user_model.dart';
 import 'package:beepbeep_prototype/core/repository/auth_repository.dart';
+import 'package:beepbeep_prototype/core/repository/user_repository.dart';
 import 'package:beepbeep_prototype/core/service/map_service.dart';
 import 'package:beepbeep_prototype/features/operator/model/operator_profile.dart';
 
@@ -8,14 +10,49 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class OperatorViewModel extends ChangeNotifier {
   final AuthRepository _repo;
+  final UserRepository _userRepo;
   final OperatorRepository _operatorRepo;
 
   final MapService _mapService;
-  OperatorViewModel(this._repo, this._operatorRepo, this._mapService);
+
+  OperatorViewModel(
+    this._repo,
+    this._userRepo,
+    this._operatorRepo,
+    this._mapService,
+  );
+
+  OperatorProfile? operatorProfile;
+  UserModel? _currentUser;
 
   String? errorMessage;
   bool _disposed = false;
-  OperatorProfile? operatorProfile;
+
+  String get operatorName => _currentUser?.name ?? "User";
+
+  String? get photoUrl => _repo.currentUser?.photoURL;
+
+  String get role => _currentUser?.role ?? "Operator";
+
+  Future<void> loadCurrentUser() async {
+    _currentUser = await _userRepo.getCurrentUser();
+    notifyListeners();
+  }
+
+  Future<void> loadOperatorProfile() async {
+    final uid = _repo.currentUser?.uid;
+
+    if (uid == null) return;
+
+    operatorProfile = await _operatorRepo.getOperatorProfile(uid);
+
+    notifyListeners();
+  }
+
+  Future<void> onMapCreated(GoogleMapController controller) async {
+    await _mapService.onMapCreated(controller);
+    await loadOperatorProfile();
+  }
 
   Future<bool> logout() async {
     try {
@@ -38,20 +75,5 @@ class OperatorViewModel extends ChangeNotifier {
     if (!_disposed) {
       notifyListeners();
     }
-  }
-
-  Future<void> onMapCreated(GoogleMapController controller) async {
-    await _mapService.onMapCreated(controller);
-    await loadOperatorProfile();
-  }
-
-  Future<void> loadOperatorProfile() async {
-    final uid = _repo.currentUser?.uid;
-
-    if (uid == null) return;
-
-    operatorProfile = await _operatorRepo.getOperatorProfile(uid);
-
-    notifyListeners();
   }
 }

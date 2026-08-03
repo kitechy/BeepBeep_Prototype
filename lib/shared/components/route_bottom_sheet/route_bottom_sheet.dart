@@ -1,4 +1,4 @@
-import 'package:beepbeep_prototype/models/routes_model.dart';
+import 'package:beepbeep_prototype/core/model/routes_model.dart';
 import 'package:flutter/material.dart';
 
 class _Palette {

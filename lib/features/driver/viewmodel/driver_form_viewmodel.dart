@@ -3,7 +3,6 @@ import 'package:beepbeep_prototype/core/repository/user_repository.dart';
 import 'package:beepbeep_prototype/features/driver/model/driver_profile.dart';
 import 'package:beepbeep_prototype/features/driver/repository/driver_repository.dart';
 import 'package:beepbeep_prototype/features/operator/repository/operator_repository.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class DriverFormViewModel extends ChangeNotifier {
@@ -45,7 +44,17 @@ class DriverFormViewModel extends ChangeNotifier {
     }
   }
 
-  User? get currentUser => _repo.currentUser;
+  String get name {
+    return _repo.currentUser?.displayName ?? "User";
+  }
+
+  String get email {
+    return _repo.currentUser?.email ?? "";
+  }
+
+  String? get photoUrl {
+    return _repo.currentUser?.photoURL;
+  }
 
   Future<bool> createDriverProfile() async {
     if (!formKey.currentState!.validate()) {

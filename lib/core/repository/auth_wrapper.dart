@@ -3,6 +3,7 @@ import 'package:beepbeep_prototype/features/auth/view/role_selection_page.dart';
 import 'package:beepbeep_prototype/features/commuter/view/commuter_home_page.dart';
 import 'package:beepbeep_prototype/features/driver/view/driver_form.dart';
 import 'package:beepbeep_prototype/features/driver/view/driver_home_page.dart';
+import 'package:beepbeep_prototype/features/operator/view/operator_form.dart';
 import 'package:beepbeep_prototype/features/operator/view/oprator_home_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -13,50 +14,62 @@ class AuthWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
-
-    if (user == null) {
-      return const LoginPage();
-    }
-
-    return FutureBuilder<DocumentSnapshot>(
-      future: FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .get(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, authSnapshot) {
+        if (authSnapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
         }
 
-        final data = snapshot.data!.data() as Map<String, dynamic>?;
+        final user = authSnapshot.data;
 
-        final role = data?['role'];
-        final isProfileComplete = data?['profileCompleted'];
-
-        if (role == null) {
-          return const RoleSelectionPage();
+        if (user == null) {
+          return const LoginPage();
         }
 
-        if (role == 'commuter') {
-          return const CommuterHomePage();
-        }
+        return FutureBuilder<DocumentSnapshot>(
+          future: FirebaseFirestore.instance
+              .collection('users')
+              .doc(user.uid)
+              .get(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Scaffold(
+                body: Center(child: CircularProgressIndicator()),
+              );
+            }
 
-        if (role == 'driver') {
-          if (isProfileComplete) {
-            return DriverHomePage();
-          } else {
-            return DriverForm();
-          }
-        }
+            if (!snapshot.hasData || !snapshot.data!.exists) {
+              return const RoleSelectionPage();
+            }
 
-        if (role == 'operator') {
-          return const OperatorHomePage();
-        }
+            final data = snapshot.data!.data() as Map<String, dynamic>;
 
-        return const LoginPage();
+            final role = data['role'];
+            final isProfileComplete =
+                data['profileCompleted'] as bool? ?? false;
+
+            switch (role) {
+              case 'commuter':
+                return const CommuterHomePage();
+
+              case 'driver':
+                return isProfileComplete
+                    ? const DriverHomePage()
+                    : const DriverForm();
+
+              case 'operator':
+                return isProfileComplete
+                    ? const OperatorHomePage()
+                    : const OperatorForm();
+
+              default:
+                return const RoleSelectionPage();
+            }
+          },
+        );
       },
     );
   }

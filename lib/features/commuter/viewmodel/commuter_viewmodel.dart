@@ -1,22 +1,24 @@
 import 'dart:async';
 
+import 'package:beepbeep_prototype/core/model/routes_model.dart';
+import 'package:beepbeep_prototype/core/model/user_model.dart';
 import 'package:beepbeep_prototype/core/repository/auth_repository.dart';
 import 'package:beepbeep_prototype/core/repository/routes_repository.dart';
+import 'package:beepbeep_prototype/core/repository/user_repository.dart';
 import 'package:beepbeep_prototype/core/service/location_service.dart';
 import 'package:beepbeep_prototype/core/service/map_service.dart';
 import 'package:beepbeep_prototype/core/service/marker_service.dart';
 import 'package:beepbeep_prototype/features/driver/model/driver_profile.dart';
 import 'package:beepbeep_prototype/features/driver/repository/driver_repository.dart';
-import 'package:beepbeep_prototype/models/routes_model.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:math';
-import 'package:beepbeep_prototype/features/auth/view/login_page.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class CommuterViewModel extends ChangeNotifier {
   final AuthRepository _repo;
+  final UserRepository _userRepo;
   final RoutesRepository _routeRepo;
   final DriverRepository _driverRepo;
 
@@ -31,9 +33,11 @@ class CommuterViewModel extends ChangeNotifier {
   final List<StreamSubscription> _routeSubscriptions = [];
 
   StreamSubscription<List<DriverProfile>>? _driversSubscription;
+  UserModel? _currentUser;
 
   CommuterViewModel(
     this._repo,
+    this._userRepo,
     this._routeRepo,
     this._driverRepo,
 
@@ -44,8 +48,19 @@ class CommuterViewModel extends ChangeNotifier {
 
   Set<Polyline> polylines = {};
   Set<Marker> get markers => _markers;
-  User? get currentUser => _repo.currentUser;
+
   List<RoutesModel> availableRoutes = [];
+
+  String get commuterName => _currentUser?.name ?? "User";
+
+  String get role => _currentUser?.role ?? "Commuter";
+
+  String? get photoUrl => _repo.currentUser?.photoURL;
+
+  Future<void> loadCurrentUser() async {
+    _currentUser = await _userRepo.getCurrentUser();
+    notifyListeners();
+  }
 
   Future<void> onMapCreated(GoogleMapController controller) async {
     await _mapService.onMapCreated(controller);
@@ -220,15 +235,15 @@ class CommuterViewModel extends ChangeNotifier {
     }
   }
 
-Future<bool> logout() async {
-  try {
-    await _repo.signOut();
-    return true;
+  Future<bool> logout() async {
+    try {
+      await _repo.signOut();
+      return true;
     } catch (e) {
       return false;
     }
   }
-  
+
   @override
   void dispose() {
     for (final sub in _routeSubscriptions) {

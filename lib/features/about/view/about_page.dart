@@ -1,5 +1,6 @@
 import 'package:beepbeep_prototype/features/about/view/privacy_policy_page.dart';
 import 'package:beepbeep_prototype/features/about/view/terms_of_service_page.dart';
+import 'package:beepbeep_prototype/features/about/view/widgets/legal_tile_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -34,7 +35,6 @@ class AboutPage extends StatelessWidget {
       body: ListView(
         padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
         children: [
-  
           Center(
             child: Column(
               children: [
@@ -65,8 +65,7 @@ class AboutPage extends StatelessWidget {
           Divider(color: const Color(0xFFEAECF0)),
           SizedBox(height: 8.h),
 
-
-          _LegalTile(
+          LegalTile(
             icon: Icons.shield_outlined,
             label: 'Privacy Policy',
             onTap: () => Navigator.push(
@@ -74,7 +73,7 @@ class AboutPage extends StatelessWidget {
               MaterialPageRoute(builder: (_) => const PrivacyPolicyPage()),
             ),
           ),
-          _LegalTile(
+          LegalTile(
             icon: Icons.description_outlined,
             label: 'Terms of Service',
             onTap: () => Navigator.push(
@@ -84,32 +83,6 @@ class AboutPage extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _LegalTile extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  const _LegalTile({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      contentPadding: EdgeInsets.symmetric(vertical: 4.h),
-      leading: Icon(icon, color: const Color(0xFF1570EF), size: 22.r),
-      title: Text(
-        label,
-        style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500),
-      ),
-      trailing: Icon(Icons.chevron_right, color: Colors.grey[400], size: 20.r),
-      onTap: onTap,
     );
   }
 }

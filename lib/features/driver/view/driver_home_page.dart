@@ -1,20 +1,20 @@
 import 'package:beepbeep_prototype/core/repository/auth_repository.dart';
 import 'package:beepbeep_prototype/core/repository/routes_repository.dart';
+import 'package:beepbeep_prototype/core/repository/user_repository.dart';
 import 'package:beepbeep_prototype/core/service/auth_service.dart';
 import 'package:beepbeep_prototype/core/service/location_service.dart';
 import 'package:beepbeep_prototype/core/service/map_service.dart';
 import 'package:beepbeep_prototype/core/service/marker_service.dart';
 import 'package:beepbeep_prototype/core/service/routes_service.dart';
+import 'package:beepbeep_prototype/core/service/user_service.dart';
 import 'package:beepbeep_prototype/features/auth/view/login_page.dart';
-import 'package:beepbeep_prototype/features/auth/view/role_selection_page.dart';
 import 'package:beepbeep_prototype/features/driver/repository/driver_repository.dart';
 import 'package:beepbeep_prototype/features/driver/service/driver_service.dart';
 import 'package:beepbeep_prototype/features/driver/view/widgets/status_indicator.dart';
 import 'package:beepbeep_prototype/features/driver/viewmodel/driver_viewmodel.dart';
 import 'package:beepbeep_prototype/shared/dialogs/error_dialog.dart';
-import 'package:beepbeep_prototype/shared/widgets/route_bottom_sheet.dart';
-import 'package:beepbeep_prototype/models/app.user.role.dart';
-import 'package:beepbeep_prototype/shared/widgets/drawer_component.dart';
+import 'package:beepbeep_prototype/shared/components/route_bottom_sheet/route_bottom_sheet.dart';
+import 'package:beepbeep_prototype/shared/components/drawer/drawer_component.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
@@ -28,6 +28,7 @@ class DriverHomePage extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => DriverViewModel(
         AuthRepository(AuthService()),
+        UserRepository(UserService()),
         DriverRepository(DriverService()),
         MapService(),
         RoutesRepository(RoutesService()),
@@ -61,8 +62,9 @@ class __DriverViewState extends State<_DriverView>
     Future.microtask(() async {
       final driverVM = context.read<DriverViewModel>();
 
-      await driverVM.loadRoutes();
+      await driverVM.loadCurrentUser();
       await driverVM.loadDriverProfile();
+      await driverVM.loadRoutes();
     });
   }
 
@@ -95,10 +97,10 @@ class __DriverViewState extends State<_DriverView>
     }
   }
 
-  void changeRole() {
-    Navigator.pushReplacement(
+  void navigateToAboutPage() async {
+    Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const RoleSelectionPage()),
+      MaterialPageRoute(builder: (context) => AboutPage()),
     );
   }
 
@@ -125,14 +127,12 @@ class __DriverViewState extends State<_DriverView>
         key: _scaffoldKey,
 
         drawer: DrawerComponent(
-          role: AppUserRole.driver,
+          currentUser: driverVM.driverName,
+          role: driverVM.role,
+          photoURL: driverVM.photoUrl,
           onHomeTap: () {},
-          onPlaceholderTap: () {
-            debugPrint('Placeholder');
-          },
-          onAboutTap: () => Navigator.push(
-          context, MaterialPageRoute(builder: (_) => const AboutPage()),
-        ),
+          onPlaceholderTap: () {},
+          onAboutTap: navigateToAboutPage,
           onLogOutTap: signOut,
         ),
 
@@ -173,12 +173,12 @@ class __DriverViewState extends State<_DriverView>
                             color: Color(0xff1C1A17),
                           ),
                         ),
-                          ),
-                        ),
                       ),
                     ),
                   ),
                 ),
+              ),
+            ),
 
             Positioned(
               top: 55,

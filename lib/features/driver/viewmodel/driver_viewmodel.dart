@@ -1,13 +1,14 @@
 import 'dart:async';
-
+import 'package:beepbeep_prototype/core/model/user_model.dart';
 import 'package:beepbeep_prototype/core/repository/auth_repository.dart';
 import 'package:beepbeep_prototype/core/repository/routes_repository.dart';
+import 'package:beepbeep_prototype/core/repository/user_repository.dart';
 import 'package:beepbeep_prototype/core/service/location_service.dart';
 import 'package:beepbeep_prototype/core/service/map_service.dart';
 import 'package:beepbeep_prototype/core/service/marker_service.dart';
 import 'package:beepbeep_prototype/features/driver/model/driver_profile.dart';
 import 'package:beepbeep_prototype/features/driver/repository/driver_repository.dart';
-import 'package:beepbeep_prototype/models/routes_model.dart';
+import 'package:beepbeep_prototype/core/model/routes_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
@@ -15,6 +16,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class DriverViewModel extends ChangeNotifier {
   final AuthRepository _repo;
+  final UserRepository _userRepo;
   final DriverRepository _driverRepo;
   final RoutesRepository _routeRepo;
 
@@ -27,6 +29,7 @@ class DriverViewModel extends ChangeNotifier {
 
   DriverViewModel(
     this._repo,
+    this._userRepo,
     this._driverRepo,
     this._mapService,
     this._routeRepo,
@@ -43,6 +46,8 @@ class DriverViewModel extends ChangeNotifier {
   Set<Polyline> polylines = {};
 
   DriverProfile? driverProfile;
+  UserModel? _currentUser;
+
   StreamSubscription<Position>? _locationSubscription;
 
   void _safeNotify() {
@@ -55,17 +60,13 @@ class DriverViewModel extends ChangeNotifier {
     await _mapService.onMapCreated(controller);
   }
 
-  String get driverName {
-    return _repo.currentUser?.displayName ?? "Driver";
-  }
+  String get driverName => _currentUser?.name ?? "User";
 
-  String? get photoUrl {
-    return _repo.currentUser?.photoURL;
-  }
+  String get role => _currentUser?.role ?? 'Driver';
 
-  bool get isOnline {
-    return driverProfile?.status == "online";
-  }
+  String? get photoUrl => _repo.currentUser?.photoURL;
+
+  bool get isOnline => driverProfile?.status == "online";
 
   String get greeting {
     final hour = DateTime.now().hour;
@@ -77,6 +78,11 @@ class DriverViewModel extends ChangeNotifier {
     } else {
       return "Good Evening";
     }
+  }
+
+  Future<void> loadCurrentUser() async {
+    _currentUser = await _userRepo.getCurrentUser();
+    notifyListeners();
   }
 
   Future<void> loadDriverProfile() async {

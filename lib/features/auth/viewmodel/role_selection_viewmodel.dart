@@ -1,11 +1,10 @@
-
-import 'package:beepbeep_prototype/core/repository/auth_repository.dart';
+import 'package:beepbeep_prototype/core/repository/user_repository.dart';
 import 'package:flutter/material.dart';
 
 class RoleSelectionViewModel extends ChangeNotifier {
-  final AuthRepository _repo;
+  final UserRepository _userRepo;
 
-  RoleSelectionViewModel(this._repo);
+  RoleSelectionViewModel(this._userRepo);
   String? selectedRole;
   String? errorMessage;
 
@@ -20,7 +19,7 @@ class RoleSelectionViewModel extends ChangeNotifier {
 
   Future<void> saveRole(String role) async {
     try {
-      await _repo.saveRole(role);
+      await _userRepo.saveRole(role);
     } catch (e) {
       errorMessage = e.toString();
       notifyListeners();

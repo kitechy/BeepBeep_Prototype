@@ -77,10 +77,10 @@ class __DriverFormViewState extends State<_DriverFormView> {
                       width: 120.w,
                       height: 120.h,
                       decoration: BoxDecoration(shape: BoxShape.circle),
-                      child: driverVM.currentUser!.photoURL != null
+                      child: driverVM.photoUrl != null
                           ? ClipOval(
                               child: Image.network(
-                                driverVM.currentUser!.photoURL!,
+                                driverVM.photoUrl!,
                                 fit: BoxFit.cover,
                               ),
                             )
@@ -118,7 +118,7 @@ class __DriverFormViewState extends State<_DriverFormView> {
               const SizedBox(height: 16),
               Center(
                 child: Text(
-                  driverVM.currentUser!.displayName ?? 'User',
+                  driverVM.name,
                   style: const TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w600,
@@ -127,10 +127,7 @@ class __DriverFormViewState extends State<_DriverFormView> {
               ),
               const SizedBox(height: 2),
               Center(
-                child: Text(
-                  driverVM.currentUser!.email ?? '',
-                  style: TextStyle(fontSize: 13.5),
-                ),
+                child: Text(driverVM.email, style: TextStyle(fontSize: 13.5)),
               ),
 
               const SizedBox(height: 32),
