@@ -40,6 +40,7 @@ class DriverViewModel extends ChangeNotifier {
   String? errorMessage;
   bool isLoading = false;
   bool _disposed = false;
+
   List<RoutesModel> availableRoutes = [];
 
   Set<Marker> get markers => _markers;
@@ -63,7 +64,7 @@ class DriverViewModel extends ChangeNotifier {
   String get driverName => _currentUser?.name ?? "User";
 
   String get role => _currentUser?.role ?? 'Driver';
-  
+
   String? get photoUrl => _repo.currentUser?.photoURL;
 
   bool get isOnline => driverProfile?.status == "online";
@@ -208,6 +209,8 @@ class DriverViewModel extends ChangeNotifier {
     _locationSubscription = _locationService.getLocationStream().listen((
       position,
     ) async {
+      if (_repo.currentUser == null) return;
+
       await _driverRepo.updateDriverLocation(
         uid,
         position.latitude,
@@ -248,13 +251,34 @@ class DriverViewModel extends ChangeNotifier {
   }
 
   Future<bool> logout() async {
+    final uid = _repo.currentUser?.uid;
+
     try {
+      if (uid != null) {
+        await stopLocationTracking();
+
+        await _driverRepo.updateDriverStatus(uid, "offline");
+
+        if (driverProfile != null) {
+          driverProfile = driverProfile!.copyWith(status: "offline");
+        }
+      }
       await _repo.signOut();
+
       return true;
     } catch (e) {
       errorMessage = "Logout Failed. Please try again.";
       _safeNotify();
       return false;
     }
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+
+    _locationSubscription?.cancel();
+
+    super.dispose();
   }
 }
