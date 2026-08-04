@@ -168,6 +168,7 @@ class __CommuterViewState extends State<_CommuterView> {
                             onRouteSelected: (route) async {
                               await commuterVM.loadRoute(route.id);
                             },
+                            activeDriverCount: commuterVM.getActiveDriverCount,
                           ),
                         );
                       },

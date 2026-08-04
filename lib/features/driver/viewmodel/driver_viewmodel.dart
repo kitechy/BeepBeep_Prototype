@@ -48,6 +48,7 @@ class DriverViewModel extends ChangeNotifier {
 
   DriverProfile? driverProfile;
   UserModel? _currentUser;
+  RoutesModel? _selectedRoute;
 
   StreamSubscription<Position>? _locationSubscription;
 
@@ -68,6 +69,8 @@ class DriverViewModel extends ChangeNotifier {
   String? get photoUrl => _repo.currentUser?.photoURL;
 
   bool get isOnline => driverProfile?.status == "online";
+
+  String? get currentRouteName => _selectedRoute?.name;
 
   String get greeting {
     final hour = DateTime.now().hour;
@@ -155,11 +158,15 @@ class DriverViewModel extends ChangeNotifier {
 
     driverProfile = driverProfile!.copyWith(currentRouteId: route.id);
 
+    _selectedRoute = route;
+
     await loadRoute(route.id);
   }
 
   Future<void> loadRoute(String routeId) async {
     final route = await _routeRepo.getRoute(routeId);
+
+    _selectedRoute = route;
 
     final decoded = polylinePoints.decodePolyline(route.encodedPolyline);
 
@@ -174,9 +181,9 @@ class DriverViewModel extends ChangeNotifier {
       ),
     };
 
-    notifyListeners();
-
     await _mapService.fitToRoute(points);
+
+    notifyListeners();
   }
 
   Future<void> startLocationTracking() async {

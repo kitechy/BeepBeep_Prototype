@@ -185,6 +185,7 @@ class __DriverViewState extends State<_DriverView>
               right: 16,
               child: SafeArea(
                 child: StatusIndicator(
+                  route: driverVM.currentRouteName,
                   isOnline: driverVM.isOnline,
                   greeting: driverVM.greeting,
                   driverName: driverVM.driverName,

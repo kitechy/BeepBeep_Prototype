@@ -47,19 +47,21 @@ class StatusIndicator extends StatelessWidget {
                 ),
                 const SizedBox(height: 3),
                 Text(
-                  route ?? "No route selected",
+                  route == null ? "No route selected" : "📍 $route",
                   style: TextStyle(
                     fontSize: 12,
                     fontStyle: route == null
                         ? FontStyle.italic
                         : FontStyle.normal,
                     color: route == null
-                        ? Color(0xff8A8378)
-                        : Color(0xffC7852F),
+                        ? const Color(0xff8A8378)
+                        : const Color(0xffC7952F),
                     fontWeight: route == null
                         ? FontWeight.w400
                         : FontWeight.w600,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),

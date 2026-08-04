@@ -1,7 +1,5 @@
 import 'package:beepbeep_prototype/core/model/routes_model.dart';
-import 'package:beepbeep_prototype/features/commuter/viewmodel/commuter_viewmodel.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class _Palette {
   static const ink = Color(0xFF1C1A17);
@@ -21,10 +19,13 @@ class RouteBottomSheet extends StatefulWidget {
   final List<RoutesModel> routes;
   final Future<void> Function(RoutesModel route) onRouteSelected;
 
+  final int Function(String routeId)? activeDriverCount;
+
   const RouteBottomSheet({
     super.key,
     required this.routes,
     required this.onRouteSelected,
+    this.activeDriverCount,
   });
 
   @override
@@ -55,6 +56,7 @@ class _RouteBottomSheetState extends State<RouteBottomSheet> {
           mainAxisSize: MainAxisSize.min,
           children: [
             const SizedBox(height: 10),
+
             Container(
               width: 36,
               height: 4,
@@ -63,12 +65,13 @@ class _RouteBottomSheetState extends State<RouteBottomSheet> {
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
+
             const SizedBox(height: 18),
 
             const Text(
-              'Select a route',
+              "Select a route",
               style: TextStyle(
-                fontFamily: 'serif',
+                fontFamily: "serif",
                 fontSize: 22,
                 fontWeight: FontWeight.w600,
                 color: _Palette.ink,
@@ -98,13 +101,11 @@ class _RouteBottomSheetState extends State<RouteBottomSheet> {
                     Expanded(
                       child: TextField(
                         onChanged: (value) {
-                          setState(() {
-                            _query = value;
-                          });
+                          setState(() => _query = value);
                         },
                         decoration: const InputDecoration(
                           border: InputBorder.none,
-                          hintText: 'Search a route',
+                          hintText: "Search a route",
                         ),
                       ),
                     ),
@@ -122,7 +123,7 @@ class _RouteBottomSheetState extends State<RouteBottomSheet> {
                       child: Padding(
                         padding: EdgeInsets.all(32),
                         child: Text(
-                          'No routes found.',
+                          "No routes found.",
                           style: TextStyle(color: _Palette.muted),
                         ),
                       ),
@@ -137,8 +138,11 @@ class _RouteBottomSheetState extends State<RouteBottomSheet> {
                       ),
                       itemBuilder: (context, index) {
                         final route = routes[index];
-                        final tagColor = _tagColorFor(route.id.toString());
+                        final tagColor = _tagColorFor(route.id);
                         final isLoading = _loadingRouteId == route.id;
+
+                        final activeDrivers =
+                            widget.activeDriverCount?.call(route.id);
 
                         return InkWell(
                           onTap: isLoading
@@ -183,41 +187,37 @@ class _RouteBottomSheetState extends State<RouteBottomSheet> {
                                     style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w500,
+                                      color: _Palette.ink,
                                     ),
                                   ),
                                 ),
 
-                                Consumer<CommuterViewModel>(
-                                  builder: (_, vm, __) {
-                                    final activeDrivers = vm
-                                        .getActiveDriverCount(route.id);
-
-                                    return Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 4,
-                                      ),
-                                      decoration: BoxDecoration(
+                                if (activeDrivers != null) ...[
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: activeDrivers > 0
+                                          ? Colors.green.shade50
+                                          : Colors.grey.shade200,
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      "$activeDrivers Active",
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
                                         color: activeDrivers > 0
-                                            ? Colors.green.shade50
-                                            : Colors.grey.shade200,
-                                        borderRadius: BorderRadius.circular(20),
+                                            ? Colors.green.shade700
+                                            : Colors.grey.shade700,
                                       ),
-                                      child: Text(
-                                        '$activeDrivers Active',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w600,
-                                          color: activeDrivers > 0
-                                              ? Colors.green.shade700
-                                              : Colors.grey.shade700,
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
+                                    ),
+                                  ),
 
-                                const SizedBox(width: 12),
+                                  const SizedBox(width: 12),
+                                ],
 
                                 if (isLoading)
                                   const SizedBox(
