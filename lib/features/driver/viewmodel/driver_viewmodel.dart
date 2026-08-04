@@ -63,7 +63,7 @@ class DriverViewModel extends ChangeNotifier {
   String get driverName => _currentUser?.name ?? "User";
 
   String get role => _currentUser?.role ?? 'Driver';
-
+  
   String? get photoUrl => _repo.currentUser?.photoURL;
 
   bool get isOnline => driverProfile?.status == "online";

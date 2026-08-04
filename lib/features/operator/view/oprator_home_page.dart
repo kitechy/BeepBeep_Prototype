@@ -5,8 +5,11 @@ import 'package:beepbeep_prototype/core/service/map_service.dart';
 import 'package:beepbeep_prototype/core/service/user_service.dart';
 import 'package:beepbeep_prototype/features/about/view/about_page.dart';
 import 'package:beepbeep_prototype/features/auth/view/login_page.dart';
+import 'package:beepbeep_prototype/features/driver/repository/driver_repository.dart';
+import 'package:beepbeep_prototype/features/driver/service/driver_service.dart';
 import 'package:beepbeep_prototype/features/operator/repository/operator_repository.dart';
 import 'package:beepbeep_prototype/features/operator/service/operator_service.dart';
+import 'package:beepbeep_prototype/features/operator/view/widgets/status_bar_widget.dart';
 import 'package:beepbeep_prototype/features/operator/viewmodel/operator_viewmodel.dart';
 
 import 'package:beepbeep_prototype/shared/dialogs/error_dialog.dart';
@@ -25,6 +28,7 @@ class OperatorHomePage extends StatelessWidget {
         AuthRepository(AuthService()),
         UserRepository(UserService()),
         OperatorRepository(OperatorService()),
+        DriverRepository(DriverService()),
         MapService(),
       ),
       child: _OperatorView(),
@@ -50,6 +54,7 @@ class __OperatorViewState extends State<_OperatorView> {
 
       await operatorVM.loadCurrentUser();
       await operatorVM.loadOperatorProfile();
+      operatorVM.loadDrivers(operatorVM.operatorUid);
     });
   }
 
@@ -105,6 +110,23 @@ class __OperatorViewState extends State<_OperatorView> {
             ),
             zoomControlsEnabled: false,
             onMapCreated: operatorVM.onMapCreated,
+          ),
+
+          Consumer<OperatorViewModel>(
+            builder: (context, operatorVM, child) {
+              return Positioned(
+                top: 55,
+                left: 16,
+                right: 16,
+                child: SafeArea(
+                  child: StatusBarWidget(
+                    fleetCount: operatorVM.fleetCount,
+                    onlineD: operatorVM.onlineCount,
+                    offlineD: operatorVM.offlineCount,
+                  ),
+                ),
+              );
+            },
           ),
 
           Positioned(

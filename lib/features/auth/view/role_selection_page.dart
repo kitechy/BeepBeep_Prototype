@@ -1,4 +1,5 @@
 import 'package:beepbeep_prototype/core/repository/user_repository.dart';
+import 'package:beepbeep_prototype/core/service/user_service.dart';
 import 'package:beepbeep_prototype/features/auth/viewmodel/role_selection_viewmodel.dart';
 import 'package:beepbeep_prototype/features/commuter/view/commuter_home_page.dart';
 import 'package:beepbeep_prototype/features/driver/view/driver_form.dart';
@@ -17,7 +18,7 @@ class RoleSelectionPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => RoleSelectionViewModel(context.read<UserRepository>()),
+      create: (_) => RoleSelectionViewModel(UserRepository(UserService())),
       child: const _RoleSelectionView(),
     );
   }

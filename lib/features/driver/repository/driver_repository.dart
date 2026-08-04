@@ -37,4 +37,8 @@ class DriverRepository {
   Stream<List<DriverProfile>> getOnlineDrivers(String routeId) {
     return _driverService.getOnlineDrivers(routeId);
   }
+
+  Stream<List<DriverProfile>> getDriversByOperator(String operatorUid) {
+    return _driverService.getDriversByOperator(operatorUid);
+  }
 }

@@ -63,4 +63,16 @@ class DriverService {
               .toList();
         });
   }
+
+  Stream<List<DriverProfile>> getDriversByOperator(String operatorUid) {
+    return _firestore
+        .collection('driver_profiles')
+        .where('operatorUid', isEqualTo: operatorUid)
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => DriverProfile.fromMap(doc.data()))
+              .toList(),
+        );
+  }
 }

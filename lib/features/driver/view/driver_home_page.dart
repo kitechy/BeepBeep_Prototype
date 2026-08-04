@@ -61,7 +61,6 @@ class __DriverViewState extends State<_DriverView>
 
     Future.microtask(() async {
       final driverVM = context.read<DriverViewModel>();
-
       await driverVM.loadCurrentUser();
       await driverVM.loadDriverProfile();
       await driverVM.loadRoutes();
