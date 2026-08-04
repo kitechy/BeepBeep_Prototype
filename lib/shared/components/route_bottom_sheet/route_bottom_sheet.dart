@@ -1,5 +1,7 @@
 import 'package:beepbeep_prototype/core/model/routes_model.dart';
+import 'package:beepbeep_prototype/features/commuter/viewmodel/commuter_viewmodel.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class _Palette {
   static const ink = Color(0xFF1C1A17);
@@ -17,14 +19,12 @@ class _Palette {
 
 class RouteBottomSheet extends StatefulWidget {
   final List<RoutesModel> routes;
-  final Future<void> Function(RoutesModel routes) onRouteSelected;
-  final int Function(String routeId)? activeDriverCount;
+  final Future<void> Function(RoutesModel route) onRouteSelected;
 
   const RouteBottomSheet({
     super.key,
     required this.routes,
     required this.onRouteSelected,
-    this.activeDriverCount,
   });
 
   @override
@@ -59,31 +59,24 @@ class _RouteBottomSheetState extends State<RouteBottomSheet> {
               width: 36,
               height: 4,
               decoration: BoxDecoration(
-                color: Color(0xFFE7E0D2),
+                color: _Palette.line,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
             const SizedBox(height: 18),
 
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 22),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Text(
-                    'Select a route',
-                    style: TextStyle(
-                      fontFamily: 'serif',
-                      fontSize: 22,
-                      fontWeight: FontWeight.w600,
-                      color: _Palette.ink,
-                      height: 1.2,
-                    ),
-                  ),
-                ],
+            const Text(
+              'Select a route',
+              style: TextStyle(
+                fontFamily: 'serif',
+                fontSize: 22,
+                fontWeight: FontWeight.w600,
+                color: _Palette.ink,
               ),
             ),
+
             const SizedBox(height: 16),
+
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 22),
               child: Container(
@@ -104,19 +97,14 @@ class _RouteBottomSheetState extends State<RouteBottomSheet> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: TextField(
-                        onChanged: (v) => setState(() => _query = v),
-                        style: const TextStyle(
-                          fontSize: 15,
-                          color: _Palette.ink,
-                        ),
+                        onChanged: (value) {
+                          setState(() {
+                            _query = value;
+                          });
+                        },
                         decoration: const InputDecoration(
-                          isDense: true,
                           border: InputBorder.none,
                           hintText: 'Search a route',
-                          hintStyle: TextStyle(
-                            color: _Palette.muted,
-                            fontSize: 15,
-                          ),
                         ),
                       ),
                     ),
@@ -125,33 +113,30 @@ class _RouteBottomSheetState extends State<RouteBottomSheet> {
                 ),
               ),
             ),
+
             const SizedBox(height: 8),
 
             Flexible(
               child: routes.isEmpty
-                  ? const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 32),
-                      child: Text(
-                        'No routes match your search.',
-                        style: TextStyle(color: _Palette.muted, fontSize: 14),
+                  ? const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(32),
+                        child: Text(
+                          'No routes found.',
+                          style: TextStyle(color: _Palette.muted),
+                        ),
                       ),
                     )
                   : ListView.separated(
                       shrinkWrap: true,
-                      padding: const EdgeInsets.symmetric(vertical: 6),
                       itemCount: routes.length,
                       separatorBuilder: (_, __) => const Divider(
-                        height: 1,
-                        thickness: 1,
-                        color: _Palette.line,
                         indent: 22,
                         endIndent: 22,
+                        color: _Palette.line,
                       ),
                       itemBuilder: (context, index) {
                         final route = routes[index];
-                        final activeDrivers = widget.activeDriverCount?.call(
-                          route.id,
-                        );
                         final tagColor = _tagColorFor(route.id.toString());
                         final isLoading = _loadingRouteId == route.id;
 
@@ -159,11 +144,13 @@ class _RouteBottomSheetState extends State<RouteBottomSheet> {
                           onTap: isLoading
                               ? null
                               : () async {
-                                  setState(() => _loadingRouteId = route.id);
+                                  setState(() {
+                                    _loadingRouteId = route.id;
+                                  });
 
                                   await widget.onRouteSelected(route);
 
-                                  if (context.mounted) {
+                                  if (mounted) {
                                     Navigator.pop(context);
                                   }
                                 },
@@ -178,7 +165,7 @@ class _RouteBottomSheetState extends State<RouteBottomSheet> {
                                   width: 34,
                                   height: 34,
                                   decoration: BoxDecoration(
-                                    color: tagColor.withOpacity(0.12),
+                                    color: tagColor.withOpacity(.12),
                                     shape: BoxShape.circle,
                                   ),
                                   child: Icon(
@@ -187,42 +174,51 @@ class _RouteBottomSheetState extends State<RouteBottomSheet> {
                                     color: tagColor,
                                   ),
                                 ),
+
                                 const SizedBox(width: 14),
+
                                 Expanded(
                                   child: Text(
                                     route.name,
                                     style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w500,
-                                      color: _Palette.ink,
                                     ),
                                   ),
                                 ),
-                                if (activeDrivers != null) ...[
-                                  const SizedBox(width: 14),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 4,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: activeDrivers > 0
-                                          ? Colors.green.shade50
-                                          : Colors.grey.shade200,
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    child: Text(
-                                      '$activeDrivers Active',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                        color: activeDrivers > 0
-                                            ? Colors.green.shade700
-                                            : Colors.grey.shade700,
+
+                                Consumer<CommuterViewModel>(
+                                  builder: (_, vm, __) {
+                                    final activeDrivers = vm
+                                        .getActiveDriverCount(route.id);
+
+                                    return Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
                                       ),
-                                    ),
-                                  ),
-                                ],
+                                      decoration: BoxDecoration(
+                                        color: activeDrivers > 0
+                                            ? Colors.green.shade50
+                                            : Colors.grey.shade200,
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child: Text(
+                                        '$activeDrivers Active',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                          color: activeDrivers > 0
+                                              ? Colors.green.shade700
+                                              : Colors.grey.shade700,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+
+                                const SizedBox(width: 12),
+
                                 if (isLoading)
                                   const SizedBox(
                                     width: 18,
@@ -235,7 +231,6 @@ class _RouteBottomSheetState extends State<RouteBottomSheet> {
                                 else
                                   const Icon(
                                     Icons.chevron_right_rounded,
-                                    size: 20,
                                     color: _Palette.muted,
                                   ),
                               ],
@@ -245,6 +240,7 @@ class _RouteBottomSheetState extends State<RouteBottomSheet> {
                       },
                     ),
             ),
+
             const SizedBox(height: 8),
           ],
         ),

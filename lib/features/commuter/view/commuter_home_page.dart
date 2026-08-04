@@ -157,15 +157,20 @@ class __CommuterViewState extends State<_CommuterView> {
                   backgroundColor: Colors.white,
                   child: const Icon(Icons.alt_route, color: Color(0xff0000FF)),
                   onPressed: () {
+                    final commuterVM = context.read<CommuterViewModel>();
                     showModalBottomSheet(
                       context: context,
-                      builder: (_) => RouteBottomSheet(
-                        routes: commuterVM.availableRoutes,
-                        onRouteSelected: (route) async {
-                          await commuterVM.loadRoute(route.id);
-                        },
-                        activeDriverCount: commuterVM.getActiveDriverCount,
-                      ),
+                      builder: (_) {
+                        return ChangeNotifierProvider.value(
+                          value: commuterVM,
+                          child: RouteBottomSheet(
+                            routes: commuterVM.availableRoutes,
+                            onRouteSelected: (route) async {
+                              await commuterVM.loadRoute(route.id);
+                            },
+                          ),
+                        );
+                      },
                     );
                   },
                 ),

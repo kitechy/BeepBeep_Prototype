@@ -225,6 +225,11 @@ class CommuterViewModel extends ChangeNotifier {
   }
 
   Future<void> startListeningToActiveDrivers() async {
+    for (final sub in _routeSubscriptions) {
+      await sub.cancel();
+    }
+    _routeSubscriptions.clear();
+
     for (final route in availableRoutes) {
       final sub = _driverRepo.getOnlineDrivers(route.id).listen((drivers) {
         _activeDriverCounts[route.id] = drivers.length;
@@ -237,7 +242,16 @@ class CommuterViewModel extends ChangeNotifier {
 
   Future<bool> logout() async {
     try {
+      await _driversSubscription?.cancel();
+      _driversSubscription = null;
+
+      for (final sub in _routeSubscriptions) {
+        await sub.cancel();
+      }
+      _routeSubscriptions.clear();
+
       await _repo.signOut();
+
       return true;
     } catch (e) {
       return false;
@@ -246,9 +260,13 @@ class CommuterViewModel extends ChangeNotifier {
 
   @override
   void dispose() {
+    _driversSubscription?.cancel();
+
     for (final sub in _routeSubscriptions) {
       sub.cancel();
     }
+
+    _routeSubscriptions.clear();
 
     super.dispose();
   }
