@@ -266,18 +266,25 @@ class CommuterViewModel extends ChangeNotifier {
   }
 
   Future<void> resetBearing() async {
-    final controller = await _mapService.getMapController();
-    final currentPosition = await _locationService.getCurrentLocation();
-    controller.animateCamera(
-      CameraUpdate.newCameraPosition(
-        CameraPosition(
-          target: LatLng(currentPosition.latitude, currentPosition.longitude),
-          zoom: 15,
-          bearing: 0,
-        ),
+  final controller = await _mapService.getMapController();
+  final zoomLevel = await controller.getZoomLevel();
+  final visibleRegion = await controller.getVisibleRegion();
+
+  final center = LatLng(
+    (visibleRegion.northeast.latitude + visibleRegion.southwest.latitude) / 2,
+    (visibleRegion.northeast.longitude + visibleRegion.southwest.longitude) / 2,
+  );
+
+  controller.animateCamera(
+    CameraUpdate.newCameraPosition(
+      CameraPosition(
+        target: center,
+        zoom: zoomLevel,
+        bearing: 0,
       ),
-    );
-  }
+    ),
+  );
+}
 
   @override
   void dispose() {

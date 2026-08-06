@@ -103,11 +103,19 @@ class OperatorViewModel extends ChangeNotifier {
 
   Future<void> resetBearing() async {
   final controller = await _mapService.getMapController();
+  final zoomLevel = await controller.getZoomLevel();
+  final visibleRegion = await controller.getVisibleRegion();
+
+  final center = LatLng(
+    (visibleRegion.northeast.latitude + visibleRegion.southwest.latitude) / 2,
+    (visibleRegion.northeast.longitude + visibleRegion.southwest.longitude) / 2,
+  );
+
   controller.animateCamera(
     CameraUpdate.newCameraPosition(
-      const CameraPosition(
-        target: LatLng(13.1391, 123.7438),
-        zoom: 15,
+      CameraPosition(
+        target: center,
+        zoom: zoomLevel,
         bearing: 0,
       ),
     ),
