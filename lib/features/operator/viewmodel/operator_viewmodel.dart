@@ -94,6 +94,26 @@ class OperatorViewModel extends ChangeNotifier {
     }
   }
 
+  Stream<double> get bearingStream => _mapService.bearingStream;
+  double get currentBearing => _mapService.currentBearing;
+
+  void onCameraMove(CameraPosition position) {
+    _mapService.onCameraMove(position);
+  }
+
+  Future<void> resetBearing() async {
+  final controller = await _mapService.getMapController();
+  controller.animateCamera(
+    CameraUpdate.newCameraPosition(
+      const CameraPosition(
+        target: LatLng(13.1391, 123.7438),
+        zoom: 15,
+        bearing: 0,
+      ),
+    ),
+  );
+}
+
   @override
   void dispose() {
     _disposed = true;

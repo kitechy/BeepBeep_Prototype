@@ -11,7 +11,7 @@ import 'package:beepbeep_prototype/features/operator/repository/operator_reposit
 import 'package:beepbeep_prototype/features/operator/service/operator_service.dart';
 import 'package:beepbeep_prototype/features/operator/view/widgets/status_bar_widget.dart';
 import 'package:beepbeep_prototype/features/operator/viewmodel/operator_viewmodel.dart';
-
+import 'package:beepbeep_prototype/shared/widgets/compass_widget.dart';
 import 'package:beepbeep_prototype/shared/dialogs/error_dialog.dart';
 import 'package:beepbeep_prototype/shared/components/drawer/drawer_component.dart';
 import 'package:flutter/material.dart';
@@ -107,7 +107,10 @@ class __OperatorViewState extends State<_OperatorView> {
           GoogleMap(
             initialCameraPosition: const CameraPosition(
               target: LatLng(13.1391, 123.7438),
+              zoom: 15,
             ),
+            compassEnabled: false,
+            onCameraMove: operatorVM.onCameraMove,
             zoomControlsEnabled: false,
             onMapCreated: operatorVM.onMapCreated,
           ),
@@ -127,6 +130,16 @@ class __OperatorViewState extends State<_OperatorView> {
                 ),
               );
             },
+          ),
+
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 140,
+            right: 16,
+            child: CompassWidget(
+              bearingStream: operatorVM.bearingStream,
+              initialBearing: operatorVM.currentBearing,
+              onTap: operatorVM.resetBearing,
+            ),
           ),
 
           Positioned(

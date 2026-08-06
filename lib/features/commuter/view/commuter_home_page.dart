@@ -18,6 +18,7 @@ import 'package:beepbeep_prototype/shared/components/drawer/drawer_component.dar
 import 'package:beepbeep_prototype/features/auth/view/login_page.dart';
 import 'package:beepbeep_prototype/shared/dialogs/error_dialog.dart';
 import 'package:beepbeep_prototype/features/about/view/about_page.dart';
+import 'package:beepbeep_prototype/shared/widgets/compass_widget.dart';
 
 class CommuterHomePage extends StatelessWidget {
   const CommuterHomePage({super.key});
@@ -111,6 +112,8 @@ class __CommuterViewState extends State<_CommuterView> {
               zoom: 15,
             ),
             polylines: commuterVM.polylines,
+            compassEnabled: false,
+            onCameraMove: commuterVM.onCameraMove,
             zoomControlsEnabled: false,
             markers: commuterVM.markers,
             onMapCreated: commuterVM.onMapCreated,
@@ -146,6 +149,16 @@ class __CommuterViewState extends State<_CommuterView> {
               ),
             ),
           ),
+
+          Positioned(
+              top: MediaQuery.of(context).padding.top + 130,
+              right: 16,
+              child: CompassWidget(
+                bearingStream: commuterVM.bearingStream,
+                initialBearing: commuterVM.currentBearing,
+                onTap: commuterVM.resetBearing,
+              ),
+            ),
 
           Positioned(
             bottom: 50,

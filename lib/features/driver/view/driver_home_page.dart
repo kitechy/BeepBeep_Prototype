@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:beepbeep_prototype/features/about/view/about_page.dart';
+import 'package:beepbeep_prototype/shared/widgets/compass_widget.dart';
 
 class DriverHomePage extends StatelessWidget {
   const DriverHomePage({super.key});
@@ -143,6 +144,8 @@ class __DriverViewState extends State<_DriverView>
                 zoom: 15,
               ),
               zoomControlsEnabled: false,
+              compassEnabled: false,
+              onCameraMove: driverVM.onCameraMove,
               onMapCreated: driverVM.onMapCreated,
               polylines: driverVM.polylines,
               markers: driverVM.markers,
@@ -194,6 +197,16 @@ class __DriverViewState extends State<_DriverView>
             ),
 
             Positioned(
+              top: MediaQuery.of(context).padding.top + 130,
+              right: 16,
+              child: CompassWidget(
+                bearingStream: driverVM.bearingStream,
+                initialBearing: driverVM.currentBearing,
+                onTap: driverVM.resetBearing,
+              ),
+            ),
+
+            Positioned(
               bottom: 50 + 52 + 16,
               right: 25,
               child: Column(
@@ -230,10 +243,10 @@ class __DriverViewState extends State<_DriverView>
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: driverVM.isOnline
-                        ? Color(0xff808080)
+                        ? Color.fromARGB(255, 233, 16, 16)
                         : Color(0xff0056FF),
                     foregroundColor: driverVM.isOnline
-                        ? Color(0xffff0000)
+                        ? Color(0xffFFFFFF)
                         : Color(0xffFFFFFF),
                   ),
                   onPressed: driverVM.toggleStatus,

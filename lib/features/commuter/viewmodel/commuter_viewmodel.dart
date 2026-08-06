@@ -258,6 +258,27 @@ class CommuterViewModel extends ChangeNotifier {
     }
   }
 
+  Stream<double> get bearingStream => _mapService.bearingStream;
+  double get currentBearing => _mapService.currentBearing;
+
+  void onCameraMove(CameraPosition position) {
+    _mapService.onCameraMove(position);
+  }
+
+  Future<void> resetBearing() async {
+    final controller = await _mapService.getMapController();
+    final currentPosition = await _locationService.getCurrentLocation();
+    controller.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(
+          target: LatLng(currentPosition.latitude, currentPosition.longitude),
+          zoom: 15,
+          bearing: 0,
+        ),
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _driversSubscription?.cancel();

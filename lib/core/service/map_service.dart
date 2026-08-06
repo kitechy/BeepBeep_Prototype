@@ -4,6 +4,12 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class MapService {
   final Completer<GoogleMapController> _controller = Completer();
+  final StreamController<double> _bearingController =
+      StreamController<double>.broadcast();
+
+  Stream<double> get bearingStream => _bearingController.stream;
+  double _currentBearing = 0;
+  double get currentBearing => _currentBearing;
 
   GoogleMapController? get controller => _controller.isCompleted ? null : null;
 
@@ -13,13 +19,17 @@ class MapService {
     }
   }
 
+  void onCameraMove(CameraPosition position) {
+    _currentBearing = position.bearing;
+    _bearingController.add(position.bearing);
+  }
+
   Future<GoogleMapController> getMapController() async {
     return await _controller.future;
   }
 
   Future<void> animateToLocation(double latitude, double longitude) async {
     final controller = await _controller.future;
-
     controller.animateCamera(
       CameraUpdate.newCameraPosition(
         CameraPosition(target: LatLng(latitude, longitude), zoom: 16),
@@ -60,5 +70,9 @@ class MapService {
     );
 
     await controller.animateCamera(CameraUpdate.newLatLngBounds(bounds, 80));
+  }
+
+  void dispose() {
+    _bearingController.close();
   }
 }
