@@ -26,6 +26,10 @@ class DriverRepository {
     return _driverService.updateCurrentRoute(uid, routeId);
   }
 
+  Stream<DriverProfile?> listenToDriver(String uid) {
+    return _driverService.listenToDriver(uid);
+  }
+
   Future<void> updateDriverLocation(
     String uid,
     double latitude,

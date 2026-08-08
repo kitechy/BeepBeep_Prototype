@@ -1,3 +1,10 @@
 {
-  "cSpell.words": ["barangay", "beepbeep", "Jeepney", "prefs", "viewmodel"]
+  "cSpell.words": [
+    "barangay",
+    "beepbeep",
+    "Jeepney",
+    "prefs",
+    "viewmodel"
+  ],
+  "java.configuration.updateBuildConfiguration": "interactive"
 }

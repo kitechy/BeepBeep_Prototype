@@ -20,6 +20,18 @@ class DriverService {
     return DriverProfile.fromMap(doc.data()!);
   }
 
+  Stream<DriverProfile?> listenToDriver(String uid) {
+    return _firestore.collection('driver_profiles').doc(uid).snapshots().map((
+      snapshot,
+    ) {
+      if (!snapshot.exists || snapshot.data() == null) {
+        return null;
+      }
+
+      return DriverProfile.fromMap(snapshot.data()!);
+    });
+  }
+
   Future<void> updateDriverProfile(DriverProfile profile) async {
     await _firestore
         .collection('driver_profiles')

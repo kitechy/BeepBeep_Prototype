@@ -1,9 +1,10 @@
 import 'dart:async';
+
 import 'package:beepbeep_prototype/core/model/user_model.dart';
 import 'package:beepbeep_prototype/core/repository/auth_repository.dart';
 import 'package:beepbeep_prototype/core/repository/routes_repository.dart';
 import 'package:beepbeep_prototype/core/repository/user_repository.dart';
-import 'package:beepbeep_prototype/core/service/location_service.dart';
+import 'package:beepbeep_prototype/core/service/background_location_service.dart';
 import 'package:beepbeep_prototype/core/service/map_service.dart';
 import 'package:beepbeep_prototype/core/service/marker_service.dart';
 import 'package:beepbeep_prototype/features/driver/model/driver_profile.dart';
@@ -13,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class DriverViewModel extends ChangeNotifier {
   final AuthRepository _repo;
@@ -21,10 +23,10 @@ class DriverViewModel extends ChangeNotifier {
   final RoutesRepository _routeRepo;
 
   final MapService _mapService;
-  final LocationService _locationService;
   final MarkerService _markerService;
 
   final PolylinePoints polylinePoints = PolylinePoints();
+
   final Set<Marker> _markers = {};
 
   DriverViewModel(
@@ -33,24 +35,30 @@ class DriverViewModel extends ChangeNotifier {
     this._driverRepo,
     this._mapService,
     this._routeRepo,
-    this._locationService,
+
+
     this._markerService,
   );
 
   String? errorMessage;
+
   bool isLoading = false;
+
   bool _disposed = false;
 
   List<RoutesModel> availableRoutes = [];
 
   Set<Marker> get markers => _markers;
+
   Set<Polyline> polylines = {};
 
   DriverProfile? driverProfile;
+
   UserModel? _currentUser;
+
   RoutesModel? _selectedRoute;
 
-  StreamSubscription<Position>? _locationSubscription;
+  StreamSubscription<DriverProfile?>? _driverSubscription;
 
   void _safeNotify() {
     if (!_disposed) {
@@ -58,48 +66,71 @@ class DriverViewModel extends ChangeNotifier {
     }
   }
 
+  // MAP
   Future<void> onMapCreated(GoogleMapController controller) async {
     await _mapService.onMapCreated(controller);
   }
 
-  String get driverName => _currentUser?.name ?? "User";
+  // USER
+  String get driverName {
+    return _currentUser?.name ?? "User";
+  }
 
-  String get role => _currentUser?.role ?? 'Driver';
+  String get role {
+    return _currentUser?.role ?? "Driver";
+  }
 
-  String? get photoUrl => _repo.currentUser?.photoURL;
+  String? get photoUrl {
+    return _repo.currentUser?.photoURL;
+  }
 
-  bool get isOnline => driverProfile?.status == "online";
+  // DRIVER STATUS
+  bool get isOnline {
+    return driverProfile?.status == "online";
+  }
 
-  String? get currentRouteName => _selectedRoute?.name;
+  // ROUTE
+  String? get currentRouteName {
+    return _selectedRoute?.name;
+  }
 
+  // GREETING
   String get greeting {
     final hour = DateTime.now().hour;
 
     if (hour < 12) {
       return "Good Morning";
-    } else if (hour < 18) {
-      return "Good Afternoon";
-    } else {
-      return "Good Evening";
     }
+
+    if (hour < 18) {
+      return "Good Afternoon";
+    }
+
+    return "Good Evening";
   }
 
+  // LOAD CURRENT USER
   Future<void> loadCurrentUser() async {
     _currentUser = await _userRepo.getCurrentUser();
-    notifyListeners();
+
+    _safeNotify();
   }
 
+  // LOAD DRIVER PROFILE
   Future<void> loadDriverProfile() async {
     final uid = _repo.currentUser?.uid;
 
     if (uid == null) {
       errorMessage = "User not logged in.";
+
       _safeNotify();
+
       return;
     }
 
     try {
       isLoading = true;
+
       _safeNotify();
 
       driverProfile = await _driverRepo.getDriverProfile(uid);
@@ -111,10 +142,55 @@ class DriverViewModel extends ChangeNotifier {
       errorMessage = e.toString();
     } finally {
       isLoading = false;
+
       _safeNotify();
     }
   }
 
+  Future<void> startListeningToMyLocation() async {
+    final uid = _repo.currentUser?.uid;
+
+    if (uid == null) return;
+
+    await _driverSubscription?.cancel();
+
+    _driverSubscription = _driverRepo
+        .listenToDriver(uid)
+        .listen(
+          (driver) async {
+            if (driver == null) return;
+
+            driverProfile = driver;
+
+            final latitude = driver.latitude;
+            final longitude = driver.longitude;
+
+            if (latitude == null || longitude == null) {
+              _safeNotify();
+              return;
+            }
+
+            final marker = await _markerService.buildMarker(
+              id: 'driver',
+              position: LatLng(latitude, longitude),
+              photoUrl: _repo.currentUser?.photoURL,
+              title: driverName,
+            );
+
+            _markers
+              ..removeWhere((marker) => marker.markerId.value == 'driver')
+              ..add(marker);
+
+            _safeNotify();
+          },
+          onError: (error) {
+            errorMessage = error.toString();
+            _safeNotify();
+          },
+        );
+  }
+
+  // TOGGLE ONLINE / OFFLINE
   Future<void> toggleStatus() async {
     final uid = _repo.currentUser?.uid;
 
@@ -125,34 +201,89 @@ class DriverViewModel extends ChangeNotifier {
     }
 
     try {
-      final newStatus = isOnline ? "offline" : "online";
+      if (isOnline) {
+        await BackgroundLocationService.stop();
 
-      await _driverRepo.updateDriverStatus(uid, newStatus);
+        await _driverRepo.updateDriverStatus(uid, "offline");
 
-      driverProfile = driverProfile!.copyWith(status: newStatus);
+        driverProfile = driverProfile!.copyWith(status: "offline");
 
-      if (newStatus == "online") {
-        await startLocationTracking();
-      } else {
-        await stopLocationTracking();
+        _safeNotify();
+
+        return;
       }
 
+      final locationEnabled = await Geolocator.isLocationServiceEnabled();
+
+      if (!locationEnabled) {
+        errorMessage = "Please enable location services on your device.";
+
+        _safeNotify();
+
+        return;
+      }
+
+      PermissionStatus locationPermission = await Permission.location.request();
+
+      if (!locationPermission.isGranted) {
+        errorMessage = "Location permission is required for live tracking.";
+
+        _safeNotify();
+
+        return;
+      }
+
+      PermissionStatus backgroundPermission = await Permission.locationAlways
+          .request();
+
+      if (!backgroundPermission.isGranted) {
+        errorMessage =
+            "Allow 'Always' location permission for background tracking.";
+
+        _safeNotify();
+
+        return;
+      }
+
+      PermissionStatus notificationPermission = await Permission.notification
+          .request();
+
+      if (!notificationPermission.isGranted) {
+        errorMessage = "Notification permission is required for live tracking.";
+
+        _safeNotify();
+
+        return;
+      }
+
+      await _driverRepo.updateDriverStatus(uid, "online");
+
+      driverProfile = driverProfile!.copyWith(status: "online");
+
       _safeNotify();
+
+      await BackgroundLocationService.start();
     } catch (e) {
       errorMessage = e.toString();
+
       _safeNotify();
     }
   }
 
+  // LOAD ROUTES
   Future<void> loadRoutes() async {
     availableRoutes = await _routeRepo.getRoutes();
-    notifyListeners();
+
+    _safeNotify();
   }
 
+  // SELECT ROUTE
   Future<void> selectRoute(RoutesModel route) async {
     final uid = _repo.currentUser?.uid;
 
-    if (uid == null || driverProfile == null) return;
+    if (uid == null || driverProfile == null) {
+      return;
+    }
 
     await _driverRepo.updateCurrentRoute(uid, route.id);
 
@@ -163,6 +294,7 @@ class DriverViewModel extends ChangeNotifier {
     await loadRoute(route.id);
   }
 
+  // LOAD ROUTE
   Future<void> loadRoute(String routeId) async {
     final route = await _routeRepo.getRoute(routeId);
 
@@ -183,137 +315,78 @@ class DriverViewModel extends ChangeNotifier {
 
     await _mapService.fitToRoute(points);
 
-    notifyListeners();
-  }
-
-  Future<void> startLocationTracking() async {
-    final uid = _repo.currentUser?.uid;
-
-    if (uid == null) return;
-
-    final granted = await _locationService.requestPermission();
-
-    if (!granted) {
-      errorMessage = "Location permission denied.";
-      _safeNotify();
-      return;
-    }
-
-    final current = await _locationService.getCurrentLocation();
-
-    await _driverRepo.updateDriverLocation(
-      uid,
-      current.latitude,
-      current.longitude,
-    );
-
-    await _updateDriverMarker(current);
-
-    await _mapService.animateToLocation(current.latitude, current.longitude);
-
-    await _locationSubscription?.cancel();
-
-    _locationSubscription = _locationService.getLocationStream().listen((
-      position,
-    ) async {
-      if (_repo.currentUser == null) return;
-
-      await _driverRepo.updateDriverLocation(
-        uid,
-        position.latitude,
-        position.longitude,
-      );
-
-      await _updateDriverMarker(position);
-
-      await _mapService.animateToLocation(
-        position.latitude,
-        position.longitude,
-      );
-    });
-  }
-
-  Future<void> stopLocationTracking() async {
-    await _locationSubscription?.cancel();
-    _locationSubscription = null;
-  }
-
-  Future<void> _updateDriverMarker(Position position) async {
-    final user = _repo.currentUser;
-
-    if (user == null) return;
-
-    final marker = await _markerService.buildMarker(
-      id: "driver",
-      position: LatLng(position.latitude, position.longitude),
-      photoUrl: user.photoURL,
-      title: driverName,
-    );
-
-    _markers
-      ..removeWhere((m) => m.markerId == marker.markerId)
-      ..add(marker);
-
     _safeNotify();
   }
 
-  Future<bool> logout() async {
-    final uid = _repo.currentUser?.uid;
-
-    try {
-      if (uid != null) {
-        await stopLocationTracking();
-
-        await _driverRepo.updateDriverStatus(uid, "offline");
-
-        if (driverProfile != null) {
-          driverProfile = driverProfile!.copyWith(status: "offline");
-        }
-      }
-      await _repo.signOut();
-
-      return true;
-    } catch (e) {
-      errorMessage = "Logout Failed. Please try again.";
-      _safeNotify();
-      return false;
-    }
+  // BEARING
+  Stream<double> get bearingStream {
+    return _mapService.bearingStream;
   }
 
-  Stream<double> get bearingStream => _mapService.bearingStream;
-  double get currentBearing => _mapService.currentBearing;
+  double get currentBearing {
+    return _mapService.currentBearing;
+  }
 
   void onCameraMove(CameraPosition position) {
     _mapService.onCameraMove(position);
   }
 
   Future<void> resetBearing() async {
-  final controller = await _mapService.getMapController();
-  final zoomLevel = await controller.getZoomLevel();
-  final visibleRegion = await controller.getVisibleRegion();
+    final controller = await _mapService.getMapController();
 
-  final center = LatLng(
-    (visibleRegion.northeast.latitude + visibleRegion.southwest.latitude) / 2,
-    (visibleRegion.northeast.longitude + visibleRegion.southwest.longitude) / 2,
-  );
+    final zoomLevel = await controller.getZoomLevel();
 
-  controller.animateCamera(
-    CameraUpdate.newCameraPosition(
-      CameraPosition(
-        target: center,
-        zoom: zoomLevel,
-        bearing: 0,
+    final visibleRegion = await controller.getVisibleRegion();
+
+    final center = LatLng(
+      (visibleRegion.northeast.latitude + visibleRegion.southwest.latitude) / 2,
+      (visibleRegion.northeast.longitude + visibleRegion.southwest.longitude) /
+          2,
+    );
+
+    await controller.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(target: center, zoom: zoomLevel, bearing: 0),
       ),
-    ),
-  );
-}
+    );
+  }
 
+  // LOGOUT
+  Future<bool> logout() async {
+    final uid = _repo.currentUser?.uid;
+
+    try {
+      if (uid != null) {
+        // Stop background location service.
+        BackgroundLocationService.stop();
+
+        // Set driver offline.
+        await _driverRepo.updateDriverStatus(uid, "offline");
+
+        if (driverProfile != null) {
+          driverProfile = driverProfile!.copyWith(status: "offline");
+        }
+      }
+
+      await _repo.signOut();
+
+      return true;
+    } catch (e) {
+      errorMessage = "Logout Failed. Please try again.";
+
+      _safeNotify();
+
+      return false;
+    }
+  }
+
+  // DISPOSE
   @override
   void dispose() {
     _disposed = true;
 
-    _locationSubscription?.cancel();
-
+    _driverSubscription?.cancel();
+    _driverSubscription = null;
     super.dispose();
   }
 }
