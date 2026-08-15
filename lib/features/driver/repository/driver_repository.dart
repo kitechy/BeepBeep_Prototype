@@ -38,6 +38,12 @@ class DriverRepository {
     return _driverService.updateDriverLocation(uid, latitude, longitude);
   }
 
+  Future<void> updateSeatStatus(
+    String uid, bool isFull
+  ) async {
+    await _driverService.updateSeatStatus(uid, isFull);
+  }
+
   Stream<List<DriverProfile>> getOnlineDrivers(String routeId) {
     return _driverService.getOnlineDrivers(routeId);
   }

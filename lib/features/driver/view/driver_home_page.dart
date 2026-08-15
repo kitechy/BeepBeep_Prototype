@@ -238,29 +238,70 @@ class __DriverViewState extends State<_DriverView>
               left: 25,
               right: 25,
               bottom: 50,
-              child: SizedBox(
-                height: 52,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: driverVM.isOnline
-                        ? Color.fromARGB(255, 233, 16, 16)
-                        : Color(0xff0056FF),
-                    foregroundColor: driverVM.isOnline
-                        ? Color(0xffFFFFFF)
-                        : Color(0xffFFFFFF),
-                  ),
-                  onPressed: driverVM.toggleStatus,
-                  child: Text(
-                    driverVM.isOnline
-                        ? 'Stop sharing live location'
-                        : 'Start sharing live location',
-                    style: TextStyle(
-                      fontSize: 13.5,
-                      letterSpacing: 0.6,
-                      fontWeight: FontWeight.bold,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // ── Seat status toggle ─────────────────────────────────────────────
+                  if (driverVM.isOnline)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: 48,
+                        child: ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: driverVM.isFull
+                                ? const Color(0xffD32F2F)
+                                : const Color(0xff2E7D5B),
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                          ),
+                          onPressed: driverVM.toggleSeatStatus,
+                          icon: Icon(
+                            driverVM.isFull
+                                ? Icons.event_busy_rounded
+                                : Icons.event_available_rounded,
+                            size: 18,
+                          ),
+                          label: Text(
+                            driverVM.isFull ? 'Full' : 'Seats Available',
+                            style: const TextStyle(
+                              fontSize: 13.5,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.4,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                  SizedBox(
+                    width: double.infinity,
+                    height: 52,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: driverVM.isOnline
+                            ? const Color.fromARGB(255, 233, 16, 16)
+                            : const Color(0xff0056FF),
+                        foregroundColor: const Color(0xffFFFFFF),
+                      ),
+                      onPressed: driverVM.toggleStatus,
+                      child: Text(
+                        driverVM.isOnline
+                            ? 'Stop sharing live location'
+                            : 'Start sharing live location',
+                        style: const TextStyle(
+                          fontSize: 13.5,
+                          letterSpacing: 0.6,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                ],
               ),
             ),
 

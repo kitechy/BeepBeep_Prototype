@@ -133,6 +133,8 @@ class MarkerService {
     required LatLng position,
     String? title,
     double rotation = 0,
+    bool isFull = false,
+    VoidCallback? onTap,
   }) async {
     await initialize();
 
@@ -143,7 +145,12 @@ class MarkerService {
       rotation: rotation,
       flat: true,
       anchor: const Offset(0.5, 0.5),
-      infoWindow: InfoWindow(title: title),
+      onTap: onTap,
+      infoWindow: InfoWindow(
+        title: title,
+        // Always prompt user to tap marker for up-to-date seating info.
+        snippet: 'Tap to view seats',
+      ),
     );
   }
 }

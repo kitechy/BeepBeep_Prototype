@@ -63,6 +63,14 @@ class DriverService {
     });
   }
 
+  Future<void> updateSeatStatus(
+    String uid, bool isFull
+  ) async {
+    await _firestore.collection('driver_profiles').doc(uid).update({
+      'isFull': isFull,
+    });
+  }
+
   Stream<List<DriverProfile>> getOnlineDrivers(String routeId) {
     return _firestore
         .collection('driver_profiles')

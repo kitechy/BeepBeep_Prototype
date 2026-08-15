@@ -44,6 +44,8 @@ class DriverViewModel extends ChangeNotifier {
 
   bool isLoading = false;
 
+  bool get isFull => driverProfile?.isFull ?? false;
+
   bool _disposed = false;
 
   List<RoutesModel> availableRoutes = [];
@@ -349,6 +351,22 @@ class DriverViewModel extends ChangeNotifier {
         CameraPosition(target: center, zoom: zoomLevel, bearing: 0),
       ),
     );
+  }
+
+  Future<void> toggleSeatStatus() async {
+    final uid = _repo.currentUser?.uid;
+    if (uid == null || driverProfile == null) return;
+
+    final newStatus = !isFull;
+
+    try {
+      await _driverRepo.updateSeatStatus(uid, newStatus);
+      driverProfile = driverProfile!.copyWith(isFull: newStatus);
+      _safeNotify();
+    } catch (e) {
+      errorMessage = e.toString();
+      _safeNotify();
+    }
   }
 
   // LOGOUT

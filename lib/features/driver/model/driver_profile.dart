@@ -10,6 +10,7 @@ class DriverProfile {
   final String? currentRouteId;
   final double? latitude;
   final double? longitude;
+  final bool isFull;
 
   DriverProfile({
     required this.uid,
@@ -21,6 +22,7 @@ class DriverProfile {
     required this.currentRouteId,
     this.latitude,
     this.longitude,
+    this.isFull = false,
   });
 
   Map<String, dynamic> toMap() {
@@ -35,6 +37,7 @@ class DriverProfile {
       'createdAt': FieldValue.serverTimestamp(),
       'latitude': latitude,
       'longitude': longitude,
+      'isFull' : isFull,
     };
   }
 
@@ -49,6 +52,7 @@ class DriverProfile {
       currentRouteId: map["currentRouteId"],
       latitude: (map['latitude'] as num?)?.toDouble(),
       longitude: (map['longitude'] as num?)?.toDouble(),
+      isFull: map['isFull'] ?? false,
     );
   }
 
@@ -61,6 +65,7 @@ class DriverProfile {
     String? currentRouteId,
     double? latitude,
     double? longitude,
+    bool? isFull,
   }) {
     return DriverProfile(
       uid: uid,
@@ -72,6 +77,7 @@ class DriverProfile {
       currentRouteId: currentRouteId ?? this.currentRouteId,
       latitude: latitude ?? this.latitude,
       longitude: longitude ?? this.longitude,
+      isFull: isFull ?? this.isFull,
     );
   }
 }

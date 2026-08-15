@@ -35,6 +35,8 @@ class CommuterViewModel extends ChangeNotifier {
   StreamSubscription<List<DriverProfile>>? _driversSubscription;
   UserModel? _currentUser;
 
+  void Function(DriverProfile driver)? onDriverMarkerTap;
+
   CommuterViewModel(
     this._repo,
     this._userRepo,
@@ -157,12 +159,14 @@ class CommuterViewModel extends ChangeNotifier {
             id: "driver_${driver.uid}",
             position: newPosition,
             title: "Jeepney",
+            isFull: driver.isFull,
+            onTap: () => onDriverMarkerTap?.call(driver),
           );
 
           _markers.add(marker);
           _driverPositions[driver.uid] = newPosition;
         } else {
-          await _animateMarker(driver.uid, oldPosition, newPosition);
+          await _animateMarker(driver.uid, oldPosition, newPosition, driver);
         }
       }
 
@@ -170,7 +174,7 @@ class CommuterViewModel extends ChangeNotifier {
     });
   }
 
-  Future<void> _animateMarker(String driverId, LatLng from, LatLng to) async {
+  Future<void> _animateMarker(String driverId, LatLng from, LatLng to, DriverProfile driver) async {
     const int steps = 25;
     const Duration frameDuration = Duration(milliseconds: 40);
 
@@ -187,6 +191,8 @@ class CommuterViewModel extends ChangeNotifier {
         position: position,
         title: "Jeepney",
         rotation: rotation,
+        isFull: driver.isFull,
+        onTap: () => onDriverMarkerTap?.call(driver),
       );
 
       _markers.removeWhere((m) => m.markerId.value == "driver_$driverId");
