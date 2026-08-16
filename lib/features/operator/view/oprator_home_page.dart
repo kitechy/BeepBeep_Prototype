@@ -2,6 +2,7 @@ import 'package:beepbeep_prototype/core/repository/auth_repository.dart';
 import 'package:beepbeep_prototype/core/repository/user_repository.dart';
 import 'package:beepbeep_prototype/core/service/auth_service.dart';
 import 'package:beepbeep_prototype/core/service/map_service.dart';
+import 'package:beepbeep_prototype/core/service/marker_service.dart';
 import 'package:beepbeep_prototype/core/service/user_service.dart';
 import 'package:beepbeep_prototype/features/about/view/about_page.dart';
 import 'package:beepbeep_prototype/features/auth/view/login_page.dart';
@@ -30,6 +31,7 @@ class OperatorHomePage extends StatelessWidget {
         OperatorRepository(OperatorService()),
         DriverRepository(DriverService()),
         MapService(),
+        MarkerService(),
       ),
       child: _OperatorView(),
     );
@@ -110,9 +112,12 @@ class __OperatorViewState extends State<_OperatorView> {
               zoom: 15,
             ),
             compassEnabled: false,
-            onCameraMove: operatorVM.onCameraMove,
             zoomControlsEnabled: false,
+
+            onCameraMove: operatorVM.onCameraMove,
             onMapCreated: operatorVM.onMapCreated,
+            
+            markers: operatorVM.markers,
           ),
 
           Consumer<OperatorViewModel>(

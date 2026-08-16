@@ -4,6 +4,7 @@ import 'package:beepbeep_prototype/core/model/user_model.dart';
 import 'package:beepbeep_prototype/core/repository/auth_repository.dart';
 import 'package:beepbeep_prototype/core/repository/user_repository.dart';
 import 'package:beepbeep_prototype/core/service/map_service.dart';
+import 'package:beepbeep_prototype/core/service/marker_service.dart';
 import 'package:beepbeep_prototype/features/driver/model/driver_profile.dart';
 import 'package:beepbeep_prototype/features/driver/repository/driver_repository.dart';
 import 'package:beepbeep_prototype/features/operator/model/operator_profile.dart';
@@ -19,13 +20,16 @@ class OperatorViewModel extends ChangeNotifier {
   final DriverRepository _driverRepo;
 
   final MapService _mapService;
+  final MarkerService _markerService;
 
   OperatorViewModel(
     this._repo,
     this._userRepo,
     this._operatorRepo,
     this._driverRepo,
+
     this._mapService,
+    this._markerService,
   );
 
   OperatorProfile? operatorProfile;
@@ -34,6 +38,10 @@ class OperatorViewModel extends ChangeNotifier {
   List<DriverProfile> _drivers = [];
   List<DriverProfile> get drivers => _drivers;
   StreamSubscription<List<DriverProfile>>? _driverSubscription;
+
+  final Set<Marker> _markers = {};
+  Set<Marker> get markers => _markers;
+  final Map<String, LatLng> _driverPositions = {};
 
   String? errorMessage;
   bool _disposed = false;
@@ -72,14 +80,63 @@ class OperatorViewModel extends ChangeNotifier {
     await loadOperatorProfile();
   }
 
-  void loadDrivers(String operatorUid) {
-    _driverSubscription?.cancel();
+  Future<void> loadDrivers(String operatorUid) async {
+    await _driverSubscription?.cancel();
 
     _driverSubscription = _driverRepo.getDriversByOperator(operatorUid).listen((
       drivers,
-    ) {
+    ) async {
       _drivers = drivers;
-      notifyListeners();
+
+      final activeIds = drivers
+          .where(
+            (driver) =>
+                driver.status == 'online' &&
+                driver.latitude != null &&
+                driver.longitude != null,
+          )
+          .map((driver) => driver.uid)
+          .toSet();
+
+      _markers.removeWhere((marker) {
+        if (!marker.markerId.value.startsWith('driver_')) {
+          return false;
+        }
+
+        final uid = marker.markerId.value.replaceFirst('driver_', '');
+
+        return !activeIds.contains(uid);
+      });
+
+      _driverPositions.removeWhere((uid, _) => !activeIds.contains(uid));
+
+      for (final driver in drivers) {
+        if (driver.status != 'online') {
+          continue;
+        }
+
+        if (driver.latitude == null || driver.longitude == null) {
+          continue;
+        }
+
+        final position = LatLng(driver.latitude!, driver.longitude!);
+
+        final marker = await _markerService.buildJeepneyMarker(
+          id: 'driver_${driver.uid}',
+          position: position,
+          title: 'Jeepney',
+        );
+
+        _markers.removeWhere(
+          (marker) => marker.markerId.value == 'driver_${driver.uid}',
+        );
+
+        _markers.add(marker);
+
+        _driverPositions[driver.uid] = position;
+      }
+
+      _safeNotify();
     });
   }
 
@@ -102,25 +159,22 @@ class OperatorViewModel extends ChangeNotifier {
   }
 
   Future<void> resetBearing() async {
-  final controller = await _mapService.getMapController();
-  final zoomLevel = await controller.getZoomLevel();
-  final visibleRegion = await controller.getVisibleRegion();
+    final controller = await _mapService.getMapController();
+    final zoomLevel = await controller.getZoomLevel();
+    final visibleRegion = await controller.getVisibleRegion();
 
-  final center = LatLng(
-    (visibleRegion.northeast.latitude + visibleRegion.southwest.latitude) / 2,
-    (visibleRegion.northeast.longitude + visibleRegion.southwest.longitude) / 2,
-  );
+    final center = LatLng(
+      (visibleRegion.northeast.latitude + visibleRegion.southwest.latitude) / 2,
+      (visibleRegion.northeast.longitude + visibleRegion.southwest.longitude) /
+          2,
+    );
 
-  controller.animateCamera(
-    CameraUpdate.newCameraPosition(
-      CameraPosition(
-        target: center,
-        zoom: zoomLevel,
-        bearing: 0,
+    controller.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(target: center, zoom: zoomLevel, bearing: 0),
       ),
-    ),
-  );
-}
+    );
+  }
 
   @override
   void dispose() {
