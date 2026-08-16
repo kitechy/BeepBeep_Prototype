@@ -15,6 +15,10 @@ class UserRepository {
     return _service.setProfileCompleted(uid, value);
   }
 
+  Future<UserModel?> getUserByUid(String uid) {
+    return _service.getUserByUid(uid);
+  }
+
   Future<void> saveRole(String role) async {
     await _service.saveRole(role);
   }

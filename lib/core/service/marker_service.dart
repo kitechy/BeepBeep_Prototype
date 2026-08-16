@@ -133,6 +133,7 @@ class MarkerService {
     required LatLng position,
     String? title,
     double rotation = 0,
+    VoidCallback? onTap,
   }) async {
     await initialize();
 
@@ -143,7 +144,7 @@ class MarkerService {
       rotation: rotation,
       flat: true,
       anchor: const Offset(0.5, 0.5),
-      infoWindow: InfoWindow(title: title),
+      onTap: onTap
     );
   }
 }

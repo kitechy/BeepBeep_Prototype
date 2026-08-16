@@ -20,7 +20,7 @@ class UserModel {
       uid: map['uid'] as String,
       name: map['name'] as String?,
       email: map['email'] as String?,
-      photoURL: map['photoURL'] as String?,
+      photoURL: (map['photoURL'] ?? map['photoUrl']) as String?,
       role: map['role'] as String,
       profileComplete: map['profileComplete'] as bool? ?? false,
     );

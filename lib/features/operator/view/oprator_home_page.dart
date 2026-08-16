@@ -6,10 +6,12 @@ import 'package:beepbeep_prototype/core/service/marker_service.dart';
 import 'package:beepbeep_prototype/core/service/user_service.dart';
 import 'package:beepbeep_prototype/features/about/view/about_page.dart';
 import 'package:beepbeep_prototype/features/auth/view/login_page.dart';
+import 'package:beepbeep_prototype/features/driver/model/driver_profile.dart';
 import 'package:beepbeep_prototype/features/driver/repository/driver_repository.dart';
 import 'package:beepbeep_prototype/features/driver/service/driver_service.dart';
 import 'package:beepbeep_prototype/features/operator/repository/operator_repository.dart';
 import 'package:beepbeep_prototype/features/operator/service/operator_service.dart';
+import 'package:beepbeep_prototype/features/operator/view/widgets/driver_details_sheet_widget.dart';
 import 'package:beepbeep_prototype/features/operator/view/widgets/status_bar_widget.dart';
 import 'package:beepbeep_prototype/features/operator/viewmodel/operator_viewmodel.dart';
 import 'package:beepbeep_prototype/shared/widgets/compass_widget.dart';
@@ -47,6 +49,8 @@ class _OperatorView extends StatefulWidget {
 
 class __OperatorViewState extends State<_OperatorView> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  bool _isDriverSheetOpen = false;
+  DriverProfile? _lastSelectedDriver;
 
   @override
   void initState() {
@@ -88,9 +92,63 @@ class __OperatorViewState extends State<_OperatorView> {
     );
   }
 
+  void _showDriverDetails(DriverProfile driver) {
+    if (_isDriverSheetOpen || !mounted) return;
+
+    _isDriverSheetOpen = true;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return DriverDetailsSheet(driver: driver);
+      },
+    ).whenComplete(() {
+      _isDriverSheetOpen = false;
+      _lastSelectedDriver = null;
+
+      final operatorVM = context.read<OperatorViewModel>();
+
+      if (operatorVM.selectedDriver?.uid == driver.uid) {
+        operatorVM.clearSelectedDriver();
+      }
+    });
+  }
+
+  void _closeDriverSheet() {
+    if (!_isDriverSheetOpen || !mounted) return;
+
+    Navigator.of(context).pop();
+
+    _isDriverSheetOpen = false;
+    _lastSelectedDriver = null;
+  }
+
   @override
   Widget build(BuildContext context) {
     final operatorVM = context.watch<OperatorViewModel>();
+
+    if (operatorVM.selectedDriver == null && _isDriverSheetOpen) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _closeDriverSheet();
+      });
+    }
+
+    if (operatorVM.selectedDriver != null &&
+        operatorVM.selectedDriver != _lastSelectedDriver &&
+        !_isDriverSheetOpen) {
+      final DriverProfile driver = operatorVM.selectedDriver!;
+
+      _lastSelectedDriver = driver;
+
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        if (!mounted) return;
+
+        _showDriverDetails(driver);
+      });
+    }
+
     return Scaffold(
       key: _scaffoldKey,
 
@@ -116,7 +174,7 @@ class __OperatorViewState extends State<_OperatorView> {
 
             onCameraMove: operatorVM.onCameraMove,
             onMapCreated: operatorVM.onMapCreated,
-            
+
             markers: operatorVM.markers,
           ),
 

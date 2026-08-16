@@ -39,6 +39,9 @@ class OperatorViewModel extends ChangeNotifier {
   List<DriverProfile> get drivers => _drivers;
   StreamSubscription<List<DriverProfile>>? _driverSubscription;
 
+  DriverProfile? _selectedDriver;
+  DriverProfile? get selectedDriver => _selectedDriver;
+
   final Set<Marker> _markers = {};
   Set<Marker> get markers => _markers;
   final Map<String, LatLng> _driverPositions = {};
@@ -80,6 +83,16 @@ class OperatorViewModel extends ChangeNotifier {
     await loadOperatorProfile();
   }
 
+  void selectDriver(DriverProfile driver) {
+    _selectedDriver = driver;
+    notifyListeners();
+  }
+
+  void clearSelectedDriver() {
+    _selectedDriver = null;
+    notifyListeners();
+  }
+
   Future<void> loadDrivers(String operatorUid) async {
     await _driverSubscription?.cancel();
 
@@ -110,6 +123,14 @@ class OperatorViewModel extends ChangeNotifier {
 
       _driverPositions.removeWhere((uid, _) => !activeIds.contains(uid));
 
+      if (_selectedDriver != null) {
+        final selectedStillOnline = activeIds.contains(_selectedDriver!.uid);
+
+        if (!selectedStillOnline) {
+          _selectedDriver = null;
+        }
+      }
+
       for (final driver in drivers) {
         if (driver.status != 'online') {
           continue;
@@ -124,7 +145,7 @@ class OperatorViewModel extends ChangeNotifier {
         final marker = await _markerService.buildJeepneyMarker(
           id: 'driver_${driver.uid}',
           position: position,
-          title: 'Jeepney',
+          onTap: () => selectDriver(driver),
         );
 
         _markers.removeWhere(

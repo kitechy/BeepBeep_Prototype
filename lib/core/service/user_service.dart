@@ -18,6 +18,16 @@ class UserService {
     return UserModel.fromMap(doc.data()!);
   }
 
+  Future<UserModel?> getUserByUid(String uid) async {
+    final doc = await _firestore.collection('users').doc(uid).get();
+
+    if (!doc.exists || doc.data() == null) {
+      return null;
+    }
+
+    return UserModel.fromMap(doc.data()!);
+  }
+
   Future<void> setProfileCompleted(String uid, bool value) async {
     await _firestore.collection('users').doc(uid).update({
       'profileCompleted': value,
