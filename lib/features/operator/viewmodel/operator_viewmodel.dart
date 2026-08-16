@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:beepbeep_prototype/core/model/user_model.dart';
 import 'package:beepbeep_prototype/core/repository/auth_repository.dart';
+import 'package:beepbeep_prototype/core/repository/routes_repository.dart';
 import 'package:beepbeep_prototype/core/repository/user_repository.dart';
 import 'package:beepbeep_prototype/core/service/map_service.dart';
 import 'package:beepbeep_prototype/core/service/marker_service.dart';
@@ -18,6 +19,7 @@ class OperatorViewModel extends ChangeNotifier {
   final UserRepository _userRepo;
   final OperatorRepository _operatorRepo;
   final DriverRepository _driverRepo;
+  final RoutesRepository _routesRepo;
 
   final MapService _mapService;
   final MarkerService _markerService;
@@ -27,6 +29,7 @@ class OperatorViewModel extends ChangeNotifier {
     this._userRepo,
     this._operatorRepo,
     this._driverRepo,
+    this._routesRepo,
 
     this._mapService,
     this._markerService,
@@ -44,7 +47,12 @@ class OperatorViewModel extends ChangeNotifier {
 
   final Set<Marker> _markers = {};
   Set<Marker> get markers => _markers;
+
+  final Map<String, String> _driverNames = {};
   final Map<String, LatLng> _driverPositions = {};
+  final Map<String, String> _routeNames = {};
+  Map<String, String> get driverNames => _driverNames;
+  Map<String, String> get routeNames => _routeNames;
 
   String? errorMessage;
   bool _disposed = false;
@@ -100,6 +108,7 @@ class OperatorViewModel extends ChangeNotifier {
       drivers,
     ) async {
       _drivers = drivers;
+      await loadDriverDisplayData(drivers);
 
       final activeIds = drivers
           .where(
@@ -159,6 +168,52 @@ class OperatorViewModel extends ChangeNotifier {
 
       _safeNotify();
     });
+  }
+
+  Future<void> loadDriverDisplayData(List<DriverProfile> drivers) async {
+    _driverNames.clear();
+    _routeNames.clear();
+
+    final routeIds = <String>{};
+
+    for (final driver in drivers) {
+      // Collect route IDs
+      if (driver.currentRouteId != null && driver.currentRouteId!.isNotEmpty) {
+        routeIds.add(driver.currentRouteId!);
+      }
+    }
+
+    // Load driver names
+    await Future.wait(
+      drivers.map((driver) async {
+        try {
+          final user = await _userRepo.getUserByUid(driver.uid);
+
+          if (user?.name != null && user!.name!.trim().isNotEmpty) {
+            _driverNames[driver.uid] = user.name!.trim();
+          }
+        } catch (e) {
+          debugPrint('Failed to load driver name for ${driver.uid}: $e');
+        }
+      }),
+    );
+
+    // Load route names
+    await Future.wait(
+      routeIds.map((routeId) async {
+        try {
+          final route = await _routesRepo.getRoute(routeId);
+
+          if (route.name.trim().isNotEmpty) {
+            _routeNames[routeId] = route.name.trim();
+          }
+        } catch (e) {
+          debugPrint('Failed to load route $routeId: $e');
+        }
+      }),
+    );
+
+    _safeNotify();
   }
 
   Future<bool> logout() async {
