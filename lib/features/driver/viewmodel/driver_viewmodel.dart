@@ -80,6 +80,10 @@ class DriverViewModel extends ChangeNotifier {
     return _currentUser?.role ?? "Driver";
   }
 
+   String? get email {
+    return _currentUser?.email;
+  }
+
   String? get photoUrl {
     return _repo.currentUser?.photoURL;
   }

@@ -20,6 +20,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:beepbeep_prototype/features/about/view/about_page.dart';
 import 'package:beepbeep_prototype/shared/widgets/compass_widget.dart';
+import 'package:beepbeep_prototype/shared/components/profile/profile_page.dart';
+import 'package:beepbeep_prototype/shared/components/settings/settings_page.dart';
 
 class DriverHomePage extends StatelessWidget {
   const DriverHomePage({super.key});
@@ -104,6 +106,28 @@ class __DriverViewState extends State<_DriverView>
     );
   }
 
+  void navigateToProfilePage() {
+    final driverVM = context.read<DriverViewModel>();
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ProfilePage(
+          name: driverVM.driverName,
+          email: driverVM.email,
+          photoURL: driverVM.photoUrl,
+          role: driverVM.role,
+        ),
+      ),
+    );
+  }
+
+  void navigateToSettingsPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const SettingsPage()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final driverVM = context.watch<DriverViewModel>();
@@ -131,6 +155,8 @@ class __DriverViewState extends State<_DriverView>
           role: driverVM.role,
           photoURL: driverVM.photoUrl,
           onHomeTap: () {},
+          onProfileTap: navigateToProfilePage,
+          onSettingsTap: navigateToSettingsPage,
           onPlaceholderTap: () {},
           onAboutTap: navigateToAboutPage,
           onLogOutTap: signOut,

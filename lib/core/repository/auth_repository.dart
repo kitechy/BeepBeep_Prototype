@@ -14,6 +14,15 @@ class AuthRepository {
     await _authService.signOut();
   }
 
+  Future<void> deleteAccount() async {
+    final user = _authService.currentUser;
+    if (user == null) {
+      throw Exception('No signed-in user to delete.');
+    }
+    await user.delete();
+  }
+
+
   User? get currentUser {
     return _authService.currentUser;
   }

@@ -55,6 +55,8 @@ class CommuterViewModel extends ChangeNotifier {
 
   String get role => _currentUser?.role ?? "Commuter";
 
+  String? get email => _currentUser?.email;
+
   String? get photoUrl => _repo.currentUser?.photoURL;
 
   Future<void> loadCurrentUser() async {

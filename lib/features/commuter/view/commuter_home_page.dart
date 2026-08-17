@@ -19,6 +19,8 @@ import 'package:beepbeep_prototype/features/auth/view/login_page.dart';
 import 'package:beepbeep_prototype/shared/dialogs/error_dialog.dart';
 import 'package:beepbeep_prototype/features/about/view/about_page.dart';
 import 'package:beepbeep_prototype/shared/widgets/compass_widget.dart';
+import 'package:beepbeep_prototype/shared/components/profile/profile_page.dart';
+import 'package:beepbeep_prototype/shared/components/settings/settings_page.dart';
 
 class CommuterHomePage extends StatelessWidget {
   const CommuterHomePage({super.key});
@@ -87,6 +89,28 @@ class __CommuterViewState extends State<_CommuterView> {
     );
   }
 
+  void navigateToProfilePage() {
+    final commuterVM = context.read<CommuterViewModel>();
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ProfilePage(
+          name: commuterVM.commuterName,
+          email: commuterVM.email,
+          photoURL: commuterVM.photoUrl,
+          role: commuterVM.role,
+        ),
+      ),
+    );
+  }
+
+  void navigateToSettingsPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const SettingsPage()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final commuterVM = context.watch<CommuterViewModel>();
@@ -99,6 +123,8 @@ class __CommuterViewState extends State<_CommuterView> {
         role: commuterVM.role,
         photoURL: commuterVM.photoUrl,
         onHomeTap: () {},
+        onProfileTap: navigateToProfilePage,
+        onSettingsTap: navigateToSettingsPage,
         onPlaceholderTap: () {},
         onAboutTap: navigateToAboutPage,
         onLogOutTap: signOut,

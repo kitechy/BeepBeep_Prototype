@@ -11,6 +11,8 @@ class DrawerComponent extends StatelessWidget {
 
   final VoidCallback? onProfileTap;
 
+  final VoidCallback? onSettingsTap;
+
   final VoidCallback? onPlaceholderTap;
 
   final VoidCallback onAboutTap;
@@ -24,6 +26,7 @@ class DrawerComponent extends StatelessWidget {
     required this.photoURL,
     this.onHomeTap,
     this.onProfileTap,
+    this.onSettingsTap,
     this.onPlaceholderTap,
     required this.onAboutTap,
     required this.onLogOutTap,
@@ -54,6 +57,8 @@ class DrawerComponent extends StatelessWidget {
                     icon: Icons.person_outline,
                     label: 'Profile',
                     onTap: () {
+                      Navigator.pop(context);
+                      onProfileTap?.call();
                       // Navigate to Profile
                     },
                   ),
@@ -62,6 +67,8 @@ class DrawerComponent extends StatelessWidget {
                     icon: Icons.settings_outlined,
                     label: 'Settings',
                     onTap: () {
+                      Navigator.pop(context);
+                      onSettingsTap?.call();
                       // Navigate to Settings
                     },
                   ),
