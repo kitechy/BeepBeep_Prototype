@@ -65,6 +65,8 @@ class OperatorViewModel extends ChangeNotifier {
 
   String get role => _currentUser?.role ?? "Operator";
 
+  String? get email => _currentUser?.email;
+
   int get fleetCount => _drivers.length;
 
   int get onlineCount => _drivers.where((d) => d.status == "online").length;

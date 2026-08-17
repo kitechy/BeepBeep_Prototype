@@ -23,6 +23,8 @@ import 'package:beepbeep_prototype/shared/components/drawer/drawer_component.dar
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:beepbeep_prototype/features/profile/view/profile_page.dart';
+import 'package:beepbeep_prototype/features/settings/view/settings_page.dart';
 
 class OperatorHomePage extends StatelessWidget {
   const OperatorHomePage({super.key});
@@ -97,6 +99,28 @@ class __OperatorViewState extends State<_OperatorView> {
     );
   }
 
+  void navigateToProfilePage() {
+    final operatorVM = context.read<OperatorViewModel>();
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ProfilePage(
+          name: operatorVM.operatorName,
+          email: operatorVM.email,
+          photoURL: operatorVM.photoUrl,
+          role: operatorVM.role,
+        ),
+      ),
+    );
+  }
+
+  void navigateToSettingsPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const SettingsPage()),
+    );
+  }
+
   void _showDriverDetails(DriverProfile driver) {
     if (_isDriverSheetOpen || !mounted) return;
 
@@ -162,6 +186,8 @@ class __OperatorViewState extends State<_OperatorView> {
         role: operatorVM.role,
         photoURL: operatorVM.photoUrl,
         onHomeTap: () {},
+        onProfileTap: navigateToProfilePage,
+        onSettingsTap: navigateToSettingsPage,
         onPlaceholderTap: () {},
         onAboutTap: navigateToAboutPage,
         onLogOutTap: signOut,
