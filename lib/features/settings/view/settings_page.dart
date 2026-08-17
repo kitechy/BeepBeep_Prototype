@@ -3,24 +3,9 @@ import 'package:beepbeep_prototype/features/auth/view/login_page.dart';
 import 'package:beepbeep_prototype/shared/dialogs/error_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
-
-  Future<void> _openGoogleAccountSettings(BuildContext context) async {
-    final uri = Uri.parse('https://myaccount.google.com/security');
-    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-      if (context.mounted) {
-        showDialog(
-          context: context,
-          builder: (_) => const ErrorDialog(
-            message: 'Could not open Google account settings.',
-          ),
-        );
-      }
-    }
-  }
 
   Future<void> _confirmDeleteAccount(BuildContext context) async {
     final confirmed = await showDialog<bool>(
@@ -87,13 +72,6 @@ class SettingsPage extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: 12),
         children: [
-          ListTile(
-            leading: const Icon(Icons.manage_accounts_outlined, color: Color(0xff1C1A17)),
-            title: const Text('Manage Google Account'),
-            subtitle: const Text('Change password, security settings'),
-            onTap: () => _openGoogleAccountSettings(context),
-          ),
-          const Divider(height: 1, color: Color(0xffE0DED9)),
           ListTile(
             leading: const Icon(Icons.delete_outline, color: Color(0xffD32F2F)),
             title: const Text(

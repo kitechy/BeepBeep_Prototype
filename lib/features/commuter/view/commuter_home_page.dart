@@ -19,8 +19,8 @@ import 'package:beepbeep_prototype/features/auth/view/login_page.dart';
 import 'package:beepbeep_prototype/shared/dialogs/error_dialog.dart';
 import 'package:beepbeep_prototype/features/about/view/about_page.dart';
 import 'package:beepbeep_prototype/shared/widgets/compass_widget.dart';
-import 'package:beepbeep_prototype/shared/components/profile/profile_page.dart';
-import 'package:beepbeep_prototype/shared/components/settings/settings_page.dart';
+import 'package:beepbeep_prototype/features/profile/view/profile_page.dart';
+import 'package:beepbeep_prototype/features/settings/view/settings_page.dart';
 
 class CommuterHomePage extends StatelessWidget {
   const CommuterHomePage({super.key});
