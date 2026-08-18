@@ -17,6 +17,8 @@ import 'package:beepbeep_prototype/features/operator/view/widgets/driver_details
 import 'package:beepbeep_prototype/features/operator/view/widgets/fleet_details_sheet.dart';
 import 'package:beepbeep_prototype/features/operator/view/widgets/status_bar_widget.dart';
 import 'package:beepbeep_prototype/features/operator/viewmodel/operator_viewmodel.dart';
+import 'package:beepbeep_prototype/features/profile/view/profile_page.dart';
+import 'package:beepbeep_prototype/features/settings/view/settings_page.dart';
 import 'package:beepbeep_prototype/shared/widgets/compass_widget.dart';
 import 'package:beepbeep_prototype/shared/dialogs/error_dialog.dart';
 import 'package:beepbeep_prototype/shared/components/drawer/drawer_component.dart';
@@ -97,6 +99,28 @@ class __OperatorViewState extends State<_OperatorView> {
     );
   }
 
+  void navigateToProfilePage() {
+    final operatorVM = context.read<OperatorViewModel>();
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ProfilePage(
+          name: operatorVM.operatorName,
+          email: operatorVM.email,
+          photoURL: operatorVM.photoUrl,
+          role: operatorVM.role,
+        ),
+      ),
+    );
+  }
+
+  void navigateToSettingsPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const SettingsPage()),
+    );
+  }
+
   void _showDriverDetails(DriverProfile driver) {
     if (_isDriverSheetOpen || !mounted) return;
 
@@ -161,8 +185,8 @@ class __OperatorViewState extends State<_OperatorView> {
         currentUser: operatorVM.operatorName,
         role: operatorVM.role,
         photoURL: operatorVM.photoUrl,
-        onHomeTap: () {},
-        onPlaceholderTap: () {},
+        onProfileTap: navigateToProfilePage,
+        onSettingsTap: navigateToSettingsPage,
         onAboutTap: navigateToAboutPage,
         onLogOutTap: signOut,
       ),
