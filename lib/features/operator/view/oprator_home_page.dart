@@ -21,6 +21,7 @@ import 'package:beepbeep_prototype/shared/widgets/compass_widget.dart';
 import 'package:beepbeep_prototype/shared/dialogs/error_dialog.dart';
 import 'package:beepbeep_prototype/shared/components/drawer/drawer_component.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:beepbeep_prototype/features/profile/view/profile_page.dart';
@@ -69,6 +70,43 @@ class __OperatorViewState extends State<_OperatorView> {
       await operatorVM.loadOperatorProfile();
       operatorVM.loadDrivers(operatorVM.operatorUid);
     });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showLocationServicesPrompt();
+    });
+  }
+
+  Future<void> _showLocationServicesPrompt() async {
+    final isLocationEnabled = await Geolocator.isLocationServiceEnabled();
+
+    if (isLocationEnabled || !mounted) return;
+
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Turn on location services'),
+          content: const Text(
+            'Please enable location services to see nearby jeepneys and get arrival estimates.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Not now'),
+            ),
+            FilledButton.icon(
+              onPressed: () {
+                Navigator.pop(context);
+                Geolocator.openLocationSettings();
+              },
+              icon: const Icon(Icons.location_on),
+              label: const Text('Open settings'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<void> signOut() async {

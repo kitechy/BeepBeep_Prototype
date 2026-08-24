@@ -12,6 +12,7 @@ import 'package:beepbeep_prototype/features/driver/service/driver_service.dart';
 import 'package:beepbeep_prototype/shared/components/route_bottom_sheet/route_bottom_sheet.dart';
 import 'package:beepbeep_prototype/features/commuter/viewmodel/commuter_viewmodel.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:beepbeep_prototype/shared/components/drawer/drawer_component.dart';
@@ -60,7 +61,104 @@ class __CommuterViewState extends State<_CommuterView> {
       final commuterVM = context.read<CommuterViewModel>();
 
       commuterVM.loadCurrentUser();
+      commuterVM.setOnJeepneyTap(_showJeepneyArrival);
     });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showLocationServicesPrompt();
+    });
+  }
+
+  Future<void> _showLocationServicesPrompt() async {
+    await Future<void>.delayed(const Duration(milliseconds: 500));
+
+    var isLocationEnabled = await Geolocator.isLocationServiceEnabled();
+
+    if (!isLocationEnabled) {
+      await Future<void>.delayed(const Duration(milliseconds: 500));
+      isLocationEnabled = await Geolocator.isLocationServiceEnabled();
+    }
+
+    if (isLocationEnabled || !mounted) return;
+
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Turn on location services'),
+          content: const Text(
+            'Please enable location services to see nearby jeepneys and get arrival estimates.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Not now'),
+            ),
+            FilledButton.icon(
+              onPressed: () {
+                Navigator.pop(context);
+                Geolocator.openLocationSettings();
+              },
+              icon: const Icon(Icons.location_on),
+              label: const Text('Open settings'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showJeepneyArrival(String driverId) {
+    final commuterVM = context.read<CommuterViewModel>();
+    final estimate = commuterVM.getArrivalEstimate(driverId);
+
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.directions_bus, color: Color(0xff0000FF)),
+                    const SizedBox(width: 12),
+                    Text(
+                      'Jeepney arrival estimate',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                if (estimate == null)
+                  const Text(
+                    'Your location is not available yet. Turn on location and try again.',
+                  )
+                else ...[
+                  Text(
+                    '${estimate.minutes} min',
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${estimate.distanceKm.toStringAsFixed(1)} km away',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Estimated using the jeepney location and an average speed of 20 km/h.',
+                  ),
+                ],
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   Future<void> signOut() async {
@@ -143,6 +241,7 @@ class __CommuterViewState extends State<_CommuterView> {
             zoomControlsEnabled: false,
             markers: commuterVM.markers,
             onMapCreated: commuterVM.onMapCreated,
+            mapToolbarEnabled: false,
           ),
 
           Positioned(
@@ -177,14 +276,14 @@ class __CommuterViewState extends State<_CommuterView> {
           ),
 
           Positioned(
-              top: MediaQuery.of(context).padding.top + 130,
-              right: 16,
-              child: CompassWidget(
-                bearingStream: commuterVM.bearingStream,
-                initialBearing: commuterVM.currentBearing,
-                onTap: commuterVM.resetBearing,
-              ),
+            top: MediaQuery.of(context).padding.top + 130,
+            right: 16,
+            child: CompassWidget(
+              bearingStream: commuterVM.bearingStream,
+              initialBearing: commuterVM.currentBearing,
+              onTap: commuterVM.resetBearing,
             ),
+          ),
 
           Positioned(
             bottom: 50,

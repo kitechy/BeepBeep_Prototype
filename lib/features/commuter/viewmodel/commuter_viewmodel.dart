@@ -12,9 +12,20 @@ import 'package:beepbeep_prototype/features/driver/model/driver_profile.dart';
 import 'package:beepbeep_prototype/features/driver/repository/driver_repository.dart';
 
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:math';
+
+class JeepneyArrivalEstimate {
+  final double distanceKm;
+  final int minutes;
+
+  const JeepneyArrivalEstimate({
+    required this.distanceKm,
+    required this.minutes,
+  });
+}
 
 class CommuterViewModel extends ChangeNotifier {
   final AuthRepository _repo;
@@ -34,6 +45,8 @@ class CommuterViewModel extends ChangeNotifier {
 
   StreamSubscription<List<DriverProfile>>? _driversSubscription;
   UserModel? _currentUser;
+  LatLng? _commuterPosition;
+  void Function(String driverId)? _onJeepneyTap;
 
   CommuterViewModel(
     this._repo,
@@ -76,6 +89,7 @@ class CommuterViewModel extends ChangeNotifier {
     if (!granted) return;
 
     final position = await _locationService.getCurrentLocation();
+    _commuterPosition = LatLng(position.latitude, position.longitude);
 
     await _mapService.animateToLocation(position.latitude, position.longitude);
 
@@ -159,6 +173,7 @@ class CommuterViewModel extends ChangeNotifier {
             id: "driver_${driver.uid}",
             position: newPosition,
             title: "Jeepney",
+            onTap: () => _onJeepneyTap?.call(driver.uid),
           );
 
           _markers.add(marker);
@@ -189,6 +204,7 @@ class CommuterViewModel extends ChangeNotifier {
         position: position,
         title: "Jeepney",
         rotation: rotation,
+        onTap: () => _onJeepneyTap?.call(driverId),
       );
 
       _markers.removeWhere((m) => m.markerId.value == "driver_$driverId");
@@ -262,6 +278,29 @@ class CommuterViewModel extends ChangeNotifier {
 
   Stream<double> get bearingStream => _mapService.bearingStream;
   double get currentBearing => _mapService.currentBearing;
+
+  void setOnJeepneyTap(void Function(String driverId) callback) {
+    _onJeepneyTap = callback;
+  }
+
+  JeepneyArrivalEstimate? getArrivalEstimate(String driverId) {
+    final jeepneyPosition = _driverPositions[driverId];
+    final commuterPosition = _commuterPosition;
+
+    if (jeepneyPosition == null || commuterPosition == null) return null;
+
+    final distanceMeters = Geolocator.distanceBetween(
+      commuterPosition.latitude,
+      commuterPosition.longitude,
+      jeepneyPosition.latitude,
+      jeepneyPosition.longitude,
+    );
+    final distanceKm = distanceMeters / 1000;
+    const averageSpeedKph = 20.0;
+    final minutes = max(1, (distanceKm / averageSpeedKph * 60).ceil());
+
+    return JeepneyArrivalEstimate(distanceKm: distanceKm, minutes: minutes);
+  }
 
   void onCameraMove(CameraPosition position) {
     _mapService.onCameraMove(position);
