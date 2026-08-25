@@ -45,4 +45,8 @@ class DriverRepository {
   Stream<List<DriverProfile>> getDriversByOperator(String operatorUid) {
     return _driverService.getDriversByOperator(operatorUid);
   }
+
+  Future<void> updateOccupiedSeats(String driverUid, int occupiedSeats) {
+    return _driverService.updateOccupiedSeats(driverUid, occupiedSeats);
+  }
 }

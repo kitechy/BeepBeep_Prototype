@@ -1,6 +1,7 @@
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 
@@ -131,20 +132,99 @@ class MarkerService {
   Future<Marker> buildJeepneyMarker({
     required String id,
     required LatLng position,
+    required int availableSeats,
+    required int totalSeats,
     String? title,
     double rotation = 0,
     VoidCallback? onTap,
   }) async {
-    await initialize();
+    final icon = await _getJeepneyMarkerIcon(
+      availableSeats: availableSeats,
+      totalSeats: totalSeats,
+    );
 
     return Marker(
       markerId: MarkerId(id),
       position: position,
-      icon: _jeepneyIcon!,
+      icon: icon,
       rotation: rotation,
       flat: true,
       anchor: const Offset(0.5, 0.5),
-      onTap: onTap
+      onTap: onTap,
     );
+  }
+
+  Future<BitmapDescriptor> _getJeepneyMarkerIcon({
+    required int availableSeats,
+    required int totalSeats,
+  }) async {
+    final imageData = await rootBundle.load("assets/icons/jeepney_icon.png");
+
+    final codec = await ui.instantiateImageCodec(
+      imageData.buffer.asUint8List(),
+      targetWidth: 70,
+      targetHeight: 70,
+    );
+
+    final frame = await codec.getNextFrame();
+
+    final recorder = ui.PictureRecorder();
+    final canvas = Canvas(recorder);
+
+    const double width = 90;
+    const double height = 90;
+
+    final availableRatio = totalSeats <= 0 ? 0.0 : availableSeats / totalSeats;
+
+    Color statusColor;
+
+    if (availableSeats <= 0) {
+      statusColor = const Color(0xffD32F2F);
+    } else if (availableRatio <= 0.25) {
+      statusColor = const Color(0xffF57C00);
+    } else {
+      statusColor = const Color(0xff2E7D5B);
+    }
+
+    // Draw jeepney
+    canvas.drawImage(
+      frame.image,
+      const Offset(10, 10),
+      Paint()..isAntiAlias = true,
+    );
+
+    // Badge background
+    canvas.drawCircle(const Offset(72, 18), 15, Paint()..color = Colors.white);
+
+    canvas.drawCircle(const Offset(72, 18), 12, Paint()..color = statusColor);
+
+    // Seat count
+    final textPainter = TextPainter(
+      text: TextSpan(
+        text: '$availableSeats',
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 11,
+          fontWeight: FontWeight.w800,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    );
+
+    textPainter.layout();
+
+    textPainter.paint(
+      canvas,
+      const Offset(72, 18) -
+          Offset(textPainter.width / 2, textPainter.height / 2),
+    );
+
+    final picture = recorder.endRecording();
+
+    final image = await picture.toImage(width.toInt(), height.toInt());
+
+    final data = await image.toByteData(format: ui.ImageByteFormat.png);
+
+    return BitmapDescriptor.bytes(data!.buffer.asUint8List());
   }
 }

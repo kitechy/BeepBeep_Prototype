@@ -16,6 +16,7 @@ class DriverFormViewModel extends ChangeNotifier {
   final licenseController = TextEditingController();
   final addressController = TextEditingController();
   final operatorCodeController = TextEditingController();
+  final totalSeats = TextEditingController();
 
   DriverFormViewModel(
     this._repo,
@@ -68,6 +69,14 @@ class DriverFormViewModel extends ChangeNotifier {
       return false;
     }
 
+    final seatCapacity = int.tryParse(totalSeats.text.trim());
+
+    if(seatCapacity == null || seatCapacity <= 0) {
+      errorMessage = "Please enter a valid seat capacity.";
+      _safeNotify();
+      return false;
+    }
+
     final operatorCode = operatorCodeController.text.trim();
 
     if (operatorCode.isNotEmpty) {
@@ -82,6 +91,9 @@ class DriverFormViewModel extends ChangeNotifier {
       operatorUid = operator.uid;
     }
 
+    isLoading = true;
+    _safeNotify();
+
     final profile = DriverProfile(
       uid: uid,
       operatorUid: operatorUid,
@@ -89,11 +101,12 @@ class DriverFormViewModel extends ChangeNotifier {
       licenseNumber: licenseController.text.trim(),
       address: addressController.text.trim(),
       currentRouteId: '',
+      totalSeats: seatCapacity,
+      occupiedSeats: 0
     );
 
-    isLoading = true;
-    _safeNotify();
-
+    
+    
     try {
       await _driverRepo.createDriverProfile(profile);
       await _userRepo.setProfileCompleted(uid, true);

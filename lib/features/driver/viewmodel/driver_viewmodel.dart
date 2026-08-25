@@ -36,7 +36,6 @@ class DriverViewModel extends ChangeNotifier {
     this._mapService,
     this._routeRepo,
 
-
     this._markerService,
   );
 
@@ -80,7 +79,7 @@ class DriverViewModel extends ChangeNotifier {
     return _currentUser?.role ?? "Driver";
   }
 
-   String? get email {
+  String? get email {
     return _currentUser?.email;
   }
 
@@ -192,6 +191,34 @@ class DriverViewModel extends ChangeNotifier {
             _safeNotify();
           },
         );
+  }
+
+  // PASSENGER COUNT
+  Future<void> updateOccupiedSeats(int occupiedSeats) async {
+    final uid = _repo.currentUser?.uid;
+
+    if (uid == null || driverProfile == null) {
+      return;
+    }
+
+    final totalSeats = driverProfile!.totalSeats;
+
+    if (occupiedSeats < 0 || occupiedSeats > totalSeats) {
+      return;
+    }
+
+    try {
+      await _driverRepo.updateOccupiedSeats(uid, occupiedSeats);
+
+      driverProfile = driverProfile!.copyWith(occupiedSeats: occupiedSeats);
+
+      _safeNotify();
+    } catch (e) {
+      errorMessage = e.toString();
+      _safeNotify();
+
+      rethrow;
+    }
   }
 
   // TOGGLE ONLINE / OFFLINE

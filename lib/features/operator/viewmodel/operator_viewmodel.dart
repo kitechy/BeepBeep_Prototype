@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:beepbeep_prototype/core/model/user_model.dart';
 import 'package:beepbeep_prototype/core/repository/auth_repository.dart';
@@ -110,7 +111,7 @@ class OperatorViewModel extends ChangeNotifier {
       drivers,
     ) async {
       _drivers = drivers;
-      await loadDriverDisplayData(drivers);
+      loadDriverDisplayData(drivers);
 
       final activeIds = drivers
           .where(
@@ -151,21 +152,27 @@ class OperatorViewModel extends ChangeNotifier {
           continue;
         }
 
-        final position = LatLng(driver.latitude!, driver.longitude!);
+        final newPosition = LatLng(driver.latitude!, driver.longitude!);
 
-        final marker = await _markerService.buildJeepneyMarker(
-          id: 'driver_${driver.uid}',
-          position: position,
-          onTap: () => selectDriver(driver),
-        );
+        final oldPosition = _driverPositions[driver.uid];
 
-        _markers.removeWhere(
-          (marker) => marker.markerId.value == 'driver_${driver.uid}',
-        );
+        if (oldPosition == null) {
+          // First time seeing this driver.
+          final marker = await _markerService.buildJeepneyMarker(
+            id: 'driver_${driver.uid}',
+            position: newPosition,
+            availableSeats: driver.availableSeats,
+            totalSeats: driver.totalSeats,
+            onTap: () => selectDriver(driver),
+          );
 
-        _markers.add(marker);
+          _markers.add(marker);
 
-        _driverPositions[driver.uid] = position;
+          _driverPositions[driver.uid] = newPosition;
+        } else {
+          // Driver already exists — smoothly move the marker.
+          await _animateMarker(driver, oldPosition, newPosition);
+        }
       }
 
       _safeNotify();
@@ -216,6 +223,67 @@ class OperatorViewModel extends ChangeNotifier {
     );
 
     _safeNotify();
+  }
+
+  Future<void> _animateMarker(
+    DriverProfile driver,
+    LatLng from,
+    LatLng to,
+  ) async {
+    const int steps = 25;
+    const Duration frameDuration = Duration(milliseconds: 40);
+
+    final rotation = _calculateBearing(from, to);
+
+    for (int i = 1; i <= steps; i++) {
+      if (_disposed) return;
+
+      final position = LatLng(
+        from.latitude + (to.latitude - from.latitude) * i / steps,
+        from.longitude + (to.longitude - from.longitude) * i / steps,
+      );
+
+      final marker = await _markerService.buildJeepneyMarker(
+        id: 'driver_${driver.uid}',
+        position: position,
+        availableSeats: driver.availableSeats,
+        totalSeats: driver.totalSeats,
+        rotation: rotation,
+        onTap: () => selectDriver(driver),
+      );
+
+      _markers.removeWhere(
+        (marker) => marker.markerId.value == 'driver_${driver.uid}',
+      );
+
+      _markers.add(marker);
+
+      _safeNotify();
+
+      await Future.delayed(frameDuration);
+    }
+
+    _driverPositions[driver.uid] = to;
+  }
+
+  double _calculateBearing(LatLng start, LatLng end) {
+    final lat1 = start.latitude * pi / 180;
+    final lon1 = start.longitude * pi / 180;
+
+    final lat2 = end.latitude * pi / 180;
+    final lon2 = end.longitude * pi / 180;
+
+    final dLon = lon2 - lon1;
+
+    final y = sin(dLon) * cos(lat2);
+
+    final x = cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(dLon);
+
+    var bearing = atan2(y, x);
+
+    bearing = bearing * 180 / pi;
+
+    return (bearing + 360) % 360;
   }
 
   Future<bool> logout() async {

@@ -8,8 +8,12 @@ class DriverProfile {
   final String address;
   final String status;
   final String? currentRouteId;
+
   final double? latitude;
   final double? longitude;
+
+  final int totalSeats;
+  final int occupiedSeats;
 
   DriverProfile({
     required this.uid,
@@ -21,7 +25,26 @@ class DriverProfile {
     required this.currentRouteId,
     this.latitude,
     this.longitude,
+    required this.totalSeats,
+    this.occupiedSeats = 0,
   });
+
+  int get availableSeats {
+    final available = totalSeats - occupiedSeats;
+    return available < 0 ? 0 : available;
+  }
+
+  bool get isFull {
+    return occupiedSeats >= totalSeats;
+  }
+
+  String get seatStatus {
+    if (occupiedSeats >= totalSeats) {
+      return "full";
+    }
+
+    return 'available';
+  }
 
   Map<String, dynamic> toMap() {
     return {
@@ -35,6 +58,8 @@ class DriverProfile {
       'createdAt': FieldValue.serverTimestamp(),
       'latitude': latitude,
       'longitude': longitude,
+      'totalSeats': totalSeats,
+      'occupiedSeats': occupiedSeats,
     };
   }
 
@@ -49,6 +74,8 @@ class DriverProfile {
       currentRouteId: map["currentRouteId"],
       latitude: (map['latitude'] as num?)?.toDouble(),
       longitude: (map['longitude'] as num?)?.toDouble(),
+      totalSeats: (map['totalSeats'] as num?)?.toInt() ?? 0,
+      occupiedSeats: (map['occupiedSeats'] as num?)?.toInt() ?? 0,
     );
   }
 
@@ -61,6 +88,8 @@ class DriverProfile {
     String? currentRouteId,
     double? latitude,
     double? longitude,
+    int? totalSeats,
+    int? occupiedSeats,
   }) {
     return DriverProfile(
       uid: uid,
@@ -72,6 +101,8 @@ class DriverProfile {
       currentRouteId: currentRouteId ?? this.currentRouteId,
       latitude: latitude ?? this.latitude,
       longitude: longitude ?? this.longitude,
+      totalSeats: totalSeats ?? this.totalSeats,
+      occupiedSeats: occupiedSeats ?? this.occupiedSeats,
     );
   }
 }

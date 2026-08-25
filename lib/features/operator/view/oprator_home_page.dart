@@ -200,6 +200,7 @@ class __OperatorViewState extends State<_OperatorView> {
             ),
             compassEnabled: false,
             zoomControlsEnabled: false,
+            mapToolbarEnabled: false,
 
             onCameraMove: operatorVM.onCameraMove,
             onMapCreated: operatorVM.onMapCreated,

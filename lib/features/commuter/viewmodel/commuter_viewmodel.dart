@@ -28,11 +28,16 @@ class CommuterViewModel extends ChangeNotifier {
 
   final Set<Marker> _markers = {};
   final PolylinePoints polylinePoints = PolylinePoints();
-  final Map<String, LatLng> _driverPositions = {};
-  final Map<String, int> _activeDriverCounts = {};
   final List<StreamSubscription> _routeSubscriptions = [];
 
+  final Map<String, LatLng> _driverPositions = {};
+  final Map<String, int> _activeDriverCounts = {};
+  final Map<String, DriverProfile> _drivers = {};
+
   StreamSubscription<List<DriverProfile>>? _driversSubscription;
+  DriverProfile? _selectedDriver;
+  DriverProfile? get selectedDriver => _selectedDriver;
+
   UserModel? _currentUser;
 
   CommuterViewModel(
@@ -134,16 +139,26 @@ class CommuterViewModel extends ChangeNotifier {
     ) async {
       final activeIds = drivers.map((d) => d.uid).toSet();
 
+      _drivers
+        ..clear()
+        ..addEntries(drivers.map((driver) => MapEntry(driver.uid, driver)));
+
       _markers.removeWhere((marker) {
         if (!marker.markerId.value.startsWith("driver_")) {
           return false;
         }
 
         final uid = marker.markerId.value.replaceFirst("driver_", "");
+
         return !activeIds.contains(uid);
       });
 
       _driverPositions.removeWhere((uid, _) => !activeIds.contains(uid));
+
+      if (_selectedDriver != null &&
+          !activeIds.contains(_selectedDriver!.uid)) {
+        _selectedDriver = null;
+      }
 
       for (final driver in drivers) {
         if (driver.latitude == null || driver.longitude == null) {
@@ -158,7 +173,12 @@ class CommuterViewModel extends ChangeNotifier {
           final marker = await _markerService.buildJeepneyMarker(
             id: "driver_${driver.uid}",
             position: newPosition,
+            availableSeats: driver.availableSeats,
+            totalSeats: driver.totalSeats,
             title: "Jeepney",
+            onTap: () {
+              selectDriver(driver);
+            },
           );
 
           _markers.add(marker);
@@ -168,13 +188,30 @@ class CommuterViewModel extends ChangeNotifier {
         }
       }
 
+      // Update selected driver with the newest Firestore data.
+      if (_selectedDriver != null) {
+        _selectedDriver = _drivers[_selectedDriver!.uid];
+      }
+
       notifyListeners();
     });
+  }
+
+  void selectDriver(DriverProfile driver) {
+    _selectedDriver = driver;
+    notifyListeners();
+  }
+
+  void clearSelectedDriver() {
+    _selectedDriver = null;
+    notifyListeners();
   }
 
   Future<void> _animateMarker(String driverId, LatLng from, LatLng to) async {
     const int steps = 25;
     const Duration frameDuration = Duration(milliseconds: 40);
+
+    final driver = _drivers[driverId];
 
     for (int i = 1; i <= steps; i++) {
       final position = LatLng(
@@ -187,8 +224,15 @@ class CommuterViewModel extends ChangeNotifier {
       final marker = await _markerService.buildJeepneyMarker(
         id: "driver_$driverId",
         position: position,
+        availableSeats: driver?.availableSeats ?? 0,
+        totalSeats: driver?.totalSeats ?? 0,
         title: "Jeepney",
         rotation: rotation,
+        onTap: driver == null
+            ? null
+            : () {
+                selectDriver(driver);
+              },
       );
 
       _markers.removeWhere((m) => m.markerId.value == "driver_$driverId");
@@ -199,6 +243,7 @@ class CommuterViewModel extends ChangeNotifier {
 
       await Future.delayed(frameDuration);
     }
+
     _driverPositions[driverId] = to;
   }
 
@@ -268,25 +313,22 @@ class CommuterViewModel extends ChangeNotifier {
   }
 
   Future<void> resetBearing() async {
-  final controller = await _mapService.getMapController();
-  final zoomLevel = await controller.getZoomLevel();
-  final visibleRegion = await controller.getVisibleRegion();
+    final controller = await _mapService.getMapController();
+    final zoomLevel = await controller.getZoomLevel();
+    final visibleRegion = await controller.getVisibleRegion();
 
-  final center = LatLng(
-    (visibleRegion.northeast.latitude + visibleRegion.southwest.latitude) / 2,
-    (visibleRegion.northeast.longitude + visibleRegion.southwest.longitude) / 2,
-  );
+    final center = LatLng(
+      (visibleRegion.northeast.latitude + visibleRegion.southwest.latitude) / 2,
+      (visibleRegion.northeast.longitude + visibleRegion.southwest.longitude) /
+          2,
+    );
 
-  controller.animateCamera(
-    CameraUpdate.newCameraPosition(
-      CameraPosition(
-        target: center,
-        zoom: zoomLevel,
-        bearing: 0,
+    controller.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(target: center, zoom: zoomLevel, bearing: 0),
       ),
-    ),
-  );
-}
+    );
+  }
 
   @override
   void dispose() {

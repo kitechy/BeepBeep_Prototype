@@ -6,14 +6,12 @@ class RoutesModel {
   final Color color;
   final String encodedPolyline;
 
-  int activeDrivers;
-
+  
   RoutesModel({
     required this.id,
     required this.name,
     required this.color,
     required this.encodedPolyline,
-    this.activeDrivers = 0,
   });
 
   factory RoutesModel.fromMap(String id, Map<String, dynamic> map) {

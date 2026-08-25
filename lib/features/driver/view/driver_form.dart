@@ -174,6 +174,27 @@ class __DriverFormViewState extends State<_DriverFormView> {
                 },
               ),
               const SizedBox(height: 18),
+              FieldLabelWidget(text: 'Seat Capacity'),
+              FormFieldWidget(
+                controller: driverVM.totalSeats,
+                keyboardType: TextInputType.number,
+                hint: 'Ex. 20',
+                icon: Icons.group,
+                validator: (v) {
+                  if (v == null || v.trim().isEmpty) {
+                    return "Seat capacity is required.";
+                  }
+
+                  final seats = int.tryParse(v.trim());
+
+                  if (seats == null || seats <= 0) {
+                    return 'Enter a valid seat capacity';
+                  }
+
+                  return null;
+                },
+              ),
+              const SizedBox(height: 18),
               FieldLabelWidget(text: 'Operator Code (optional)'),
               FormFieldWidget(
                 controller: driverVM.operatorCodeController,
