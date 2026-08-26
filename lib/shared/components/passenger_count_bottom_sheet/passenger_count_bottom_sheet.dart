@@ -21,12 +21,16 @@ class PassengerCountBottomSheet extends StatefulWidget {
 class _PassengerCountBottomSheetState extends State<PassengerCountBottomSheet> {
   late int _occupiedSeats;
   bool _isUpdating = false;
+  int? _queuedCount;
+  late int _lastSavedCount;
+  String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
 
     _occupiedSeats = widget.occupiedSeats.clamp(0, widget.totalSeats);
+    _lastSavedCount = _occupiedSeats;
   }
 
   int get _availableSeats {
@@ -34,42 +38,65 @@ class _PassengerCountBottomSheetState extends State<PassengerCountBottomSheet> {
   }
 
   Future<void> _updateCount(int newCount) async {
-    if (_isUpdating) return;
-
     if (newCount < 0 || newCount > widget.totalSeats) {
       return;
     }
 
     setState(() {
       _occupiedSeats = newCount;
+      _errorMessage = null;
+    });
+
+    if (_isUpdating) {
+      _queuedCount = newCount;
+      return;
+    }
+
+    setState(() {
       _isUpdating = true;
     });
 
     try {
-      await widget.onUpdate(newCount);
+      var countToSave = newCount;
+
+      while (true) {
+        await widget.onUpdate(countToSave).timeout(const Duration(seconds: 8));
+        _lastSavedCount = countToSave;
+
+        final queuedCount = _queuedCount;
+        _queuedCount = null;
+
+        if (queuedCount == null || queuedCount == _lastSavedCount) {
+          break;
+        }
+
+        countToSave = queuedCount;
+      }
     } catch (_) {
       if (!mounted) return;
 
       setState(() {
-        _occupiedSeats = widget.occupiedSeats;
+        _occupiedSeats = _lastSavedCount;
+        _errorMessage = 'Could not update passenger count. Please try again.';
       });
+      _queuedCount = null;
     } finally {
-      if (!mounted) return;
-
-      setState(() {
-        _isUpdating = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isUpdating = false;
+        });
+      }
     }
   }
 
   Future<void> _decrease() async {
-    if (_occupiedSeats <= 0 || _isUpdating) return;
+    if (_occupiedSeats <= 0) return;
 
     await _updateCount(_occupiedSeats - 1);
   }
 
   Future<void> _increase() async {
-    if (_occupiedSeats >= widget.totalSeats || _isUpdating) {
+    if (_occupiedSeats >= widget.totalSeats) {
       return;
     }
 
@@ -141,9 +168,7 @@ class _PassengerCountBottomSheetState extends State<PassengerCountBottomSheet> {
               children: [
                 CounterButton(
                   icon: Icons.remove_rounded,
-                  onPressed: _occupiedSeats > 0 && !_isUpdating
-                      ? _decrease
-                      : null,
+                  onPressed: _occupiedSeats > 0 ? _decrease : null,
                 ),
 
                 const SizedBox(width: 28),
@@ -165,12 +190,30 @@ class _PassengerCountBottomSheetState extends State<PassengerCountBottomSheet> {
 
                 CounterButton(
                   icon: Icons.add_rounded,
-                  onPressed: _occupiedSeats < widget.totalSeats && !_isUpdating
+                  onPressed: _occupiedSeats < widget.totalSeats
                       ? _increase
                       : null,
                 ),
               ],
             ),
+
+            if (widget.totalSeats <= 0) ...[
+              const SizedBox(height: 12),
+              const Text(
+                'Seat capacity is not available yet. Reload the driver profile and try again.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.red, fontSize: 12),
+              ),
+            ],
+
+            if (_errorMessage != null) ...[
+              const SizedBox(height: 12),
+              Text(
+                _errorMessage!,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.red, fontSize: 12),
+              ),
+            ],
 
             const SizedBox(height: 20),
 
@@ -221,5 +264,3 @@ class _PassengerCountBottomSheetState extends State<PassengerCountBottomSheet> {
     );
   }
 }
-
-

@@ -164,6 +164,12 @@ class CommuterViewModel extends ChangeNotifier {
         ..clear()
         ..addEntries(drivers.map((driver) => MapEntry(driver.uid, driver)));
 
+      if (_selectedDriver != null) {
+        _selectedDriver = _drivers[_selectedDriver!.uid];
+      }
+
+      notifyListeners();
+
       // get id of the drivers
       final activeIds = drivers.map((d) => d.uid).toSet();
 
@@ -214,11 +220,6 @@ class CommuterViewModel extends ChangeNotifier {
           // if there is old position, animate the marker to the new position
           await _animateMarker(driver.uid, oldPosition, newPosition);
         }
-      }
-
-      // Update selected driver with the newest Firestore data.
-      if (_selectedDriver != null) {
-        _selectedDriver = _drivers[_selectedDriver!.uid];
       }
 
       notifyListeners();

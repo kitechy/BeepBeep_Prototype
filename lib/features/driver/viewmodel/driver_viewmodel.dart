@@ -197,14 +197,24 @@ class DriverViewModel extends ChangeNotifier {
   Future<void> updateOccupiedSeats(int occupiedSeats) async {
     final uid = _repo.currentUser?.uid;
 
-    if (uid == null || driverProfile == null) {
-      return;
+    if (uid == null) {
+      errorMessage = "User not logged in.";
+      _safeNotify();
+      throw StateError(errorMessage!);
+    }
+
+    if (driverProfile == null) {
+      errorMessage = "Driver profile is still loading.";
+      _safeNotify();
+      throw StateError(errorMessage!);
     }
 
     final totalSeats = driverProfile!.totalSeats;
 
     if (occupiedSeats < 0 || occupiedSeats > totalSeats) {
-      return;
+      errorMessage = "Passenger count must be between 0 and $totalSeats.";
+      _safeNotify();
+      throw StateError(errorMessage!);
     }
 
     try {
