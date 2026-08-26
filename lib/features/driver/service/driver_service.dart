@@ -49,6 +49,13 @@ class DriverService {
     });
   }
 
+  Future<void> updateOccupiedSeats(String driverUid, int occupiedSeats) async {
+    await _firestore
+        .collection('driver_profiles')
+        .doc(driverUid)
+        .update({'occupiedSeats': occupiedSeats});
+  }
+
   // update current route of driver in database
   Future<void> updateCurrentRoute(String uid, String routeId) async {
     await _firestore.collection('driver_profiles').doc(uid).update({

@@ -5,15 +5,14 @@ class RoutesModel {
   final String name;
   final Color color;
   final String encodedPolyline;
-  int activeDrivers;
+  int activeDrivers = 0;
 
-// constructor
+  // constructor
   RoutesModel({
     required this.id,
     required this.name,
     required this.color,
     required this.encodedPolyline,
-    this.activeDrivers = 0,
   });
 
 // firestore connection

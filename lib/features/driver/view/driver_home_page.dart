@@ -12,10 +12,12 @@ import 'package:beepbeep_prototype/features/driver/repository/driver_repository.
 import 'package:beepbeep_prototype/features/driver/service/driver_service.dart';
 import 'package:beepbeep_prototype/features/driver/view/widgets/status_indicator.dart';
 import 'package:beepbeep_prototype/features/driver/viewmodel/driver_viewmodel.dart';
+import 'package:beepbeep_prototype/shared/components/passenger_count_bottom_sheet/passenger_count_bottom_sheet.dart';
 import 'package:beepbeep_prototype/shared/dialogs/error_dialog.dart';
 import 'package:beepbeep_prototype/shared/components/route_bottom_sheet/route_bottom_sheet.dart';
 import 'package:beepbeep_prototype/shared/components/drawer/drawer_component.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:beepbeep_prototype/features/about/view/about_page.dart';
@@ -68,6 +70,39 @@ class __DriverViewState extends State<_DriverView>
       await driverVM.loadRoutes();
       await driverVM.startListeningToMyLocation();
     });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showLocationServicesPrompt();
+    });
+  }
+
+  Future<void> _showLocationServicesPrompt() async {
+    if (!mounted || await Geolocator.isLocationServiceEnabled()) return;
+
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('Turn on location services'),
+        content: const Text(
+          'Please enable location services for live driver tracking.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Not now'),
+          ),
+          FilledButton.icon(
+            onPressed: () {
+              Navigator.pop(context);
+              Geolocator.openLocationSettings();
+            },
+            icon: const Icon(Icons.location_on),
+            label: const Text('Open settings'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -175,6 +210,7 @@ class __DriverViewState extends State<_DriverView>
               onMapCreated: driverVM.onMapCreated,
               polylines: driverVM.polylines,
               markers: driverVM.markers,
+              mapToolbarEnabled: false,
             ),
 
             Positioned(
@@ -237,6 +273,34 @@ class __DriverViewState extends State<_DriverView>
               right: 25,
               child: Column(
                 children: [
+                  FloatingActionButton(
+                    heroTag: 'passengers',
+                    backgroundColor: Colors.white,
+                    onPressed: () {
+                      final profile = driverVM.driverProfile;
+
+                      if (profile == null) {
+                        return;
+                      }
+
+                      showModalBottomSheet(
+                        context: context,
+                        builder: (context) {
+                          return PassengerCountBottomSheet(
+                            occupiedSeats: profile.occupiedSeats,
+                            totalSeats: profile.totalSeats,
+                            onUpdate: driverVM.updateOccupiedSeats,
+                          );
+                        },
+                      );
+                    },
+                    child: const Icon(
+                      Icons.people_alt_rounded,
+                      color: Color(0xff0057FF),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
                   FloatingActionButton(
                     heroTag: "routes",
                     backgroundColor: Colors.white,

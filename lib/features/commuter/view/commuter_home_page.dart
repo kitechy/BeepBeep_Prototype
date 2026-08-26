@@ -7,11 +7,13 @@ import 'package:beepbeep_prototype/core/service/map_service.dart';
 import 'package:beepbeep_prototype/core/service/marker_service.dart';
 import 'package:beepbeep_prototype/core/service/routes_service.dart';
 import 'package:beepbeep_prototype/core/service/user_service.dart';
+import 'package:beepbeep_prototype/features/commuter/view/widgets/driver_passenger_card.dart';
 import 'package:beepbeep_prototype/features/driver/repository/driver_repository.dart';
 import 'package:beepbeep_prototype/features/driver/service/driver_service.dart';
 import 'package:beepbeep_prototype/shared/components/route_bottom_sheet/route_bottom_sheet.dart';
 import 'package:beepbeep_prototype/features/commuter/viewmodel/commuter_viewmodel.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:beepbeep_prototype/shared/components/drawer/drawer_component.dart';
@@ -63,6 +65,41 @@ class __CommuterViewState extends State<_CommuterView> {
 
       commuterVM.loadCurrentUser();
     });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showLocationServicesPrompt();
+    });
+  }
+
+  Future<void> _showLocationServicesPrompt() async {
+    await Future<void>.delayed(const Duration(milliseconds: 500));
+
+    if (!mounted || await Geolocator.isLocationServiceEnabled()) return;
+
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('Turn on location services'),
+        content: const Text(
+          'Please enable location services to see nearby jeepneys and get arrival estimates.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Not now'),
+          ),
+          FilledButton.icon(
+            onPressed: () {
+              Navigator.pop(context);
+              Geolocator.openLocationSettings();
+            },
+            icon: const Icon(Icons.location_on),
+            label: const Text('Open settings'),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> signOut() async {
@@ -146,7 +183,23 @@ class __CommuterViewState extends State<_CommuterView> {
             zoomControlsEnabled: false,
             markers: commuterVM.markers,
             onMapCreated: commuterVM.onMapCreated,
+            mapToolbarEnabled: false,
           ),
+
+          if (commuterVM.selectedDriver != null)
+            Positioned(
+              left: 16,
+              right: 16,
+              bottom: 150,
+              child: DriverPassengerCard(
+                driver: commuterVM.selectedDriver!,
+                user: commuterVM.selectedDriverUser,
+                arrivalEstimate: commuterVM.getArrivalEstimate(
+                  commuterVM.selectedDriver!.uid,
+                ),
+                onClose: commuterVM.clearSelectedDriver,
+              ),
+            ),
 
           Positioned(
             top: 0,
@@ -180,14 +233,14 @@ class __CommuterViewState extends State<_CommuterView> {
           ),
 
           Positioned(
-              top: MediaQuery.of(context).padding.top + 130,
-              right: 16,
-              child: CompassWidget(
-                bearingStream: commuterVM.bearingStream,
-                initialBearing: commuterVM.currentBearing,
-                onTap: commuterVM.resetBearing,
-              ),
+            top: MediaQuery.of(context).padding.top + 130,
+            right: 16,
+            child: CompassWidget(
+              bearingStream: commuterVM.bearingStream,
+              initialBearing: commuterVM.currentBearing,
+              onTap: commuterVM.resetBearing,
             ),
+          ),
 
           Positioned(
             bottom: 50,
