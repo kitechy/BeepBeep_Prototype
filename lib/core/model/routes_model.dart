@@ -5,7 +5,6 @@ class RoutesModel {
   final String name;
   final Color color;
   final String encodedPolyline;
-  int activeDrivers = 0;
 
   // constructor
   RoutesModel({

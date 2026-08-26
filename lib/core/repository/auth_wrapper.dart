@@ -15,7 +15,6 @@ class AuthWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // listen to firebase login changes
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, authSnapshot) {
@@ -27,12 +26,19 @@ class AuthWrapper extends StatelessWidget {
 
         final user = authSnapshot.data;
 
-        // sends back to login if the user is not logged in
+        // User is not logged in
         if (user == null) {
           return const LoginPage();
         }
 
-        // find user in database using uid
+        // Guest user
+        // Anonymous Firebase users don't have a users/{uid} document.
+        if (user.isAnonymous) {
+          return const CommuterHomePage();
+        }
+
+        // Normal authenticated user:
+        // find user in Firestore using uid
         return FutureBuilder<DocumentSnapshot>(
           future: FirebaseFirestore.instance
               .collection('users')
@@ -45,7 +51,7 @@ class AuthWrapper extends StatelessWidget {
               );
             }
 
-            // sends to role selection page if the user is not found
+            // Sends to role selection page if the user is not found
             if (!snapshot.hasData || !snapshot.data!.exists) {
               return const RoleSelectionPage();
             }

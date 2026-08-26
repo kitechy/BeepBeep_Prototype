@@ -224,6 +224,7 @@ class __OperatorViewState extends State<_OperatorView> {
         onSettingsTap: navigateToSettingsPage,
         onAboutTap: navigateToAboutPage,
         onLogOutTap: signOut,
+        isGuest: false,
       ),
 
       body: Stack(

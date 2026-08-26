@@ -2,7 +2,6 @@ import 'package:beepbeep_prototype/core/service/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthRepository {
-
   // connection to the auth service
   final AuthService _authService;
   AuthRepository(this._authService);
@@ -10,6 +9,15 @@ class AuthRepository {
   // pass login to service
   Future<UserCredential> signIn() async {
     return await _authService.signInWithGoogle();
+  }
+
+  // guest login
+  Future<UserCredential> signInAsGuest() async {
+    return await _authService.signInAsGuest();
+  }
+
+  Future<UserCredential> upgradeGuestToGoogle() async {
+    return await _authService.upgradeGuestToGoogle();
   }
 
   // pass sign out to service

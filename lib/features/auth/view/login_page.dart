@@ -64,7 +64,7 @@ class _LoginViewState extends State<_LoginView> with TickerProviderStateMixin {
   // ask auth viewmodel to login
   Future<void> _handleLogin() async {
     final loginVM = context.read<LoginViewModel>();
-    
+
     final success = await loginVM.login();
 
     if (!mounted) return;
@@ -142,9 +142,29 @@ class _LoginViewState extends State<_LoginView> with TickerProviderStateMixin {
                     SizedBox(height: 0.02.sh),
 
                     GuestButtonWidget(
-                      onPressed: () {
-                        //TODO: Implement Guest logic
-                      },
+                      onPressed: loginVM.isLoading
+                          ? null
+                          : () async {
+                              final success = await loginVM.guestLogin();
+
+                              if (!context.mounted) return;
+
+                              if (success) {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const AuthWrapper(),
+                                  ),
+                                );
+                              } else {
+                                showDialog(
+                                  context: context,
+                                  builder: (_) => const ErrorDialog(
+                                    message: "Unable to continue as guest.",
+                                  ),
+                                );
+                              }
+                            },
                     ),
 
                     SizedBox(height: 0.04.sh),

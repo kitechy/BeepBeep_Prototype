@@ -20,6 +20,33 @@ class AuthService {
     return await _firebaseAuth.signInWithCredential(credential);
   }
 
+  Future<UserCredential> signInAsGuest() async {
+    return await _firebaseAuth.signInAnonymously();
+  }
+
+  Future<UserCredential> upgradeGuestToGoogle() async {
+    final currentUser = _firebaseAuth.currentUser;
+
+    if (currentUser == null || !currentUser.isAnonymous) {
+      throw Exception('Current user is not a guest.');
+    }
+
+    final GoogleSignInAccount googleUser = await _googleSignIn.authenticate();
+
+    final scopes = ['email', 'profile'];
+
+    final clientAuth = await googleUser.authorizationClient.authorizeScopes(
+      scopes,
+    );
+
+    final credential = GoogleAuthProvider.credential(
+      idToken: googleUser.authentication.idToken,
+      accessToken: clientAuth.accessToken,
+    );
+
+    return await currentUser.linkWithCredential(credential);
+  }
+
   User? get currentUser {
     return _firebaseAuth.currentUser;
   }

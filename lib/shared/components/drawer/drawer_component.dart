@@ -6,30 +6,25 @@ class DrawerComponent extends StatelessWidget {
   final String currentUser;
   final String role;
   final String? photoURL;
-
-  final VoidCallback? onHomeTap;
+  final bool isGuest;
 
   final VoidCallback? onProfileTap;
-
   final VoidCallback? onSettingsTap;
-
-  final VoidCallback? onPlaceholderTap;
-
   final VoidCallback onAboutTap;
-
   final VoidCallback onLogOutTap;
+  final VoidCallback? onUpgradeTap;
 
   const DrawerComponent({
     super.key,
     required this.currentUser,
     required this.role,
     required this.photoURL,
-    this.onHomeTap,
     this.onProfileTap,
     this.onSettingsTap,
-    this.onPlaceholderTap,
     required this.onAboutTap,
     required this.onLogOutTap,
+    required this.isGuest,
+    this.onUpgradeTap,
   });
 
   @override
@@ -53,15 +48,26 @@ class DrawerComponent extends StatelessWidget {
               child: ListView(
                 padding: const EdgeInsets.symmetric(vertical: 4),
                 children: [
-                  DrawerTitleWidget(
-                    icon: Icons.person_outline,
-                    label: 'Profile',
-                    onTap: () {
-                      Navigator.pop(context);
-                      onProfileTap?.call();
-                      // Navigate to Profile
-                    },
-                  ),
+                  if (isGuest)
+                    DrawerTitleWidget(
+                      icon: Icons.account_circle_outlined,
+                      label: 'Sign in with Google',
+                      onTap: () {
+                        Navigator.pop(context);
+                        onUpgradeTap?.call();
+                      },
+                    ),
+
+                  if (!isGuest)
+                    DrawerTitleWidget(
+                      icon: Icons.person_outline,
+                      label: 'Profile',
+                      onTap: () {
+                        Navigator.pop(context);
+                        onProfileTap?.call();
+                        // Navigate to Profile
+                      },
+                    ),
 
                   DrawerTitleWidget(
                     icon: Icons.settings_outlined,

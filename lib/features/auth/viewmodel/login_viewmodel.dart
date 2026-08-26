@@ -3,7 +3,6 @@ import 'package:beepbeep_prototype/core/repository/auth_repository.dart';
 import 'package:flutter/material.dart';
 
 class LoginViewModel extends ChangeNotifier {
-
   // connection to the auth repository
   final AuthRepository _repo;
   LoginViewModel(this._repo);
@@ -23,7 +22,7 @@ class LoginViewModel extends ChangeNotifier {
     }
   }
 
-  // send login req to auth repository 
+  // send login req to auth repository
   Future<bool> login() async {
     try {
       isLoading = true;
@@ -43,30 +42,21 @@ class LoginViewModel extends ChangeNotifier {
     }
   }
 
-  // send logout req to auth repository 
-  Future<void> logout() async {
+  Future<bool> guestLogin() async {
     try {
-      await _repo.signOut();
+      isLoading = true;
+      errorMessage = null;
+      _safeNotify();
+
+      await _repo.signInAsGuest();
+
+      return true;
     } catch (e) {
-      errorMessage = "Logout Failed. Please try again.";
+      errorMessage = "Unable to continue as guest.";
+      return false;
+    } finally {
+      isLoading = false;
       _safeNotify();
     }
   }
 }
-
-/// TODO: Handles guest login
-//   Future<void> handleGuestLogin(BuildContext context) async {
-//     try {
-//       if (!context.mounted) return;
-//       Navigator.pushReplacement(
-//         context,
-//         MaterialPageRoute(builder: (context) => const RoleSelectionPage()),
-//       );
-//     } catch (e) {
-//       if (!context.mounted) return;
-//       ScaffoldMessenger.of(
-//         context,
-//       ).showSnackBar(SnackBar(content: Text('Error: $e')));
-//     }
-//   }
-// }

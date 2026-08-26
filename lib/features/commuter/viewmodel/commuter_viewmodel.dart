@@ -8,6 +8,7 @@ import 'package:beepbeep_prototype/core/repository/user_repository.dart';
 import 'package:beepbeep_prototype/core/service/location_service.dart';
 import 'package:beepbeep_prototype/core/service/map_service.dart';
 import 'package:beepbeep_prototype/core/service/marker_service.dart';
+import 'package:beepbeep_prototype/features/commuter/model/jeepney_arrival_estimate.dart';
 import 'package:beepbeep_prototype/features/driver/model/driver_profile.dart';
 import 'package:beepbeep_prototype/features/driver/repository/driver_repository.dart';
 
@@ -16,16 +17,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:math';
-
-class JeepneyArrivalEstimate {
-  final double distanceKm;
-  final int minutes;
-
-  const JeepneyArrivalEstimate({
-    required this.distanceKm,
-    required this.minutes,
-  });
-}
 
 class CommuterViewModel extends ChangeNotifier {
   // connection to the repositories
@@ -78,11 +69,42 @@ class CommuterViewModel extends ChangeNotifier {
   String get role => _currentUser?.role ?? "Commuter";
   String? get email => _currentUser?.email;
   String? get photoUrl => _repo.currentUser?.photoURL;
+  bool get isGuest => _repo.currentUser?.isAnonymous ?? false;
 
   // load current user info
   Future<void> loadCurrentUser() async {
+    final firebaseUser = _repo.currentUser;
+
+    if (firebaseUser != null && firebaseUser.isAnonymous) {
+      _currentUser = UserModel(
+        uid: firebaseUser.uid,
+        name: 'Guest',
+        email: null,
+        photoURL: null,
+        role: 'commuter',
+        profileComplete: false,
+      );
+
+      notifyListeners();
+      return;
+    }
+
     _currentUser = await _userRepo.getCurrentUser();
     notifyListeners();
+  }
+
+  Future<bool> upgradeGuestAccount() async {
+    try {
+      await _repo.upgradeGuestToGoogle();
+
+      // Reload the now-registered user.
+      await loadCurrentUser();
+
+      return true;
+    } catch (e) {
+      debugPrint('Guest upgrade failed: $e');
+      return false;
+    }
   }
 
   // GMaps ready, call this method to load routes and initialize tracking

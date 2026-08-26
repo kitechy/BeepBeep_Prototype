@@ -1,6 +1,7 @@
 import 'package:beepbeep_prototype/core/model/user_model.dart';
+import 'package:beepbeep_prototype/features/commuter/model/jeepney_arrival_estimate.dart';
+
 import 'package:beepbeep_prototype/features/driver/model/driver_profile.dart';
-import 'package:beepbeep_prototype/features/commuter/viewmodel/commuter_viewmodel.dart';
 import 'package:flutter/material.dart';
 
 class DriverPassengerCard extends StatelessWidget {
@@ -40,7 +41,10 @@ class DriverPassengerCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.directions_bus_rounded, color: Color(0xff0057FF)),
+              const Icon(
+                Icons.directions_bus_rounded,
+                color: Color(0xff0057FF),
+              ),
               const SizedBox(width: 8),
               Expanded(
                 child: Column(
@@ -58,7 +62,10 @@ class DriverPassengerCard extends StatelessWidget {
                       name == null || name.isEmpty ? 'Driver' : name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 12, color: Color(0xff8A8378)),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Color(0xff8A8378),
+                      ),
                     ),
                   ],
                 ),
@@ -70,16 +77,32 @@ class DriverPassengerCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          _InfoRow(icon: Icons.badge_outlined, label: 'License', value: driver.licenseNumber),
+          _InfoRow(
+            icon: Icons.badge_outlined,
+            label: 'License',
+            value: driver.licenseNumber,
+          ),
           const SizedBox(height: 6),
-          _InfoRow(icon: Icons.phone_outlined, label: 'Phone', value: driver.phoneNumber),
+          _InfoRow(
+            icon: Icons.phone_outlined,
+            label: 'Phone',
+            value: driver.phoneNumber,
+          ),
           const SizedBox(height: 6),
-          _InfoRow(icon: Icons.location_on_outlined, label: 'Address', value: driver.address),
+          _InfoRow(
+            icon: Icons.location_on_outlined,
+            label: 'Address',
+            value: driver.address,
+          ),
           const SizedBox(height: 14),
           if (arrivalEstimate != null) ...[
             Row(
               children: [
-                const Icon(Icons.schedule_rounded, size: 18, color: Color(0xff0057FF)),
+                const Icon(
+                  Icons.schedule_rounded,
+                  size: 18,
+                  color: Color(0xff0057FF),
+                ),
                 const SizedBox(width: 8),
                 Text(
                   '${arrivalEstimate!.minutes} min away',
@@ -92,7 +115,10 @@ class DriverPassengerCard extends StatelessWidget {
                 const Spacer(),
                 Text(
                   '${arrivalEstimate!.distanceKm.toStringAsFixed(1)} km',
-                  style: const TextStyle(fontSize: 12, color: Color(0xff8A8378)),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Color(0xff8A8378),
+                  ),
                 ),
               ],
             ),
@@ -101,7 +127,11 @@ class DriverPassengerCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.event_seat_rounded, size: 22, color: Color(0xff2E7D5B)),
+              const Icon(
+                Icons.event_seat_rounded,
+                size: 22,
+                color: Color(0xff2E7D5B),
+              ),
               const SizedBox(width: 8),
               Text(
                 '${driver.availableSeats}',

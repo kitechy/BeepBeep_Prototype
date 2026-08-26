@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class GuestButtonWidget extends StatelessWidget {
   const GuestButtonWidget({super.key, required this.onPressed});
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {

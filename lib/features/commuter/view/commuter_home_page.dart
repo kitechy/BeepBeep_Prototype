@@ -121,6 +121,31 @@ class __CommuterViewState extends State<_CommuterView> {
     }
   }
 
+  Future<void> upgradeGuestAccount() async {
+    final commuterVM = context.read<CommuterViewModel>();
+
+    final success = await commuterVM.upgradeGuestAccount();
+
+    if (!mounted) return;
+
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Your account has been upgraded successfully!'),
+        ),
+      );
+
+      setState(() {});
+    } else {
+      showDialog(
+        context: context,
+        builder: (_) => const ErrorDialog(
+          message: 'Unable to sign in with Google. Please try again.',
+        ),
+      );
+    }
+  }
+
   void navigateToAboutPage() {
     Navigator.push(
       context,
@@ -161,12 +186,12 @@ class __CommuterViewState extends State<_CommuterView> {
         currentUser: commuterVM.commuterName,
         role: commuterVM.role,
         photoURL: commuterVM.photoUrl,
-        onHomeTap: () {},
-        onProfileTap: navigateToProfilePage,
-        onSettingsTap: navigateToSettingsPage,
-        onPlaceholderTap: () {},
+        onProfileTap: commuterVM.isGuest ? () {} : navigateToProfilePage,
+        onSettingsTap: commuterVM.isGuest ? () {} : navigateToSettingsPage,
         onAboutTap: navigateToAboutPage,
         onLogOutTap: signOut,
+        isGuest: commuterVM.isGuest,
+        onUpgradeTap: upgradeGuestAccount,
       ),
 
       body: Stack(

@@ -189,12 +189,11 @@ class __DriverViewState extends State<_DriverView>
           currentUser: driverVM.driverName,
           role: driverVM.role,
           photoURL: driverVM.photoUrl,
-          onHomeTap: () {},
           onProfileTap: navigateToProfilePage,
           onSettingsTap: navigateToSettingsPage,
-          onPlaceholderTap: () {},
           onAboutTap: navigateToAboutPage,
           onLogOutTap: signOut,
+          isGuest: false,
         ),
 
         body: Stack(
