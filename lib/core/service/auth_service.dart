@@ -5,6 +5,7 @@ class AuthService {
   final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
+  // login the user with google account
   Future<UserCredential> signInWithGoogle() async {
     final GoogleSignInAccount googleUser = await _googleSignIn.authenticate();
 

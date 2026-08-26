@@ -9,11 +9,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+// checks if you're logged in, finds your role, then sends you to the right page
 class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // listen to firebase login changes
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, authSnapshot) {
@@ -25,10 +27,12 @@ class AuthWrapper extends StatelessWidget {
 
         final user = authSnapshot.data;
 
+        // sends back to login if the user is not logged in
         if (user == null) {
           return const LoginPage();
         }
 
+        // find user in database using uid
         return FutureBuilder<DocumentSnapshot>(
           future: FirebaseFirestore.instance
               .collection('users')
@@ -41,6 +45,7 @@ class AuthWrapper extends StatelessWidget {
               );
             }
 
+            // sends to role selection page if the user is not found
             if (!snapshot.hasData || !snapshot.data!.exists) {
               return const RoleSelectionPage();
             }

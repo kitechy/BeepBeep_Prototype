@@ -17,11 +17,13 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:math';
 
 class CommuterViewModel extends ChangeNotifier {
+  // connection to the repositories
   final AuthRepository _repo;
   final UserRepository _userRepo;
   final RoutesRepository _routeRepo;
   final DriverRepository _driverRepo;
 
+  // connection to the services
   final MapService _mapService;
   final LocationService _locationService;
   final MarkerService _markerService;
@@ -29,7 +31,10 @@ class CommuterViewModel extends ChangeNotifier {
   final Set<Marker> _markers = {};
   final PolylinePoints polylinePoints = PolylinePoints();
   final Map<String, LatLng> _driverPositions = {};
+
+  // stores the active driver count on each route
   final Map<String, int> _activeDriverCounts = {};
+  // Keeps track of all route listeners so they can be stopped later.
   final List<StreamSubscription> _routeSubscriptions = [];
 
   StreamSubscription<List<DriverProfile>>? _driversSubscription;
@@ -40,7 +45,6 @@ class CommuterViewModel extends ChangeNotifier {
     this._userRepo,
     this._routeRepo,
     this._driverRepo,
-
     this._mapService,
     this._locationService,
     this._markerService,
@@ -49,21 +53,21 @@ class CommuterViewModel extends ChangeNotifier {
   Set<Polyline> polylines = {};
   Set<Marker> get markers => _markers;
 
+  // stores the routes retrieve from the database
   List<RoutesModel> availableRoutes = [];
 
   String get commuterName => _currentUser?.name ?? "User";
-
   String get role => _currentUser?.role ?? "Commuter";
-
   String? get email => _currentUser?.email;
-
   String? get photoUrl => _repo.currentUser?.photoURL;
 
+  // load current user info
   Future<void> loadCurrentUser() async {
     _currentUser = await _userRepo.getCurrentUser();
     notifyListeners();
   }
 
+  // GMaps ready, call this method to load routes and initialize tracking
   Future<void> onMapCreated(GoogleMapController controller) async {
     await _mapService.onMapCreated(controller);
 
@@ -71,16 +75,18 @@ class CommuterViewModel extends ChangeNotifier {
     await initializeTracking();
   }
 
+  // Ask access for location and get current position
   Future<void> initializeTracking() async {
     final granted = await _locationService.requestPermission();
     if (!granted) return;
 
+    // get current location of the device
     final position = await _locationService.getCurrentLocation();
 
     await _mapService.animateToLocation(position.latitude, position.longitude);
 
     final user = _repo.currentUser;
-
+    // display the location of user using marker
     if (user != null) {
       final marker = await _markerService.buildMarker(
         id: "current_user",
@@ -97,6 +103,7 @@ class CommuterViewModel extends ChangeNotifier {
     }
   }
 
+  // load one specific route and display in the map
   Future<void> loadRoute(String routeId) async {
     final route = await _routeRepo.getRoute(routeId);
 
@@ -118,6 +125,7 @@ class CommuterViewModel extends ChangeNotifier {
     await listenToDrivers(routeId);
   }
 
+  // get all routes and check active drivers on each route
   Future<void> loadRoutes() async {
     availableRoutes = await _routeRepo.getRoutes();
 
@@ -126,34 +134,41 @@ class CommuterViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  // watches drivers that is online in each route
   Future<void> listenToDrivers(String routeId) async {
     await _driversSubscription?.cancel();
 
     _driversSubscription = _driverRepo.getOnlineDrivers(routeId).listen((
       drivers,
     ) async {
+      // get id of the drivers
       final activeIds = drivers.map((d) => d.uid).toSet();
 
+      // if it isn't a jeepney marker, don't remove it
       _markers.removeWhere((marker) {
         if (!marker.markerId.value.startsWith("driver_")) {
           return false;
         }
-
+        // if it is a jeepney marker, check if it is active
         final uid = marker.markerId.value.replaceFirst("driver_", "");
+        // remove if it is not active
         return !activeIds.contains(uid);
       });
-
+      // remove driver positions that is not active
       _driverPositions.removeWhere((uid, _) => !activeIds.contains(uid));
 
+      // look for all online drivers and make sure they have location
       for (final driver in drivers) {
         if (driver.latitude == null || driver.longitude == null) {
           continue;
         }
 
+        // create new position for the driver
         final newPosition = LatLng(driver.latitude!, driver.longitude!);
-
+        // check where it is located before
         final oldPosition = _driverPositions[driver.uid];
 
+        // if there is no old position, create a new marker for the driver
         if (oldPosition == null) {
           final marker = await _markerService.buildJeepneyMarker(
             id: "driver_${driver.uid}",
@@ -164,6 +179,7 @@ class CommuterViewModel extends ChangeNotifier {
           _markers.add(marker);
           _driverPositions[driver.uid] = newPosition;
         } else {
+          // if there is old position, animate the marker to the new position
           await _animateMarker(driver.uid, oldPosition, newPosition);
         }
       }
@@ -172,6 +188,7 @@ class CommuterViewModel extends ChangeNotifier {
     });
   }
 
+  // animate marker when driver moves
   Future<void> _animateMarker(String driverId, LatLng from, LatLng to) async {
     const int steps = 25;
     const Duration frameDuration = Duration(milliseconds: 40);
@@ -202,6 +219,7 @@ class CommuterViewModel extends ChangeNotifier {
     _driverPositions[driverId] = to;
   }
 
+  // calculate which way jeepney is facing, compare the old position and new position to know which way the jeep facing
   double _calculateBearing(LatLng start, LatLng end) {
     final lat1 = start.latitude * pi / 180;
     final lon1 = start.longitude * pi / 180;
@@ -222,10 +240,12 @@ class CommuterViewModel extends ChangeNotifier {
     return (bearing + 360) % 360;
   }
 
+  // get active driver count on each route
   int getActiveDriverCount(String routeId) {
     return _activeDriverCounts[routeId] ?? 0;
   }
 
+  // listening to active drivers on each route
   Future<void> startListeningToActiveDrivers() async {
     for (final sub in _routeSubscriptions) {
       await sub.cancel();
@@ -242,6 +262,7 @@ class CommuterViewModel extends ChangeNotifier {
     }
   }
 
+  // logout user
   Future<bool> logout() async {
     try {
       await _driversSubscription?.cancel();
@@ -263,10 +284,12 @@ class CommuterViewModel extends ChangeNotifier {
   Stream<double> get bearingStream => _mapService.bearingStream;
   double get currentBearing => _mapService.currentBearing;
 
+  // tells map service that camera moved
   void onCameraMove(CameraPosition position) {
     _mapService.onCameraMove(position);
   }
 
+  // reset bearing to 0 and face to north
   Future<void> resetBearing() async {
   final controller = await _mapService.getMapController();
   final zoomLevel = await controller.getZoomLevel();

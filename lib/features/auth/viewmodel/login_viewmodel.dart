@@ -3,8 +3,9 @@ import 'package:beepbeep_prototype/core/repository/auth_repository.dart';
 import 'package:flutter/material.dart';
 
 class LoginViewModel extends ChangeNotifier {
-  final AuthRepository _repo;
 
+  // connection to the auth repository
+  final AuthRepository _repo;
   LoginViewModel(this._repo);
 
   bool isLoading = false;
@@ -22,6 +23,7 @@ class LoginViewModel extends ChangeNotifier {
     }
   }
 
+  // send login req to auth repository 
   Future<bool> login() async {
     try {
       isLoading = true;
@@ -41,7 +43,7 @@ class LoginViewModel extends ChangeNotifier {
     }
   }
 
-
+  // send logout req to auth repository 
   Future<void> logout() async {
     try {
       await _repo.signOut();

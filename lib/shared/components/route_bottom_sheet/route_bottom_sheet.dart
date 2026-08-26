@@ -16,11 +16,17 @@ class _Palette {
 }
 
 class RouteBottomSheet extends StatefulWidget {
+
+  // List of routes
   final List<RoutesModel> routes;
+
+  // callback function
   final Future<void> Function(RoutesModel route) onRouteSelected;
 
+  // callback function that needs routeId to give driver count
   final int Function(String routeId)? activeDriverCount;
 
+  // constructor
   const RouteBottomSheet({
     super.key,
     required this.routes,
@@ -33,7 +39,10 @@ class RouteBottomSheet extends StatefulWidget {
 }
 
 class _RouteBottomSheetState extends State<RouteBottomSheet> {
+  // stores user typed in seach box
   String _query = '';
+
+  // stores the Id of route being loaded
   String? _loadingRouteId;
 
   Color _tagColorFor(String key) =>
@@ -41,6 +50,8 @@ class _RouteBottomSheetState extends State<RouteBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
+
+    // search routes functionality
     final routes = widget.routes
         .where((r) => r.name.toLowerCase().contains(_query.toLowerCase()))
         .toList();
@@ -50,6 +61,7 @@ class _RouteBottomSheetState extends State<RouteBottomSheet> {
         color: Color(0xffF8F7F4),
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
+      
       child: SafeArea(
         top: false,
         child: Column(
@@ -97,7 +109,9 @@ class _RouteBottomSheetState extends State<RouteBottomSheet> {
                       size: 19,
                       color: _Palette.muted,
                     ),
+
                     const SizedBox(width: 8),
+
                     Expanded(
                       child: TextField(
                         onChanged: (value) {
@@ -109,7 +123,9 @@ class _RouteBottomSheetState extends State<RouteBottomSheet> {
                         ),
                       ),
                     ),
+
                     const SizedBox(width: 14),
+
                   ],
                 ),
               ),
@@ -131,7 +147,7 @@ class _RouteBottomSheetState extends State<RouteBottomSheet> {
                   : ListView.separated(
                       shrinkWrap: true,
                       itemCount: routes.length,
-                      separatorBuilder: (_, __) => const Divider(
+                      separatorBuilder: (_, _) => const Divider(
                         indent: 22,
                         endIndent: 22,
                         color: _Palette.line,
@@ -158,6 +174,7 @@ class _RouteBottomSheetState extends State<RouteBottomSheet> {
                                     Navigator.pop(context);
                                   }
                                 },
+                                
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 22,

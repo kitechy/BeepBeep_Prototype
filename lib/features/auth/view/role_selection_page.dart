@@ -17,6 +17,7 @@ class RoleSelectionPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // chain to process the role selection
     return ChangeNotifierProvider(
       create: (_) => RoleSelectionViewModel(UserRepository(UserService())),
       child: const _RoleSelectionView(),
@@ -29,6 +30,7 @@ class _RoleSelectionView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // gives access to the role selection view model
     final roleVM = context.watch<RoleSelectionViewModel>();
 
     return Scaffold(
@@ -59,6 +61,7 @@ class _RoleSelectionView extends StatelessWidget {
 
             SizedBox(height: 0.04.sh),
 
+            // commuter role container
             RoleContainerWidget(
               text: 'Commuter',
               description: "I'm looking for a ride.",
@@ -77,6 +80,7 @@ class _RoleSelectionView extends StatelessWidget {
 
             SizedBox(height: 0.03.sh),
 
+            // driver role container
             RoleContainerWidget(
               text: 'Driver',
               description: 'I offer a ride.',
@@ -106,6 +110,7 @@ class _RoleSelectionView extends StatelessWidget {
 
             SizedBox(height: 0.03.sh),
 
+            // operator role container  
             RoleContainerWidget(
               text: 'Operator',
               description: 'I monitor rides.',
@@ -143,6 +148,7 @@ class _RoleSelectionView extends StatelessWidget {
                   return;
                 }
                 try {
+                  // saves the role to the user
                   await roleVM.saveRole(roleVM.selectedRole!);
                   if (!context.mounted) return;
 

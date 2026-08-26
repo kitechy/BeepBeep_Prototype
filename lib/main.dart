@@ -20,10 +20,12 @@ import 'package:flutter/services.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+// start firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   await BackgroundLocationService.initialize();
 
+// prepare google sign in
   await GoogleSignIn.instance.initialize();
 
   SystemChrome.setSystemUIOverlayStyle(
@@ -36,15 +38,21 @@ Future<void> main() async {
   runApp(
     MultiProvider(
       providers: [
+        // connection to the auth service
         Provider<AuthService>(create: (context) => AuthService()),
+
         Provider(create: (_) => MapService()),
+
+        // connection to the auth repository
         Provider<AuthRepository>(
           create: (context) => AuthRepository(context.read<AuthService>()),
         ),
 
+        // notify the repository about a login
         ChangeNotifierProvider<LoginViewModel>(
           create: (context) => LoginViewModel(context.read<AuthRepository>()),
         ),
+        
         ChangeNotifierProvider(
           create: (context) => CommuterViewModel(
             context.read<AuthRepository>(),

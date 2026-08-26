@@ -19,6 +19,7 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // authentication chain
     return ChangeNotifierProvider(
       create: (_) => LoginViewModel(AuthRepository(AuthService())),
       child: const _LoginView(),
@@ -60,9 +61,10 @@ class _LoginViewState extends State<_LoginView> with TickerProviderStateMixin {
     super.dispose();
   }
 
+  // ask auth viewmodel to login
   Future<void> _handleLogin() async {
     final loginVM = context.read<LoginViewModel>();
-
+    
     final success = await loginVM.login();
 
     if (!mounted) return;
@@ -87,6 +89,7 @@ class _LoginViewState extends State<_LoginView> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    // gives access to login viewmodel
     final loginVM = context.watch<LoginViewModel>();
 
     return Scaffold(
@@ -130,6 +133,7 @@ class _LoginViewState extends State<_LoginView> with TickerProviderStateMixin {
                 opacity: _buttonFade,
                 child: Column(
                   children: [
+                    // start login
                     GoogleSigninButtonWidget(
                       onPressed: loginVM.isLoading ? null : _handleLogin,
                       isLoading: loginVM.isLoading,

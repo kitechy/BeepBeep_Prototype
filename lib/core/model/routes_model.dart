@@ -5,9 +5,9 @@ class RoutesModel {
   final String name;
   final Color color;
   final String encodedPolyline;
-
   int activeDrivers;
 
+// constructor
   RoutesModel({
     required this.id,
     required this.name,
@@ -16,6 +16,7 @@ class RoutesModel {
     this.activeDrivers = 0,
   });
 
+// firestore connection
   factory RoutesModel.fromMap(String id, Map<String, dynamic> map) {
     return RoutesModel(
       id: id,

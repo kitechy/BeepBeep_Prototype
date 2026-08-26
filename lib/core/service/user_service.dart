@@ -6,6 +6,7 @@ class UserService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
+  // gets current user info from firebase auth
   Future<UserModel?> getCurrentUser() async {
     final user = _firebaseAuth.currentUser;
 
@@ -18,6 +19,7 @@ class UserService {
     return UserModel.fromMap(doc.data()!);
   }
 
+  // gets user info from database using uid
   Future<UserModel?> getUserByUid(String uid) async {
     final doc = await _firestore.collection('users').doc(uid).get();
 
@@ -28,12 +30,14 @@ class UserService {
     return UserModel.fromMap(doc.data()!);
   }
 
+  // updates user profile completed status in database
   Future<void> setProfileCompleted(String uid, bool value) async {
     await _firestore.collection('users').doc(uid).update({
       'profileCompleted': value,
     });
   }
 
+  // saves user role in database
   Future<void> saveRole(String role) async {
     final user = _firebaseAuth.currentUser;
 

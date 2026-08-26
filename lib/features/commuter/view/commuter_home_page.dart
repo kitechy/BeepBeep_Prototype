@@ -27,6 +27,7 @@ class CommuterHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // connection to commuter view model and necessary files
     return ChangeNotifierProvider(
       create: (_) => CommuterViewModel(
         AuthRepository(AuthService()),
@@ -56,6 +57,7 @@ class __CommuterViewState extends State<_CommuterView> {
   void initState() {
     super.initState();
 
+    // load current user info
     Future.microtask(() {
       final commuterVM = context.read<CommuterViewModel>();
 
@@ -132,6 +134,7 @@ class __CommuterViewState extends State<_CommuterView> {
 
       body: Stack(
         children: [
+          // GMaps integration
           GoogleMap(
             initialCameraPosition: const CameraPosition(
               target: LatLng(13.1391, 123.7438),

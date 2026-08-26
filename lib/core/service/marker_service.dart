@@ -14,6 +14,7 @@ class MarkerService {
     );
   }
 
+  // creates a marker from a url
   Future<BitmapDescriptor> getMarkerFromUrl(String imageUrl) async {
     final response = await http.get(Uri.parse(imageUrl));
 
@@ -102,6 +103,7 @@ class MarkerService {
     return BitmapDescriptor.bytes(data!.buffer.asUint8List());
   }
 
+  // creates a marker from a url
   Future<Marker> buildMarker({
     required String id,
     required LatLng position,
@@ -128,6 +130,7 @@ class MarkerService {
     );
   }
 
+  // 
   Future<Marker> buildJeepneyMarker({
     required String id,
     required LatLng position,
