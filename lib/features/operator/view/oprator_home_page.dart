@@ -143,6 +143,7 @@ class __OperatorViewState extends State<_OperatorView> {
           email: operatorVM.email,
           photoURL: operatorVM.photoUrl,
           role: operatorVM.role,
+          invCode: operatorVM.operatorProfile?.invCode,
         ),
       ),
     );

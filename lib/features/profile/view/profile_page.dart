@@ -5,6 +5,7 @@ class ProfilePage extends StatelessWidget {
   final String? email;
   final String? photoURL;
   final String role;
+  final String? invCode;
 
   const ProfilePage({
     super.key,
@@ -12,6 +13,7 @@ class ProfilePage extends StatelessWidget {
     this.email,
     this.photoURL,
     required this.role,
+    this.invCode,
   });
 
   @override
@@ -25,7 +27,10 @@ class ProfilePage extends StatelessWidget {
         elevation: 0,
         title: const Text(
           'Profile',
-          style: TextStyle(color: Color(0xff1C1A17), fontWeight: FontWeight.w700),
+          style: TextStyle(
+            color: Color(0xff1C1A17),
+            fontWeight: FontWeight.w700,
+          ),
         ),
         iconTheme: const IconThemeData(color: Color(0xff1C1A17)),
       ),
@@ -53,6 +58,8 @@ class ProfilePage extends StatelessWidget {
             _InfoTile(label: 'Name', value: name),
             _InfoTile(label: 'Email', value: email ?? 'Not provided'),
             _InfoTile(label: 'Role', value: role),
+            if (invCode != null)
+              _InfoTile(label: 'Invitation Code', value: invCode!),
           ],
         ),
       ),
