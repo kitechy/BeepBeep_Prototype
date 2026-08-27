@@ -220,6 +220,7 @@ class __OperatorViewState extends State<_OperatorView> {
         currentUser: operatorVM.operatorName,
         role: operatorVM.role,
         photoURL: operatorVM.photoUrl,
+        invCode: operatorVM.invitationCode,
         onProfileTap: navigateToProfilePage,
         onSettingsTap: navigateToSettingsPage,
         onAboutTap: navigateToAboutPage,

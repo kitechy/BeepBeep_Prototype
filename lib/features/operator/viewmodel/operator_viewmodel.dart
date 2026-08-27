@@ -70,6 +70,8 @@ class OperatorViewModel extends ChangeNotifier {
 
   int get fleetCount => _drivers.length;
 
+  String get invitationCode => operatorProfile?.invCode ?? '------';
+
   int get onlineCount => _drivers.where((d) => d.status == "online").length;
 
   int get offlineCount => _drivers.where((d) => d.status == "offline").length;
