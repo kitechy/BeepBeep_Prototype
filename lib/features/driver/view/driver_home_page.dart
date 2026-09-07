@@ -10,8 +10,11 @@ import 'package:beepbeep_prototype/core/service/user_service.dart';
 import 'package:beepbeep_prototype/features/auth/view/login_page.dart';
 import 'package:beepbeep_prototype/features/driver/repository/driver_repository.dart';
 import 'package:beepbeep_prototype/features/driver/service/driver_service.dart';
+import 'package:beepbeep_prototype/features/driver/view/widgets/scanner_page.dart';
 import 'package:beepbeep_prototype/features/driver/view/widgets/status_indicator.dart';
 import 'package:beepbeep_prototype/features/driver/viewmodel/driver_viewmodel.dart';
+import 'package:beepbeep_prototype/features/operator/repository/operator_repository.dart';
+import 'package:beepbeep_prototype/features/operator/service/operator_service.dart';
 import 'package:beepbeep_prototype/shared/components/passenger_count_bottom_sheet/passenger_count_bottom_sheet.dart';
 import 'package:beepbeep_prototype/shared/dialogs/error_dialog.dart';
 import 'package:beepbeep_prototype/shared/components/route_bottom_sheet/route_bottom_sheet.dart';
@@ -35,8 +38,9 @@ class DriverHomePage extends StatelessWidget {
         AuthRepository(AuthService()),
         UserRepository(UserService()),
         DriverRepository(DriverService()),
-        MapService(),
         RoutesRepository(RoutesService()),
+        OperatorRepository(OperatorService()),
+        MapService(),
         MarkerService(),
       ),
       child: _DriverView(),
@@ -57,6 +61,7 @@ class __DriverViewState extends State<_DriverView>
     vsync: this,
     duration: const Duration(milliseconds: 1000),
   )..repeat(reverse: true);
+
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -105,12 +110,6 @@ class __DriverViewState extends State<_DriverView>
     );
   }
 
-  @override
-  void dispose() {
-    _c.dispose();
-    super.dispose();
-  }
-
   Future<void> signOut() async {
     final driverVM = context.read<DriverViewModel>();
 
@@ -128,6 +127,94 @@ class __DriverViewState extends State<_DriverView>
         builder: (BuildContext context) {
           return const ErrorDialog(
             message: "Log out failed. Please try again later.",
+          );
+        },
+      );
+    }
+  }
+
+  Future<void> scanQrCode(String code) async {
+    final driverVM = context.read<DriverViewModel>();
+    final success = await driverVM.connectToOperator(code);
+
+    if (!mounted) return;
+
+    if (success) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            contentPadding: const EdgeInsets.fromLTRB(24, 28, 24, 12),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 72,
+                  height: 72,
+                  decoration: BoxDecoration(
+                    color: Colors.green.shade50,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.check_rounded,
+                    size: 42,
+                    color: Colors.green.shade600,
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                const Text(
+                  'Operator Connected!',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
+                ),
+
+                const SizedBox(height: 10),
+
+                Text(
+                  'You have successfully connected to the operator.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 15,
+                    height: 1.4,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                // Done Button
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xff0056FF),
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      'Done',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           );
         },
       );
@@ -161,6 +248,12 @@ class __DriverViewState extends State<_DriverView>
       context,
       MaterialPageRoute(builder: (context) => const SettingsPage()),
     );
+  }
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
   }
 
   @override
@@ -232,6 +325,48 @@ class __DriverViewState extends State<_DriverView>
                           padding: EdgeInsets.all(10),
                           child: Icon(
                             Icons.menu_rounded,
+                            size: 22,
+                            color: Color(0xff1C1A17),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Align(
+                    alignment: Alignment.topRight,
+                    child: Material(
+                      color: const Color(0xffF8F7F4),
+                      shape: const CircleBorder(),
+                      elevation: 3,
+                      child: InkWell(
+                        onTap: () async {
+                          final code = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ScanOperatorQrPage(),
+                            ),
+                          );
+
+                          if (!mounted || code == null) return;
+
+                          await scanQrCode(code);
+                        },
+                        customBorder: const CircleBorder(),
+                        child: const Padding(
+                          padding: EdgeInsets.all(10),
+                          child: Icon(
+                            Icons.qr_code_scanner_rounded,
                             size: 22,
                             color: Color(0xff1C1A17),
                           ),

@@ -43,6 +43,12 @@ class DriverService {
         .update(profile.toMap());
   }
 
+  Future<void> connectToOperator(String driverUid, String operatorUid) async {
+    await _firestore.collection('driver_profiles').doc(driverUid).update({
+      'operatorUid': operatorUid,
+    });
+  }
+
   Future<void> updateDriverStatus(String uid, String status) async {
     await _firestore.collection('driver_profiles').doc(uid).update({
       'status': status,
@@ -50,10 +56,9 @@ class DriverService {
   }
 
   Future<void> updateOccupiedSeats(String driverUid, int occupiedSeats) async {
-    await _firestore
-        .collection('driver_profiles')
-        .doc(driverUid)
-        .update({'occupiedSeats': occupiedSeats});
+    await _firestore.collection('driver_profiles').doc(driverUid).update({
+      'occupiedSeats': occupiedSeats,
+    });
   }
 
   // update current route of driver in database

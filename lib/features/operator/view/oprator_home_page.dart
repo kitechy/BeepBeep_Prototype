@@ -26,6 +26,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 class OperatorHomePage extends StatelessWidget {
   const OperatorHomePage({super.key});
@@ -301,6 +302,119 @@ class __OperatorViewState extends State<_OperatorView> {
                         padding: EdgeInsets.all(10),
                         child: Icon(
                           Icons.menu_rounded,
+                          size: 22,
+                          color: Color(0xff1C1A17),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsetsGeometry.symmetric(horizontal: 16),
+                child: Align(
+                  alignment: AlignmentGeometry.topRight,
+                  child: Material(
+                    color: const Color(0xffF8F7F4),
+                    shape: const CircleBorder(),
+                    elevation: 3,
+                    child: InkWell(
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return Dialog(
+                              backgroundColor: const Color(0xffF8F7F4),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadiusGeometry.circular(24),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsetsGeometry.all(24),
+                                child: SizedBox(
+                                  width: 300,
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Text(
+                                        'Operator QR Code',
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(0xff1C1A17),
+                                        ),
+                                      ),
+
+                                      const SizedBox(height: 8),
+
+                                      const Text(
+                                        'Let the driver scan this QR code '
+                                        'to join your operator account.',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.black54,
+                                        ),
+                                      ),
+
+                                      const SizedBox(height: 24),
+
+                                      SizedBox(
+                                        width: 220,
+                                        height: 220,
+                                        child: QrImageView(
+                                          data: operatorVM.invitationCode,
+                                          version: QrVersions.auto,
+                                          backgroundColor: Colors.white,
+                                          padding: const EdgeInsets.all(12),
+                                        ),
+                                      ),
+
+                                      const SizedBox(height: 20),
+
+                                      Text(
+                                        operatorVM.invitationCode,
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: 1.5,
+                                          color: Color(0xff1C1A17),
+                                        ),
+                                      ),
+
+                                      const SizedBox(height: 20),
+
+                                      SizedBox(
+                                        width: double.infinity,
+                                        child: TextButton(
+                                          onPressed: () =>
+                                              Navigator.pop(context),
+                                          child: const Text(
+                                            'Close',
+                                            style: TextStyle(color: Colors.red),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                      customBorder: const CircleBorder(),
+                      child: const Padding(
+                        padding: EdgeInsets.all(10.0),
+                        child: Icon(
+                          Icons.qr_code_rounded,
                           size: 22,
                           color: Color(0xff1C1A17),
                         ),

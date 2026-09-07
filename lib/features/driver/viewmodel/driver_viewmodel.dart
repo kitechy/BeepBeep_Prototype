@@ -10,6 +10,7 @@ import 'package:beepbeep_prototype/core/service/marker_service.dart';
 import 'package:beepbeep_prototype/features/driver/model/driver_profile.dart';
 import 'package:beepbeep_prototype/features/driver/repository/driver_repository.dart';
 import 'package:beepbeep_prototype/core/model/routes_model.dart';
+import 'package:beepbeep_prototype/features/operator/repository/operator_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
@@ -21,6 +22,7 @@ class DriverViewModel extends ChangeNotifier {
   final UserRepository _userRepo;
   final DriverRepository _driverRepo;
   final RoutesRepository _routeRepo;
+  final OperatorRepository _operatorRepo;
 
   final MapService _mapService;
   final MarkerService _markerService;
@@ -33,9 +35,10 @@ class DriverViewModel extends ChangeNotifier {
     this._repo,
     this._userRepo,
     this._driverRepo,
-    this._mapService,
     this._routeRepo,
+    this._operatorRepo,
 
+    this._mapService,
     this._markerService,
   );
 
@@ -191,6 +194,47 @@ class DriverViewModel extends ChangeNotifier {
             _safeNotify();
           },
         );
+  }
+
+  Future<bool> connectToOperator(String code) async {
+    final operatorCode = code.trim();
+
+    if (operatorCode.isEmpty) {
+      return false;
+    }
+
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      final operator = await _operatorRepo.getOperatorByCode(operatorCode);
+
+      if (operator == null) {
+        errorMessage = 'Invalid operator code.';
+        return false;
+      }
+
+      final driverUid = _repo.currentUser?.uid;
+
+      if (driverUid == null) {
+        errorMessage = 'User not logged in.';
+        return false;
+      }
+
+      await _driverRepo.connectToOperator(driverUid, operator.uid);
+
+      if (driverProfile != null) {
+        driverProfile = driverProfile!.copyWith(operatorUid: operator.uid);
+      }
+
+      return true;
+    } catch (e) {
+      errorMessage = e.toString();
+      return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
   }
 
   // PASSENGER COUNT

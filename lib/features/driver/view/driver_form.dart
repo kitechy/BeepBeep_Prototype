@@ -5,8 +5,6 @@ import 'package:beepbeep_prototype/core/service/user_service.dart';
 import 'package:beepbeep_prototype/features/driver/repository/driver_repository.dart';
 import 'package:beepbeep_prototype/features/driver/service/driver_service.dart';
 import 'package:beepbeep_prototype/features/driver/view/driver_home_page.dart';
-import 'package:beepbeep_prototype/features/operator/repository/operator_repository.dart';
-import 'package:beepbeep_prototype/features/operator/service/operator_service.dart';
 import 'package:beepbeep_prototype/shared/widgets/field_label_widget.dart';
 import 'package:beepbeep_prototype/shared/widgets/form_field_widget.dart';
 import 'package:beepbeep_prototype/features/driver/viewmodel/driver_form_viewmodel.dart';
@@ -24,7 +22,6 @@ class DriverForm extends StatelessWidget {
         AuthRepository(AuthService()),
         DriverRepository(DriverService()),
         UserRepository(UserService()),
-        OperatorRepository(OperatorService()),
       ),
       child: const _DriverFormView(),
     );
@@ -193,13 +190,6 @@ class __DriverFormViewState extends State<_DriverFormView> {
 
                   return null;
                 },
-              ),
-              const SizedBox(height: 18),
-              FieldLabelWidget(text: 'Operator Code (optional)'),
-              FormFieldWidget(
-                controller: driverVM.operatorCodeController,
-                hint: 'BBP-XXXXXX',
-                icon: Icons.qr_code,
               ),
 
               const SizedBox(height: 32),

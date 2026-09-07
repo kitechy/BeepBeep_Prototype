@@ -2,28 +2,20 @@ import 'package:beepbeep_prototype/core/repository/auth_repository.dart';
 import 'package:beepbeep_prototype/core/repository/user_repository.dart';
 import 'package:beepbeep_prototype/features/driver/model/driver_profile.dart';
 import 'package:beepbeep_prototype/features/driver/repository/driver_repository.dart';
-import 'package:beepbeep_prototype/features/operator/repository/operator_repository.dart';
 import 'package:flutter/material.dart';
 
 class DriverFormViewModel extends ChangeNotifier {
   final AuthRepository _repo;
   final DriverRepository _driverRepo;
   final UserRepository _userRepo;
-  final OperatorRepository _operatorRepo;
 
   final formKey = GlobalKey<FormState>();
   final phoneController = TextEditingController();
   final licenseController = TextEditingController();
   final addressController = TextEditingController();
-  final operatorCodeController = TextEditingController();
   final totalSeats = TextEditingController();
 
-  DriverFormViewModel(
-    this._repo,
-    this._driverRepo,
-    this._userRepo,
-    this._operatorRepo,
-  );
+  DriverFormViewModel(this._repo, this._driverRepo, this._userRepo);
 
   String? errorMessage;
   String? operatorUid;
@@ -35,6 +27,7 @@ class DriverFormViewModel extends ChangeNotifier {
     phoneController.dispose();
     licenseController.dispose();
     addressController.dispose();
+    totalSeats.dispose();
     _disposed = true;
     super.dispose();
   }
@@ -71,24 +64,10 @@ class DriverFormViewModel extends ChangeNotifier {
 
     final seatCapacity = int.tryParse(totalSeats.text.trim());
 
-    if(seatCapacity == null || seatCapacity <= 0) {
+    if (seatCapacity == null || seatCapacity <= 0) {
       errorMessage = "Please enter a valid seat capacity.";
       _safeNotify();
       return false;
-    }
-
-    final operatorCode = operatorCodeController.text.trim();
-
-    if (operatorCode.isNotEmpty) {
-      final operator = await _operatorRepo.getOperatorByCode(operatorCode);
-
-      if (operator == null) {
-        errorMessage = "Invalid operator code.";
-        notifyListeners();
-        return false;
-      }
-
-      operatorUid = operator.uid;
     }
 
     isLoading = true;
@@ -102,11 +81,9 @@ class DriverFormViewModel extends ChangeNotifier {
       address: addressController.text.trim(),
       currentRouteId: '',
       totalSeats: seatCapacity,
-      occupiedSeats: 0
+      occupiedSeats: 0,
     );
 
-    
-    
     try {
       await _driverRepo.createDriverProfile(profile);
       await _userRepo.setProfileCompleted(uid, true);

@@ -1,4 +1,3 @@
-import 'package:beepbeep_prototype/features/operator/view/widgets/inv_code_card.dart';
 import 'package:beepbeep_prototype/shared/components/drawer/widgets/drawer_header.dart';
 import 'package:beepbeep_prototype/shared/components/drawer/widgets/drawer_title.dart';
 import 'package:flutter/material.dart';
@@ -44,15 +43,7 @@ class DrawerComponent extends StatelessWidget {
               currentUser: currentUser,
             ),
 
-            if (!isGuest && invCode != null && invCode!.isNotEmpty) ...[
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                child: InvCodeCard(invCode: invCode!),
-              ),
-            ],
+            
             const Divider(height: 1, thickness: 1, color: Color(0xffE0DED9)),
             const SizedBox(height: 8),
 
