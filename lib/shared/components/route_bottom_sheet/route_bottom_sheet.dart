@@ -45,6 +45,12 @@ class _RouteBottomSheetState extends State<RouteBottomSheet> {
   // stores the Id of route being loaded
   String? _loadingRouteId;
 
+  static const Map<String, double> _barangayFares = {
+    'Buenavista': 50.0,
+    'San Francisco': 40.0,
+    'Banquerohan': 35.0,
+  };
+
   Color _tagColorFor(String key) =>
       _Palette.tags[key.hashCode.abs() % _Palette.tags.length];
 
@@ -199,15 +205,54 @@ class _RouteBottomSheetState extends State<RouteBottomSheet> {
                                 const SizedBox(width: 14),
 
                                 Expanded(
-                                  child: Text(
-                                    route.name,
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500,
-                                      color: _Palette.ink,
-                                    ),
-                                  ),
-                                ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                       route.name,
+                                       style: const TextStyle(
+                                         fontSize: 16,
+                                         fontWeight: FontWeight.w500,
+                                         color: _Palette.ink,
+                                         ),
+                                        ),
+
+                                        const SizedBox(height: 6),
+
+                                      // Fare list per barangay
+                                      Wrap(
+                                        spacing: 6,
+                                        runSpacing: 4,
+                                        children: _barangayFares.entries
+                                            .where((entry) =>
+                                              entry.key.toLowerCase() == route.name.toLowerCase())
+                                            .map((entry) {
+                                          return Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 3,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: const Color(0xFFFFF8EC),
+                                                borderRadius: BorderRadius.circular(8),
+                                                border: Border.all(
+                                                color: _Palette.gold.withOpacity(0.4),
+                                                ),
+                                              ),
+                                              child: Text(
+                                                '${entry.key}  ₱${entry.value.toStringAsFixed(0)}',
+                                                style: const TextStyle(
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: _Palette.gold,
+                                                  ),
+                                                ),
+                                              );
+                                            }).toList(),
+                                           ),
+                                          ],
+                                        ),
+                                      ),
 
                                 if (activeDrivers != null) ...[
                                   Container(

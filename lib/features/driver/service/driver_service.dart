@@ -76,6 +76,15 @@ class DriverService {
     });
   }
 
+  Future<void> incrementTotalPassengers(String uid, int count) async {
+  await _firestore
+      .collection('driver_profiles')
+      .doc(uid)
+      .update({
+        'totalPassengers': FieldValue.increment(count),
+      });
+}
+
   // get online drivers for a route from database
   Stream<List<DriverProfile>> getOnlineDrivers(String routeId) {
     return _firestore

@@ -50,4 +50,8 @@ class DriverRepository {
   Future<void> updateOccupiedSeats(String driverUid, int occupiedSeats) {
     return _driverService.updateOccupiedSeats(driverUid, occupiedSeats);
   }
+
+   Future<void> incrementTotalPassengers(String uid, int count) {
+    return _driverService.incrementTotalPassengers(uid, count);
+  }
 }

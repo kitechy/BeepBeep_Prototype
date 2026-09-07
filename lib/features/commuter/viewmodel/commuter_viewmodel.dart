@@ -9,6 +9,7 @@ import 'package:beepbeep_prototype/core/service/location_service.dart';
 import 'package:beepbeep_prototype/core/service/map_service.dart';
 import 'package:beepbeep_prototype/core/service/marker_service.dart';
 import 'package:beepbeep_prototype/features/commuter/model/jeepney_arrival_estimate.dart';
+import 'package:beepbeep_prototype/features/commuter/model/jeepney_fare_estimate.dart';
 import 'package:beepbeep_prototype/features/driver/model/driver_profile.dart';
 import 'package:beepbeep_prototype/features/driver/repository/driver_repository.dart';
 
@@ -284,6 +285,21 @@ class CommuterViewModel extends ChangeNotifier {
     final minutes = max(1, (distanceKm / averageSpeedKph * 60).ceil());
 
     return JeepneyArrivalEstimate(distanceKm: distanceKm, minutes: minutes);
+  }
+  
+  static const Map<String, double> _fixedBarangayFares = {
+    'Buenavista': 50.0,
+    'San Francisco': 40.0,
+    'Banquerohan': 35.0,
+  };
+
+  JeepneyFareEstimate? getFareEstimate(String destination) {
+    final fare = _fixedBarangayFares[destination.toLowerCase().trim()];
+    if (fare == null) return null;
+    return JeepneyFareEstimate(
+      fare: fare,
+      destination: destination,
+    );
   }
 
   // animate marker when driver moves

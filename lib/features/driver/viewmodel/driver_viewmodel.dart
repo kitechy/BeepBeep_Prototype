@@ -195,41 +195,53 @@ class DriverViewModel extends ChangeNotifier {
 
   // PASSENGER COUNT
   Future<void> updateOccupiedSeats(int occupiedSeats) async {
-    final uid = _repo.currentUser?.uid;
+  final uid = _repo.currentUser?.uid;
 
-    if (uid == null) {
-      errorMessage = "User not logged in.";
-      _safeNotify();
-      throw StateError(errorMessage!);
-    }
-
-    if (driverProfile == null) {
-      errorMessage = "Driver profile is still loading.";
-      _safeNotify();
-      throw StateError(errorMessage!);
-    }
-
-    final totalSeats = driverProfile!.totalSeats;
-
-    if (occupiedSeats < 0 || occupiedSeats > totalSeats) {
-      errorMessage = "Passenger count must be between 0 and $totalSeats.";
-      _safeNotify();
-      throw StateError(errorMessage!);
-    }
-
-    try {
-      await _driverRepo.updateOccupiedSeats(uid, occupiedSeats);
-
-      driverProfile = driverProfile!.copyWith(occupiedSeats: occupiedSeats);
-
-      _safeNotify();
-    } catch (e) {
-      errorMessage = e.toString();
-      _safeNotify();
-
-      rethrow;
-    }
+  if (uid == null) {
+    errorMessage = "User not logged in.";
+    _safeNotify();
+    throw StateError(errorMessage!);
   }
+
+  if (driverProfile == null) {
+    errorMessage = "Driver profile is still loading.";
+    _safeNotify();
+    throw StateError(errorMessage!);
+  }
+
+  final totalSeats = driverProfile!.totalSeats;
+
+  if (occupiedSeats < 0 || occupiedSeats > totalSeats) {
+    errorMessage = "Passenger count must be between 0 and $totalSeats.";
+    _safeNotify();
+    throw StateError(errorMessage!);
+  }
+
+  try {
+    // ADD THIS ↓ — count how many new passengers boarded
+    final previousOccupied = driverProfile!.occupiedSeats;
+    final newPassengers = occupiedSeats - previousOccupied;
+
+    await _driverRepo.updateOccupiedSeats(uid, occupiedSeats);
+
+    // ADD THIS ↓ — only increment total if new passengers boarded
+    if (newPassengers > 0) {
+      await _driverRepo.incrementTotalPassengers(uid, newPassengers);
+      driverProfile = driverProfile!.copyWith(
+        occupiedSeats: occupiedSeats,
+        totalPassengers: (driverProfile!.totalPassengers) + newPassengers,
+      );
+    } else {
+      driverProfile = driverProfile!.copyWith(occupiedSeats: occupiedSeats);
+    }
+
+    _safeNotify();
+  } catch (e) {
+    errorMessage = e.toString();
+    _safeNotify();
+    rethrow;
+  }
+}
 
   // TOGGLE ONLINE / OFFLINE
   Future<void> toggleStatus() async {

@@ -176,6 +176,9 @@ class _DriverDetailsSheetState extends State<DriverDetailsSheet> {
 
           const SizedBox(height: 24),
 
+
+
+
           InfoRow(
             icon: Icons.phone_outlined,
             label: 'Phone Number',
@@ -204,6 +207,45 @@ class _DriverDetailsSheetState extends State<DriverDetailsSheet> {
             icon: Icons.route_outlined,
             label: 'Current Route',
             value: _isLoadingRoute ? "Loading route..." : _routeName,
+          ),
+
+                    const SizedBox(height: 24),
+
+          // ADD THIS ↓
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xffF0F4FF),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: const Color(0xffD0DCFF)),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.people_alt_rounded,
+                  color: Color(0xff0057FF),
+                  size: 28,
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  '${driver.totalPassengers}',
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xff0057FF),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                const Text(
+                  'Total Passengers',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Color(0xff77736C),
+                  ),
+                ),
+              ],
+            ),
           ),
 
           const SizedBox(height: 24),

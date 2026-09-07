@@ -122,7 +122,7 @@ class DriverListTile extends StatelessWidget {
 
                     const SizedBox(height: 4),
 
-                    // License number
+                                        // License number
                     Text(
                       driver.licenseNumber,
                       maxLines: 1,
@@ -131,6 +131,28 @@ class DriverListTile extends StatelessWidget {
                         color: Color(0xff9B958B),
                         fontSize: 12,
                       ),
+                    ),
+
+                    // ADD THIS ↓
+                    const SizedBox(height: 6),
+
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.people_alt_rounded,
+                          size: 13,
+                          color: Color(0xff5FC18B),
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          '${driver.totalPassengers} passengers',
+                          style: const TextStyle(
+                            color: Color(0xff5FC18B),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),

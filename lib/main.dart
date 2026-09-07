@@ -17,7 +17,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
 
-Future<void> main() async {
+ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
 // start firebase

@@ -102,7 +102,8 @@ class DriverFormViewModel extends ChangeNotifier {
       address: addressController.text.trim(),
       currentRouteId: '',
       totalSeats: seatCapacity,
-      occupiedSeats: 0
+      occupiedSeats: 0,
+      totalPassengers: 0,
     );
 
     
