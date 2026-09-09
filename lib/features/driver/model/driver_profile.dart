@@ -15,6 +15,9 @@ class DriverProfile {
   final int totalSeats;
   final int occupiedSeats;
 
+  final int totalPassengerCount;
+  final String? passengerCountDate;
+
   DriverProfile({
     required this.uid,
     this.operatorUid,
@@ -27,6 +30,8 @@ class DriverProfile {
     this.longitude,
     required this.totalSeats,
     this.occupiedSeats = 0,
+    this.totalPassengerCount = 0,
+    this.passengerCountDate,
   });
 
   int get availableSeats {
@@ -60,6 +65,8 @@ class DriverProfile {
       'longitude': longitude,
       'totalSeats': totalSeats,
       'occupiedSeats': occupiedSeats,
+      'totalPassengerCount': totalPassengerCount,
+      'passengerCountDate': passengerCountDate,
     };
   }
 
@@ -76,6 +83,8 @@ class DriverProfile {
       longitude: (map['longitude'] as num?)?.toDouble(),
       totalSeats: (map['totalSeats'] as num?)?.toInt() ?? 0,
       occupiedSeats: (map['occupiedSeats'] as num?)?.toInt() ?? 0,
+      totalPassengerCount: (map['totalPassengerCount'] as num?)?.toInt() ?? 0,
+      passengerCountDate: map['passengerCountDate'],
     );
   }
 
@@ -90,6 +99,8 @@ class DriverProfile {
     double? longitude,
     int? totalSeats,
     int? occupiedSeats,
+    int? totalPassengerCount,
+    String? passengerCountDate,
   }) {
     return DriverProfile(
       uid: uid,
@@ -103,6 +114,8 @@ class DriverProfile {
       longitude: longitude ?? this.longitude,
       totalSeats: totalSeats ?? this.totalSeats,
       occupiedSeats: occupiedSeats ?? this.occupiedSeats,
+      totalPassengerCount: totalPassengerCount ?? this.totalPassengerCount,
+      passengerCountDate: passengerCountDate ?? this.passengerCountDate,
     );
   }
 }

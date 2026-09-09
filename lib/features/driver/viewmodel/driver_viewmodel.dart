@@ -295,6 +295,7 @@ class DriverViewModel extends ChangeNotifier {
 
     if (occupiedSeats < 0 || occupiedSeats > totalSeats) {
       errorMessage = "Passenger count must be between 0 and $totalSeats.";
+
       _safeNotify();
       throw StateError(errorMessage!);
     }
@@ -302,13 +303,13 @@ class DriverViewModel extends ChangeNotifier {
     try {
       await _driverRepo.updateOccupiedSeats(uid, occupiedSeats);
 
-      driverProfile = driverProfile!.copyWith(occupiedSeats: occupiedSeats);
+      // Reload the updated profile
+      driverProfile = await _driverRepo.getDriverProfile(uid);
 
       _safeNotify();
     } catch (e) {
       errorMessage = e.toString();
       _safeNotify();
-
       rethrow;
     }
   }

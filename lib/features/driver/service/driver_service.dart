@@ -20,7 +20,7 @@ class DriverService {
     if (!doc.exists) return null;
 
     return DriverProfile.fromMap(doc.data()!);
-  } 
+  }
 
   // listen to driver profile changes in database using uid
   Stream<DriverProfile?> listenToDriver(String uid) {
@@ -56,8 +56,43 @@ class DriverService {
   }
 
   Future<void> updateOccupiedSeats(String driverUid, int occupiedSeats) async {
-    await _firestore.collection('driver_profiles').doc(driverUid).update({
-      'occupiedSeats': occupiedSeats,
+    final driverRef = _firestore.collection('driver_profiles').doc(driverUid);
+
+    await _firestore.runTransaction((transaction) async {
+      final snapshot = await transaction.get(driverRef);
+
+      if (!snapshot.exists) {
+        throw Exception('Driver profile not found.');
+      }
+
+      final data = snapshot.data()!;
+
+      final previousOccupied = (data['occupiedSeats'] as num?)?.toInt() ?? 0;
+
+      final previousTotal = (data['totalPassengerCount'] as num?)?.toInt() ?? 0;
+
+      final previousDate = data['passengerCountDate'] as String?;
+
+      final today = DateTime.now();
+
+      final todayString =
+          '${today.year}-'
+          '${today.month.toString().padLeft(2, '0')}-'
+          '${today.day.toString().padLeft(2, '0')}';
+
+      int totalPassengerCount = previousDate == todayString ? previousTotal : 0;
+
+      final passengersAdded = occupiedSeats - previousOccupied;
+
+      if (passengersAdded > 0) {
+        totalPassengerCount += passengersAdded;
+      }
+
+      transaction.update(driverRef, {
+        'occupiedSeats': occupiedSeats,
+        'totalPassengerCount': totalPassengerCount,
+        'passengerCountDate': todayString,
+      });
     });
   }
 

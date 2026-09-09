@@ -206,6 +206,14 @@ class _DriverDetailsSheetState extends State<DriverDetailsSheet> {
             value: _isLoadingRoute ? "Loading route..." : _routeName,
           ),
 
+          const SizedBox(height: 14),
+
+          InfoRow(
+            icon: Icons.people_outline,
+            label: 'Passengers Today',
+            value: '${driver.totalPassengerCount}',
+          ),
+
           const SizedBox(height: 24),
 
           SizedBox(

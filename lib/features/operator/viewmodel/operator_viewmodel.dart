@@ -113,6 +113,16 @@ class OperatorViewModel extends ChangeNotifier {
       drivers,
     ) async {
       _drivers = drivers;
+
+      if (_selectedDriver != null) {
+        for (final driver in drivers) {
+          if (driver.uid == _selectedDriver!.uid) {
+            _selectedDriver = driver;
+            break;
+          }
+        }
+      }
+
       loadDriverDisplayData(drivers);
 
       final activeIds = drivers
