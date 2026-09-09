@@ -48,6 +48,10 @@ class DriverViewModel extends ChangeNotifier {
 
   bool _disposed = false;
 
+  bool _mapReady = false;
+
+  final bool _followDriver = true;
+
   List<RoutesModel> availableRoutes = [];
 
   Set<Marker> get markers => _markers;
@@ -69,8 +73,16 @@ class DriverViewModel extends ChangeNotifier {
   }
 
   // MAP
-  Future<void> onMapCreated(GoogleMapController controller) async {
-    await _mapService.onMapCreated(controller);
+  void onMapCreated(GoogleMapController controller) {
+    _mapReady = true;
+    _mapService.onMapCreated(controller);
+
+    final lat = driverProfile?.latitude;
+    final lng = driverProfile?.longitude;
+
+    if (lat != null && lng != null) {
+      _followDriverLocation(LatLng(lat, lng), force: true);
+    }
   }
 
   // USER
@@ -176,9 +188,11 @@ class DriverViewModel extends ChangeNotifier {
               return;
             }
 
+            final position = LatLng(latitude, longitude);
+
             final marker = await _markerService.buildMarker(
               id: 'driver',
-              position: LatLng(latitude, longitude),
+              position: position,
               photoUrl: _repo.currentUser?.photoURL,
               title: driverName,
             );
@@ -187,6 +201,9 @@ class DriverViewModel extends ChangeNotifier {
               ..removeWhere((marker) => marker.markerId.value == 'driver')
               ..add(marker);
 
+            // Automatically follow the driver's location
+            await _followDriverLocation(position);
+
             _safeNotify();
           },
           onError: (error) {
@@ -194,6 +211,27 @@ class DriverViewModel extends ChangeNotifier {
             _safeNotify();
           },
         );
+  }
+
+  Future<void> _followDriverLocation(
+    LatLng position, {
+    bool force = false,
+  }) async {
+    if (!_mapReady) return;
+    if (!_followDriver && !force) return;
+
+    final controller = await _mapService.getMapController();
+
+    await controller.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(
+          target: position,
+          zoom: 17,
+          bearing: _mapService.currentBearing,
+          tilt: 0,
+        ),
+      ),
+    );
   }
 
   Future<bool> connectToOperator(String code) async {
