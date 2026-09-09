@@ -20,7 +20,7 @@ class DriverService {
     if (!doc.exists) return null;
 
     return DriverProfile.fromMap(doc.data()!);
-  }
+  } 
 
   // listen to driver profile changes in database using uid
   Stream<DriverProfile?> listenToDriver(String uid) {

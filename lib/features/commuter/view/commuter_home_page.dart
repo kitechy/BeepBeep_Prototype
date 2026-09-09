@@ -8,6 +8,7 @@ import 'package:beepbeep_prototype/core/service/marker_service.dart';
 import 'package:beepbeep_prototype/core/service/routes_service.dart';
 import 'package:beepbeep_prototype/core/service/user_service.dart';
 import 'package:beepbeep_prototype/features/commuter/view/widgets/driver_passenger_card.dart';
+import 'package:beepbeep_prototype/features/commuter/view/widgets/fare_information.dart';
 import 'package:beepbeep_prototype/features/driver/repository/driver_repository.dart';
 import 'package:beepbeep_prototype/features/driver/service/driver_service.dart';
 import 'package:beepbeep_prototype/shared/components/route_bottom_sheet/route_bottom_sheet.dart';
@@ -247,7 +248,43 @@ class __CommuterViewState extends State<_CommuterView> {
                         child: Icon(
                           Icons.menu_rounded,
                           size: 22,
-                          color: Color(0xff1C1A17),
+                          color: Color(0xff0000FF),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Align(
+                  alignment: Alignment.topRight,
+                  child: Material(
+                    color: const Color(0xffFFFFFF),
+                    shape: const CircleBorder(),
+                    elevation: 3,
+                    child: InkWell(
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => const FareInformationDialog(),
+                        );
+                      },
+                      customBorder: const CircleBorder(),
+                      child: const Padding(
+                        padding: EdgeInsets.all(10),
+                        child: Icon(
+                          Icons.info_outline_rounded,
+                          size: 22,
+                          color: Color(0xff0000FF),
                         ),
                       ),
                     ),
