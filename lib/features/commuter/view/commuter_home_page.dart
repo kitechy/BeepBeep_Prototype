@@ -55,6 +55,7 @@ class _CommuterView extends StatefulWidget {
 
 class __CommuterViewState extends State<_CommuterView> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  bool _isDriverSheetOpen = false;
 
   @override
   void initState() {
@@ -147,6 +148,58 @@ class __CommuterViewState extends State<_CommuterView> {
     }
   }
 
+  void _showDriverPassengerSheet(CommuterViewModel commuterVM) {
+    if (_isDriverSheetOpen || !mounted) return;
+
+    final selectedDriver = commuterVM.selectedDriver;
+    if (selectedDriver == null) return;
+
+    _isDriverSheetOpen = true;
+
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      showDragHandle: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      clipBehavior: Clip.antiAlias,
+      builder: (sheetContext) => SafeArea(
+        top: false,
+        child: ChangeNotifierProvider.value(
+          value: commuterVM,
+          child: Consumer<CommuterViewModel>(
+            builder: (context, viewModel, _) {
+              final driver = viewModel.selectedDriver;
+              if (driver == null) return const SizedBox.shrink();
+
+              return DriverPassengerCard(
+                driver: driver,
+                user: viewModel.selectedDriverUser,
+                arrivalEstimate: viewModel.getArrivalEstimate(driver.uid),
+                onClose: () {
+                  Navigator.of(sheetContext).pop();
+                },
+              );
+            },
+          ),
+        ),
+      ),
+    ).whenComplete(() {
+      _isDriverSheetOpen = false;
+
+      if (commuterVM.selectedDriver?.uid == selectedDriver.uid) {
+        commuterVM.clearSelectedDriver();
+      }
+    });
+  }
+
+  void _dismissDriverPassengerSheet() {
+    if (!_isDriverSheetOpen || !mounted) return;
+    Navigator.of(context).pop();
+  }
+
   void navigateToAboutPage() {
     Navigator.push(
       context,
@@ -180,6 +233,20 @@ class __CommuterViewState extends State<_CommuterView> {
   Widget build(BuildContext context) {
     final commuterVM = context.watch<CommuterViewModel>();
 
+    if (commuterVM.selectedDriver != null && !_isDriverSheetOpen) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || _isDriverSheetOpen) return;
+        _showDriverPassengerSheet(context.read<CommuterViewModel>());
+      });
+    } else if (commuterVM.selectedDriver == null && _isDriverSheetOpen) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted &&
+            context.read<CommuterViewModel>().selectedDriver == null) {
+          _dismissDriverPassengerSheet();
+        }
+      });
+    }
+
     return Scaffold(
       key: _scaffoldKey,
 
@@ -211,21 +278,6 @@ class __CommuterViewState extends State<_CommuterView> {
             onMapCreated: commuterVM.onMapCreated,
             mapToolbarEnabled: false,
           ),
-
-          if (commuterVM.selectedDriver != null)
-            Positioned(
-              left: 16,
-              right: 16,
-              bottom: 150,
-              child: DriverPassengerCard(
-                driver: commuterVM.selectedDriver!,
-                user: commuterVM.selectedDriverUser,
-                arrivalEstimate: commuterVM.getArrivalEstimate(
-                  commuterVM.selectedDriver!.uid,
-                ),
-                onClose: commuterVM.clearSelectedDriver,
-              ),
-            ),
 
           Positioned(
             top: 0,

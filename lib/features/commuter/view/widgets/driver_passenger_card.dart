@@ -2,6 +2,7 @@ import 'package:beepbeep_prototype/core/model/user_model.dart';
 import 'package:beepbeep_prototype/features/commuter/model/jeepney_arrival_estimate.dart';
 
 import 'package:beepbeep_prototype/features/driver/model/driver_profile.dart';
+import 'package:beepbeep_prototype/features/operator/view/widgets/info_row_widget.dart';
 import 'package:flutter/material.dart';
 
 class DriverPassengerCard extends StatelessWidget {
@@ -23,18 +24,11 @@ class DriverPassengerCard extends StatelessWidget {
     final name = user?.name?.trim();
 
     return Container(
-      width: 260,
+      width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.12),
-            blurRadius: 16,
-            offset: const Offset(0, 5),
-          ),
-        ],
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -77,19 +71,19 @@ class DriverPassengerCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          _InfoRow(
+          InfoRow(
             icon: Icons.badge_outlined,
             label: 'License',
             value: driver.licenseNumber,
           ),
           const SizedBox(height: 6),
-          _InfoRow(
+          InfoRow(
             icon: Icons.phone_outlined,
             label: 'Phone',
             value: driver.phoneNumber,
           ),
           const SizedBox(height: 6),
-          _InfoRow(
+          InfoRow(
             icon: Icons.location_on_outlined,
             label: 'Address',
             value: driver.address,
@@ -159,37 +153,6 @@ class DriverPassengerCard extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _InfoRow extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-
-  const _InfoRow({
-    required this.icon,
-    required this.label,
-    required this.value,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(icon, size: 16, color: const Color(0xff0057FF)),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            '$label: $value',
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontSize: 12, color: Color(0xff4F4A43)),
-          ),
-        ),
-      ],
     );
   }
 }

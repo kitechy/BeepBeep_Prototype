@@ -4,9 +4,9 @@ class FareInformationDialog extends StatelessWidget {
   const FareInformationDialog({super.key});
 
   static const List<Map<String, dynamic>> fares = [
-    {'route': 'Banquerohan', 'regular': 13.00, 'discounted': 10.40},
-    {'route': 'San Francisco', 'regular': 13.00, 'discounted': 10.40},
-    {'route': 'Buenavista', 'regular': 50.00, 'discounted': 40.00},
+    {'route': 'Banquerohan', 'regular': 35.00, 'discounted': 30.40},
+    {'route': 'San Francisco', 'regular': 40.00, 'discounted': 35.40},
+    {'route': 'Buenavista', 'regular': 50.00, 'discounted': 45.00},
   ];
 
   @override
