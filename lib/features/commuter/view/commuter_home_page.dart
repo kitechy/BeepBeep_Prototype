@@ -55,7 +55,32 @@ class _CommuterView extends StatefulWidget {
 
 class __CommuterViewState extends State<_CommuterView> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final GlobalKey _driverSheetContentKey = GlobalKey();
   bool _isDriverSheetOpen = false;
+  double _mapBottomPadding = 0;
+
+  static const double _driverSheetHandleHeight = 24;
+
+  void _updateMapBottomPadding() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_isDriverSheetOpen) return;
+
+      final contentHeight = _driverSheetContentKey.currentContext?.size?.height;
+      if (contentHeight == null) return;
+
+      final bottomPadding = contentHeight + _driverSheetHandleHeight;
+      if ((bottomPadding - _mapBottomPadding).abs() < 1) return;
+
+      setState(() {
+        _mapBottomPadding = bottomPadding;
+      });
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || !_isDriverSheetOpen) return;
+        context.read<CommuterViewModel>().focusSelectedDriver();
+      });
+    });
+  }
 
   @override
   void initState() {
@@ -165,24 +190,28 @@ class __CommuterViewState extends State<_CommuterView> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       clipBehavior: Clip.antiAlias,
-      builder: (sheetContext) => SafeArea(
-        top: false,
-        child: ChangeNotifierProvider.value(
-          value: commuterVM,
-          child: Consumer<CommuterViewModel>(
-            builder: (context, viewModel, _) {
-              final driver = viewModel.selectedDriver;
-              if (driver == null) return const SizedBox.shrink();
+      builder: (sheetContext) => SizedBox(
+        key: _driverSheetContentKey,
+        child: SafeArea(
+          top: false,
+          child: ChangeNotifierProvider.value(
+            value: commuterVM,
+            child: Consumer<CommuterViewModel>(
+              builder: (context, viewModel, _) {
+                _updateMapBottomPadding();
+                final driver = viewModel.selectedDriver;
+                if (driver == null) return const SizedBox.shrink();
 
-              return DriverPassengerCard(
-                driver: driver,
-                user: viewModel.selectedDriverUser,
-                arrivalEstimate: viewModel.getArrivalEstimate(driver.uid),
-                onClose: () {
-                  Navigator.of(sheetContext).pop();
-                },
-              );
-            },
+                return DriverPassengerCard(
+                  driver: driver,
+                  user: viewModel.selectedDriverUser,
+                  arrivalEstimate: viewModel.getArrivalEstimate(driver.uid),
+                  onClose: () {
+                    Navigator.of(sheetContext).pop();
+                  },
+                );
+              },
+            ),
           ),
         ),
       ),
@@ -191,6 +220,12 @@ class __CommuterViewState extends State<_CommuterView> {
 
       if (commuterVM.selectedDriver?.uid == selectedDriver.uid) {
         commuterVM.clearSelectedDriver();
+      }
+
+      if (mounted) {
+        setState(() {
+          _mapBottomPadding = 0;
+        });
       }
     });
   }
@@ -270,6 +305,7 @@ class __CommuterViewState extends State<_CommuterView> {
               target: LatLng(13.1391, 123.7438),
               zoom: 15,
             ),
+            padding: EdgeInsets.only(bottom: _mapBottomPadding),
             polylines: commuterVM.polylines,
             compassEnabled: false,
             onCameraMove: commuterVM.onCameraMove,

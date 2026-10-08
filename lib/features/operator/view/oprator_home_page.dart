@@ -58,8 +58,30 @@ class _OperatorView extends StatefulWidget {
 
 class __OperatorViewState extends State<_OperatorView> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final GlobalKey _driverSheetContentKey = GlobalKey();
   bool _isDriverSheetOpen = false;
   DriverProfile? _lastSelectedDriver;
+  double _mapBottomPadding = 0;
+
+  void _updateMapBottomPadding() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_isDriverSheetOpen) return;
+
+      final contentHeight = _driverSheetContentKey.currentContext?.size?.height;
+      if (contentHeight == null) return;
+
+      if ((contentHeight - _mapBottomPadding).abs() < 1) return;
+
+      setState(() {
+        _mapBottomPadding = contentHeight;
+      });
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || !_isDriverSheetOpen) return;
+        context.read<OperatorViewModel>().focusSelectedDriver();
+      });
+    });
+  }
 
   @override
   void initState() {
@@ -167,7 +189,19 @@ class __OperatorViewState extends State<_OperatorView> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) {
-        return DriverDetailsSheet(driver: driver);
+        _updateMapBottomPadding();
+        return NotificationListener<SizeChangedLayoutNotification>(
+          onNotification: (_) {
+            _updateMapBottomPadding();
+            return false;
+          },
+          child: SizeChangedLayoutNotifier(
+            child: SizedBox(
+              key: _driverSheetContentKey,
+              child: DriverDetailsSheet(driver: driver),
+            ),
+          ),
+        );
       },
     ).whenComplete(() {
       _isDriverSheetOpen = false;
@@ -177,6 +211,12 @@ class __OperatorViewState extends State<_OperatorView> {
 
       if (operatorVM.selectedDriver?.uid == driver.uid) {
         operatorVM.clearSelectedDriver();
+      }
+
+      if (mounted) {
+        setState(() {
+          _mapBottomPadding = 0;
+        });
       }
     });
   }
@@ -236,6 +276,7 @@ class __OperatorViewState extends State<_OperatorView> {
               target: LatLng(13.1391, 123.7438),
               zoom: 15,
             ),
+            padding: EdgeInsets.only(bottom: _mapBottomPadding),
             compassEnabled: false,
             zoomControlsEnabled: false,
             mapToolbarEnabled: false,

@@ -253,12 +253,24 @@ class CommuterViewModel extends ChangeNotifier {
     _selectedDriverUser = null;
     notifyListeners();
 
+    await focusSelectedDriver();
+
     final user = await _userRepo.getUserByUid(driver.uid);
 
     if (_selectedDriver?.uid != driver.uid) return;
 
     _selectedDriverUser = user;
     notifyListeners();
+  }
+
+  Future<void> focusSelectedDriver() async {
+    final selectedDriverId = _selectedDriver?.uid;
+    if (selectedDriverId == null) return;
+
+    final position = _driverPositions[selectedDriverId];
+    if (position != null) {
+      await _mapService.centerOnLocation(position);
+    }
   }
 
   void clearSelectedDriver() {
@@ -318,13 +330,15 @@ class CommuterViewModel extends ChangeNotifier {
       _markers.removeWhere((m) => m.markerId.value == "driver_$driverId");
 
       _markers.add(marker);
+      _driverPositions[driverId] = position;
 
+      if (_selectedDriver?.uid == driverId) {
+        await _mapService.moveToLocation(position);
+      }
       notifyListeners();
 
       await Future.delayed(frameDuration);
     }
-
-    _driverPositions[driverId] = to;
   }
 
   // calculate which way jeepney is facing, compare the old position and new position to know which way the jeep facing

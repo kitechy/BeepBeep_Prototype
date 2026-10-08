@@ -96,9 +96,21 @@ class OperatorViewModel extends ChangeNotifier {
     await loadOperatorProfile();
   }
 
-  void selectDriver(DriverProfile driver) {
+  Future<void> selectDriver(DriverProfile driver) async {
     _selectedDriver = driver;
     notifyListeners();
+
+    await focusSelectedDriver();
+  }
+
+  Future<void> focusSelectedDriver() async {
+    final selectedDriverId = _selectedDriver?.uid;
+    if (selectedDriverId == null) return;
+
+    final position = _driverPositions[selectedDriverId];
+    if (position != null) {
+      await _mapService.centerOnLocation(position);
+    }
   }
 
   void clearSelectedDriver() {
@@ -269,13 +281,16 @@ class OperatorViewModel extends ChangeNotifier {
       );
 
       _markers.add(marker);
+      _driverPositions[driver.uid] = position;
+
+      if (_selectedDriver?.uid == driver.uid) {
+        await _mapService.moveToLocation(position);
+      }
 
       _safeNotify();
 
       await Future.delayed(frameDuration);
     }
-
-    _driverPositions[driver.uid] = to;
   }
 
   double _calculateBearing(LatLng start, LatLng end) {

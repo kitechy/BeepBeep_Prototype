@@ -46,6 +46,16 @@ class MapService {
     );
   }
 
+  Future<void> centerOnLocation(LatLng location) async {
+    final controller = await _controller.future;
+    await controller.animateCamera(CameraUpdate.newLatLng(location));
+  }
+
+  Future<void> moveToLocation(LatLng location) async {
+    final controller = await _controller.future;
+    await controller.moveCamera(CameraUpdate.newLatLng(location));
+  }
+
   Future<void> zoomIn() async {
     final controller = await _controller.future;
     controller.animateCamera(CameraUpdate.zoomIn());
